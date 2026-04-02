@@ -165,6 +165,7 @@ body {
 .card-area.is-fragile  { background: linear-gradient(180deg, rgba(251,146,60,0.06)  0%, transparent 55%); border-radius: var(--radius-sm); }
 .leech-badge   { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:#f8717125; color:var(--red);    margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
 .fragile-badge { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:#fb923c25; color:var(--orange); margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+.article-badge { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:#facc1525; color:var(--yellow); margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
 
 /* New word intro card */
 .intro-card { background:var(--surface); border-radius:var(--radius); padding:20px; margin-bottom:18px; border:1px solid #6c63ff33; animation:fadeUp .3s var(--ease); }
@@ -1543,26 +1544,38 @@ function refreshHome() {
   btn.disabled    = displayDue===0;
   btn.textContent = displayDue===0 ? '✓ All done for today!' : `Start Session (${displayDue} cards)`;
 
-  // Weak words panel — top 5 by lapses + low ease
+  // Weak words panel — lapses + article-trouble words, top 5
   const seen2 = WORDS.filter(w => SRS[w.id] && !SRS[w.id].isNew);
   const weak  = seen2
     .map(w => ({ w, s: SRS[w.id] }))
-    .filter(({s}) => s.lapses > 0)
-    .sort((a,b) => (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor))
+    .filter(({s,w}) => s.lapses > 0 || (w.gender && s.articleDrills >= 2))
+    .sort((a,b) => {
+      // Priority: leech > fragile > article-only > lapses count
+      const pa = a.s.isLeech ? 3 : a.s.isFragile ? 2 : a.s.lapses > 0 ? 1 : 0;
+      const pb = b.s.isLeech ? 3 : b.s.isFragile ? 2 : b.s.lapses > 0 ? 1 : 0;
+      if (pb !== pa) return pb - pa;
+      return (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor);
+    })
     .slice(0, 5);
 
   const panel    = document.getElementById('weak-words-panel');
   const drillBtn = document.getElementById('btn-drill');
   if (weak.length > 0) {
     const rows = weak.map(({w,s}) => {
+      const isArticleOnly = !s.isLeech && !s.isFragile && s.lapses === 0 && s.articleDrills >= 2;
       const stateTag = s.isLeech
-        ? `<span class="leech-badge" style="font-size:.58rem">LEECH</span>`
+        ? `<span class="leech-badge"   style="font-size:.58rem">LEECH</span>`
         : s.isFragile
         ? `<span class="fragile-badge" style="font-size:.58rem">FRAGILE</span>`
+        : isArticleOnly
+        ? `<span class="article-badge" style="font-size:.58rem">ARTICLE</span>`
         : '';
+      const detail = isArticleOnly
+        ? `${s.articleDrills}× article`
+        : `${s.lapses} miss${s.lapses!==1?'es':''}`;
       return `<div class="weak-row">
          <span><span class="weak-de">${w.de}</span> <span class="weak-en">${w.en}</span>${stateTag}</span>
-         <span class="weak-lapses">${s.lapses} miss${s.lapses!==1?'es':''}</span>
+         <span class="weak-lapses">${detail}</span>
        </div>`;
     }).join('');
     panel.innerHTML = `<div class="weak-panel-title">Trouble words</div>${rows}`;
@@ -1579,8 +1592,13 @@ function drillWeak() {
   const seen = WORDS.filter(w => SRS[w.id] && !SRS[w.id].isNew);
   const queue = seen
     .map(w => ({ w, s: SRS[w.id] }))
-    .filter(({s}) => s.lapses > 0)
-    .sort((a,b) => (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor))
+    .filter(({s,w}) => s.lapses > 0 || (w.gender && s.articleDrills >= 2))
+    .sort((a,b) => {
+      const pa = a.s.isLeech ? 3 : a.s.isFragile ? 2 : a.s.lapses > 0 ? 1 : 0;
+      const pb = b.s.isLeech ? 3 : b.s.isFragile ? 2 : b.s.lapses > 0 ? 1 : 0;
+      if (pb !== pa) return pb - pa;
+      return (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor);
+    })
     .slice(0, 5)
     .map(({w}) => w);
   if (queue.length === 0) { alert('No weak words yet — keep practicing!'); return; }
