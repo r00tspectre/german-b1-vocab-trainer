@@ -256,6 +256,10 @@ body {
 .tag-article  { background:#facc1520; color:var(--yellow); }
 .tag-typo     { background:#6c63ff20; color:var(--accent-light); }
 .tag-skip     { background:#55546020; color:var(--text-muted); }
+.missed-count { font-size:.68rem; font-weight:700; color:var(--red); min-width:18px; text-align:right; flex-shrink:0; }
+.missed-row.is-fragile { border-left:3px solid var(--orange); }
+.missed-row.is-leech   { border-left:3px solid var(--red); }
+.res-drill-btn { display:block; width:100%; max-width:310px; margin-bottom:10px; }
 
 /* ── Modal ── */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6);
@@ -1627,31 +1631,51 @@ function endSession() {
   document.getElementById('rv-new').textContent    = SESSION.newWordsInSession;
   document.getElementById('rv-time').textContent   = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
 
-  // Missed-word list — deduplicated, non-correct results only
-  const tagMap = { wrong:'tag-wrong', confused:'tag-confused',
-                   article:'tag-article', typo:'tag-typo', skip:'tag-skip' };
+  // Missed-word list — grouped by word, sorted by failure count, capped at 10
+  const tagMap   = { wrong:'tag-wrong', confused:'tag-confused',
+                     article:'tag-article', typo:'tag-typo', skip:'tag-skip' };
   const tagLabel = { wrong:'Wrong', confused:'English', article:'Article',
                      typo:'Typo', skip:'Skipped' };
-  const seen = new Set();
-  const missedRows = SESSION.results
-    .filter(r => r.type !== 'correct' && r.type !== 'mc' && !seen.has(r.wordId) && seen.add(r.wordId))
-    .map(r => {
-      const w = WORDS.find(x => x.id === r.wordId);
-      if (!w) return '';
-      const badge = w.gender
-        ? `<span class="gbadge ${gClass(w.gender)}" style="font-size:.6rem;padding:1px 5px">${gLabel(w.gender)}</span>` : '';
-      const cls = tagMap[r.type] || 'tag-wrong';
-      const lbl = tagLabel[r.type] || 'Wrong';
-      return `<div class="missed-row">
-        <span class="missed-de">${w.de}${badge}</span>
-        <span class="missed-en">${w.en}</span>
-        <span class="missed-tag ${cls}">${lbl}</span>
-      </div>`;
-    }).join('');
+
+  // Count failures and track worst error type per word
+  const failMap = {};
+  SESSION.results.forEach(r => {
+    if (r.type === 'correct' || r.type === 'mc') return;
+    if (!failMap[r.wordId]) failMap[r.wordId] = { count:0, type:r.type };
+    failMap[r.wordId].count++;
+    // Escalate type priority: wrong > confused > article > typo > skip
+    const pri = {wrong:5, confused:4, article:3, typo:2, skip:1};
+    if ((pri[r.type]||0) > (pri[failMap[r.wordId].type]||0))
+      failMap[r.wordId].type = r.type;
+  });
+
+  const missedWords = Object.entries(failMap)
+    .sort((a,b) => b[1].count - a[1].count)
+    .slice(0, 10);
+
+  _lastMissedIds = missedWords.map(([id]) => parseInt(id));
+
+  const missedRows = missedWords.map(([id, info]) => {
+    const w = WORDS.find(x => x.id === parseInt(id));
+    if (!w) return '';
+    const s      = SRS[w.id] || {};
+    const badge  = w.gender ? `<span class="gbadge ${gClass(w.gender)}" style="font-size:.6rem;padding:1px 5px">${gLabel(w.gender)}</span>` : '';
+    const cls    = tagMap[info.type] || 'tag-wrong';
+    const lbl    = tagLabel[info.type] || 'Wrong';
+    const rowCls = s.isLeech ? 'is-leech' : s.isFragile ? 'is-fragile' : '';
+    const countEl= info.count > 1 ? `<span class="missed-count">${info.count}×</span>` : '';
+    return `<div class="missed-row ${rowCls}">
+      <span class="missed-de">${w.de}${badge}</span>
+      <span class="missed-en">${w.en}</span>
+      <span class="missed-tag ${cls}">${lbl}</span>
+      ${countEl}
+    </div>`;
+  }).join('');
 
   const missedEl = document.getElementById('res-missed');
   if (missedRows) {
-    missedEl.innerHTML = `<div class="res-missed-title">Needs work</div>${missedRows}`;
+    const drillBtn = `<button class="btn btn-secondary res-drill-btn" onclick="drillMissed()">↩ Quick Review (${missedWords.length} words)</button>`;
+    missedEl.innerHTML = `<div class="res-missed-title">Needs work</div>${missedRows}${drillBtn}`;
     missedEl.classList.remove('hidden');
   } else {
     missedEl.classList.add('hidden');
@@ -1796,6 +1820,24 @@ function refreshHome() {
 }
 
 // ── Weak Word Drill ───────────────────────────────────────────
+let _lastMissedIds = [];
+
+function drillMissed() {
+  const queue = _lastMissedIds.map(id => WORDS.find(w => w.id === id)).filter(Boolean);
+  if (!queue.length) return;
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(queue.map(w => w.id)),
+    mcMode: new Set(), hintTimers: [], clozeTarget: null
+  };
+  clearCrash();
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+
 function drillWeak() {
   const drillMed      = SETTINGS.calibrationDone ? (SETTINGS.medianResponseMs || 7000) : null;
   const drillHesitant = (s) => drillMed && s.lapses === 0 && s.repetitions >= 2
