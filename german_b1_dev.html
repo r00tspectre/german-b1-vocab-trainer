@@ -160,6 +160,37 @@ body {
 .gbadge-f { background:#ec489928; color:var(--pink); }
 .gbadge-n { background:#22d3ee28; color:var(--cyan); }
 
+/* Leech card tint + badge */
+.card-area.is-leech { background: linear-gradient(180deg, rgba(248,113,113,0.07) 0%, transparent 55%); border-radius: var(--radius-sm); }
+.leech-badge { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:#f8717125; color:var(--red); margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+
+/* New word intro card */
+.intro-card { background:var(--surface); border-radius:var(--radius); padding:20px; margin-bottom:18px; border:1px solid #6c63ff33; animation:fadeUp .3s var(--ease); }
+.intro-label { font-size:.68rem; color:var(--accent-light); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; font-weight:700; }
+.intro-de { font-size:2rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+.intro-en { font-size:1rem; color:var(--text-dim); margin-bottom:14px; }
+.intro-ex { font-size:.88rem; color:var(--text-dim); line-height:1.6; border-top:1px solid var(--card); padding-top:12px; }
+.intro-ex .hl { color:var(--accent-light); font-weight:700; }
+
+/* Weak words panel */
+.weak-panel { background:var(--surface); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; }
+.weak-panel-title { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+.weak-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--card); font-size:.88rem; }
+.weak-row:last-of-type { border-bottom:none; }
+.weak-de { font-weight:600; color:var(--red); }
+.weak-en { color:var(--text-dim); font-size:.78rem; }
+.weak-lapses { font-size:.72rem; color:var(--text-muted); }
+
+/* Multiple-choice options */
+.mc-options { display:flex; flex-direction:column; gap:10px; width:100%; max-width:360px; margin:0 auto; }
+.mc-opt { padding:13px 16px; border:2px solid var(--card); border-radius:var(--radius-sm);
+  background:var(--surface); color:var(--text); font-size:1rem; text-align:left;
+  cursor:pointer; transition:border-color .2s var(--ease), background .2s var(--ease); }
+.mc-opt:hover { border-color:var(--accent); background:var(--card); }
+.mc-opt.mc-correct { border-color:var(--green); background:#4ade8015; color:var(--green); pointer-events:none; }
+.mc-opt.mc-wrong   { border-color:var(--red);   background:#f8717115; opacity:.6; pointer-events:none; }
+.mc-opt.mc-locked  { pointer-events:none; }
+
 /* Confused-state detail box */
 .confused-box { background:#fb923c18; border:1px solid #fb923c33; border-radius:var(--radius-sm);
   padding:10px 14px; margin-bottom:12px; font-size:.84rem; color:var(--orange); }
@@ -252,8 +283,11 @@ body {
       </div>
     </div>
 
+    <div id="weak-words-panel" class="weak-panel hidden"></div>
+
     <div class="mt-auto">
       <button class="btn btn-primary" id="btn-start" onclick="startSession()">Start Session</button>
+      <button class="btn btn-secondary" id="btn-drill" class="hidden" onclick="drillWeak()" style="display:none">Drill Weak Words</button>
       <button class="btn btn-secondary" onclick="openModal('settings')">Settings</button>
       <button class="btn btn-secondary" onclick="openModal('backup')">Export / Import Progress</button>
     </div>
@@ -540,7 +574,7 @@ const LS = {
 function dfSettings() {
   return { dailyCap:80, sessionMinutes:7, unlockedLevel:1,
            calibrationDone:false, medianResponseMs:7000,
-           totalSessionsCompleted:0 };
+           totalSessionsCompleted:0, responseWindow:[] };
 }
 function dfStats() {
   return { currentStreak:0, longestStreak:0, lastStudyDate:null,
@@ -809,30 +843,46 @@ function checkUnlock() {
 }
 
 // ── Queue Builder ─────────────────────────────────────────────
+function interleaveLeeches(base, leeches) {
+  if (!leeches.length) return base;
+  const result = [...base];
+  let offset = 0;
+  for (const leech of leeches) {
+    // Insert every 3–5 cards from last insertion point
+    const gap = 3 + Math.floor(Math.random() * 3);
+    const pos = Math.min(result.length, offset + gap);
+    result.splice(pos, 0, leech);
+    offset = pos + 1;
+  }
+  return result;
+}
+
 function buildQueue() {
-  const t = today();
+  const t        = today();
   const cap      = SETTINGS.dailyCap || 80;
   const todayLog = STATS.dailyLog[t] || { total:0 };
   const remaining= Math.max(0, cap - todayLog.total);
   if (remaining===0) return [];
 
   const unlocked = WORDS.filter(w=>w.level<=SETTINGS.unlockedLevel);
-  const due=[], fresh=[];
+  const leeches=[], due=[], fresh=[];
   for (const w of unlocked) {
     const s = SRS[w.id];
-    if (!s||s.isNew)                        { fresh.push(w); continue; }
-    if (s.dueDate && s.dueDate<=t)          { due.push(w); }
+    if (!s||s.isNew)               { fresh.push(w); continue; }
+    if (s.dueDate && s.dueDate<=t) { (s.isLeech ? leeches : due).push(w); }
   }
-  due.sort((a,b)=>{
-    const sa=SRS[a.id],sb=SRS[b.id];
-    if (sa.isLeech!==sb.isLeech) return sa.isLeech?-1:1;
-    return (sa.dueDate||'').localeCompare(sb.dueDate||'');
-  });
+  due.sort((a,b)=>(SRS[a.id].dueDate||'').localeCompare(SRS[b.id].dueDate||''));
+
+  // Leeches always included but capped at 25% of session
+  const maxLeeches  = Math.max(1, Math.ceil(remaining * 0.25));
+  const pickedLeeches = leeches.slice(0, maxLeeches);
+  const baseSlots   = remaining - pickedLeeches.length;
 
   const queue=[]; const maxNew=5; let nc=0;
-  for (const w of due)   { if(queue.length>=remaining) break; queue.push(w); }
-  for (const w of fresh) { if(queue.length>=remaining||nc>=maxNew) break; queue.push(w); nc++; }
-  return queue;
+  for (const w of due)   { if(queue.length>=baseSlots) break; queue.push(w); }
+  for (const w of fresh) { if(queue.length>=baseSlots||nc>=maxNew) break; queue.push(w); nc++; }
+
+  return interleaveLeeches(queue, pickedLeeches);
 }
 
 /* ── FIX 5: Crash Recovery ───────────────────────────────────
@@ -874,7 +924,7 @@ function restoreSession() {
     timerInterval:null, cardStartTime:null,
     correctInSession:s.correctInSession||0,
     newWordsInSession:s.newInSession||0,
-    restored:true
+    restored:true, introduced: new Set(), mcMode: new Set()
   };
   document.getElementById('crash-banner').style.display='none';
   showScreen('session');
@@ -905,7 +955,8 @@ function startSession() {
   SESSION = {
     queue, currentIndex:0, results:[], startTime:Date.now(),
     timerInterval:null, cardStartTime:null,
-    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(), mcMode: new Set()
   };
   clearCrash();
   showScreen('session');
@@ -925,18 +976,148 @@ function startTimer() {
   }, 1000);
 }
 
+function showIntro(word) {
+  const badge = word.gender
+    ? `<span class="gbadge ${gClass(word.gender)}">${gLabel(word.gender)}</span>` : '';
+  const ex = word.examples[0];
+
+  document.querySelector('.card-area').classList.remove('is-leech');
+  document.getElementById('prompt-mode').innerHTML  = 'NEW WORD';
+  document.getElementById('prompt-word').textContent = '';
+  document.getElementById('prompt-sub').textContent  = '';
+  document.getElementById('answer-input').value      = '';
+  document.getElementById('answer-input').disabled   = true;
+  document.getElementById('action-row').innerHTML    = '';
+  document.getElementById('skip-btn').classList.add('hidden');
+
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `
+    <div class="intro-card">
+      <div class="intro-label">✦ New word — read before typing</div>
+      <div class="intro-de">${word.de}${badge}</div>
+      <div class="intro-en">${word.en}</div>
+      <div class="intro-ex">
+        <div>${hlWord(ex.de, word.de)}</div>
+        <div style="margin-top:4px;font-size:.78rem;font-style:italic">${ex.en}</div>
+        <span class="ex-grammar" style="margin-top:8px;display:inline-block">${ex.grammar}</span>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" id="next-btn" onclick="dismissIntro()">Got it — Quiz me →</button>
+    </div>
+  `;
+  fs.classList.remove('hidden');
+  SESSION.awaitingNext = true;
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+  setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+}
+
+function dismissIntro() {
+  const word = SESSION.queue[SESSION.currentIndex];
+  SESSION.introduced.add(word.id);
+  SESSION.mcMode.add(word.id);   // first quiz attempt is MC
+  SESSION.awaitingNext = false;
+  showCard();
+}
+
+function buildMCOptions(correct) {
+  const distractors = WORDS.filter(w => w.id !== correct.id);
+  const picks = [];
+  const pool  = [...distractors];
+  while (picks.length < 3 && pool.length) {
+    const i = Math.floor(Math.random() * pool.length);
+    picks.push(pool.splice(i, 1)[0]);
+  }
+  const opts = [...picks, correct];
+  // Fisher-Yates shuffle
+  for (let i = opts.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+  return opts;
+}
+
+function showMCCard(word) {
+  document.querySelector('.card-area').classList.remove('is-leech');
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+  document.getElementById('prompt-mode').innerHTML  = 'RECOGNITION — Choose the German';
+  document.getElementById('prompt-word').textContent = word.en;
+  document.getElementById('prompt-sub').textContent  = '';
+  document.getElementById('answer-input').value      = '';
+  document.getElementById('answer-input').disabled   = true;
+  document.getElementById('action-row').innerHTML    = '';
+  document.getElementById('skip-btn').classList.add('hidden');
+
+  const opts = buildMCOptions(word);
+  const optsHTML = opts.map(o => {
+    const badge = o.gender ? `<span class="gbadge ${gClass(o.gender)}" style="float:right">${gLabel(o.gender)}</span>` : '';
+    return `<button class="mc-opt" onclick="selectMC(this,${o.id===word.id},${word.id})">${o.de}${badge}</button>`;
+  }).join('');
+
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `<div class="mc-options">${optsHTML}</div>`;
+  fs.classList.remove('hidden');
+  SESSION.awaitingNext = false;
+  SESSION.cardStartTime = Date.now();
+}
+
+function selectMC(btn, isCorrect, wordId) {
+  // Lock all options
+  document.querySelectorAll('.mc-opt').forEach(b => b.classList.add('mc-locked'));
+  btn.classList.add(isCorrect ? 'mc-correct' : 'mc-wrong');
+  if (!isCorrect) {
+    // Highlight correct option
+    document.querySelectorAll('.mc-opt').forEach(b => {
+      if (b.textContent.trim().startsWith(WORDS.find(w=>w.id===wordId).de)) b.classList.add('mc-correct');
+    });
+  }
+
+  const ms  = Date.now() - SESSION.cardStartTime;
+  const raw = isCorrect ? WORDS.find(w=>w.id===wordId).de : '';
+  const res = gradeWord(wordId, ms, raw);
+
+  SESSION.mcMode.delete(wordId); // next encounter uses typing mode
+  SESSION.results.push({ wordId, correct:res.ok, type:'mc', ms });
+  if (res.ok) SESSION.correctInSession++;
+  SESSION.newWordsInSession++;
+  persist(); saveCrash();
+
+  // Show Next button after brief pause
+  setTimeout(() => {
+    const fs = document.getElementById('feedback-section');
+    fs.innerHTML += `<div class="action-row" style="margin-top:14px">
+      <button class="btn btn-primary" id="next-btn" onclick="advanceCard()">Next → <span style="font-size:.75rem;opacity:.6">(or Enter)</span></button>
+    </div>`;
+    SESSION.awaitingNext = true;
+    setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+  }, 600);
+}
+
 function showCard() {
   if (SESSION.currentIndex>=SESSION.queue.length||SESSION.timeReached) { endSession(); return; }
   const word  = SESSION.queue[SESSION.currentIndex];
   const state = SRS[word.id];
   const isNew = !state||state.isNew;
 
+  // Show intro step for new words not yet introduced this session
+  if (isNew && !SESSION.introduced.has(word.id)) { showIntro(word); return; }
+
+  // Recognition (MC) mode for first quiz attempt on new words
+  if (SESSION.mcMode.has(word.id)) { showMCCard(word); return; }
+
   // Progress bar
   document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
   document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
 
+  // Leech tint on card area
+  const isLeech = !!(state && state.isLeech);
+  document.querySelector('.card-area').classList.toggle('is-leech', isLeech);
+
   // Prompt
-  document.getElementById('prompt-mode').textContent = isNew ? 'NEW WORD — Translate to German' : 'Translate to German';
+  const leechBadge = isLeech ? ' <span class="leech-badge">⚠ LEECH</span>' : '';
+  document.getElementById('prompt-mode').innerHTML = (isNew ? 'NEW WORD — Translate to German' : 'Translate to German') + leechBadge;
   document.getElementById('prompt-word').textContent = word.en;
   document.getElementById('prompt-sub').textContent  = isNew
     ? `Hint: ${word.de}${word.gender?' ('+gLabel(word.gender)+')':''}`
@@ -1065,11 +1246,19 @@ function showFeedback(word, res) {
     </div>
   `).join('');
 
+  // Leech-specific note in feedback
+  const leechNote = (SRS[word.id] && SRS[word.id].isLeech)
+    ? `<div class="confused-box" style="background:#f8717112;border-color:#f8717133;color:var(--red)">
+         ⚠ <strong>This is a leech word</strong> — it will repeat in this session for extra practice.
+       </div>`
+    : '';
+
   const fs = document.getElementById('feedback-section');
   fs.innerHTML = `
     <div class="fb-result ${fc}">${msg}</div>
     ${ansDisplay}
     ${confusedBox}
+    ${leechNote}
     <div class="examples-block">
       <div class="ex-header">📖 Example sentences — read all three before continuing</div>
       ${exHTML}
@@ -1088,6 +1277,22 @@ function showFeedback(word, res) {
   setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
 
   SESSION.awaitingNext = true;
+
+  // Micro-drill: if leech answered wrong, re-insert 2 times spaced 2 cards apart
+  if (SRS[word.id] && SRS[word.id].isLeech && !res.ok) {
+    const qi = SESSION.currentIndex;
+    for (let i = 0; i < 2; i++) {
+      const pos = Math.min(SESSION.queue.length, qi + 2 + i * 2);
+      SESSION.queue.splice(pos, 0, word);
+    }
+  }
+
+  // Confused-state requeue: re-insert once ~3 cards ahead (production practice)
+  if (res.cl.type === 'confused') {
+    const qi  = SESSION.currentIndex;
+    const pos = Math.min(SESSION.queue.length, qi + 3);
+    SESSION.queue.splice(pos, 0, word);
+  }
 }
 
 function advanceCard() {
@@ -1135,14 +1340,19 @@ function endSession() {
   }
   SETTINGS.totalSessionsCompleted++;
 
-  // Calibrate response time after 3 sessions
-  if (SETTINGS.totalSessionsCompleted>=3 && SESSION.results.length>0) {
-    const times = SESSION.results.map(r=>r.ms).filter(v=>v>0).sort((a,b)=>a-b);
-    if (times.length>0) {
-      const med = times[Math.floor(times.length/2)];
-      SETTINGS.medianResponseMs = SETTINGS.calibrationDone
-        ? Math.round(SETTINGS.medianResponseMs*0.7+med*0.3) : med;
-      SETTINGS.calibrationDone=true;
+  // Calibrate response time — rolling 20-session window
+  if (SESSION.results.length > 0) {
+    const times = SESSION.results.map(r=>r.ms).filter(v=>v>500).sort((a,b)=>a-b);
+    if (times.length > 0) {
+      const sessionMedian = times[Math.floor(times.length/2)];
+      if (!SETTINGS.responseWindow) SETTINGS.responseWindow = [];
+      SETTINGS.responseWindow.push(sessionMedian);
+      if (SETTINGS.responseWindow.length > 20) SETTINGS.responseWindow.shift();
+      if (SETTINGS.responseWindow.length >= 3) {
+        const sorted = [...SETTINGS.responseWindow].sort((a,b)=>a-b);
+        SETTINGS.medianResponseMs = sorted[Math.floor(sorted.length/2)];
+        SETTINGS.calibrationDone  = true;
+      }
     }
   }
   checkUnlock();
@@ -1230,6 +1440,54 @@ function refreshHome() {
   const btn = document.getElementById('btn-start');
   btn.disabled    = displayDue===0;
   btn.textContent = displayDue===0 ? '✓ All done for today!' : `Start Session (${displayDue} cards)`;
+
+  // Weak words panel — top 5 by lapses + low ease
+  const seen2 = WORDS.filter(w => SRS[w.id] && !SRS[w.id].isNew);
+  const weak  = seen2
+    .map(w => ({ w, s: SRS[w.id] }))
+    .filter(({s}) => s.lapses > 0)
+    .sort((a,b) => (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor))
+    .slice(0, 5);
+
+  const panel    = document.getElementById('weak-words-panel');
+  const drillBtn = document.getElementById('btn-drill');
+  if (weak.length > 0) {
+    const rows = weak.map(({w,s}) =>
+      `<div class="weak-row">
+         <span><span class="weak-de">${w.de}</span> <span class="weak-en">${w.en}</span></span>
+         <span class="weak-lapses">${s.lapses} miss${s.lapses!==1?'es':''}</span>
+       </div>`
+    ).join('');
+    panel.innerHTML = `<div class="weak-panel-title">Trouble words</div>${rows}`;
+    panel.classList.remove('hidden');
+    drillBtn.style.display = '';
+  } else {
+    panel.classList.add('hidden');
+    drillBtn.style.display = 'none';
+  }
+}
+
+// ── Weak Word Drill ───────────────────────────────────────────
+function drillWeak() {
+  const seen = WORDS.filter(w => SRS[w.id] && !SRS[w.id].isNew);
+  const queue = seen
+    .map(w => ({ w, s: SRS[w.id] }))
+    .filter(({s}) => s.lapses > 0)
+    .sort((a,b) => (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor))
+    .slice(0, 5)
+    .map(({w}) => w);
+  if (queue.length === 0) { alert('No weak words yet — keep practicing!'); return; }
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(queue.map(w=>w.id)),  // skip intro — already seen
+    mcMode: new Set()
+  };
+  clearCrash();
+  showScreen('session');
+  startTimer();
+  showCard();
 }
 
 // ── Settings ──────────────────────────────────────────────────
