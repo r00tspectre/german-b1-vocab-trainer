@@ -161,8 +161,10 @@ body {
 .gbadge-n { background:#22d3ee28; color:var(--cyan); }
 
 /* Leech card tint + badge */
-.card-area.is-leech { background: linear-gradient(180deg, rgba(248,113,113,0.07) 0%, transparent 55%); border-radius: var(--radius-sm); }
-.leech-badge { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:#f8717125; color:var(--red); margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+.card-area.is-leech    { background: linear-gradient(180deg, rgba(248,113,113,0.07) 0%, transparent 55%); border-radius: var(--radius-sm); }
+.card-area.is-fragile  { background: linear-gradient(180deg, rgba(251,146,60,0.06)  0%, transparent 55%); border-radius: var(--radius-sm); }
+.leech-badge   { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:#f8717125; color:var(--red);    margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+.fragile-badge { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:#fb923c25; color:var(--orange); margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
 
 /* New word intro card */
 .intro-card { background:var(--surface); border-radius:var(--radius); padding:20px; margin-bottom:18px; border:1px solid #6c63ff33; animation:fadeUp .3s var(--ease); }
@@ -599,7 +601,7 @@ function dfStats() {
 function dfSRS(id) {
   return { wordId:id, interval:0, easeFactor:2.5, dueDate:null,
            repetitions:0, lapses:0, recentLapses:0, lastLapseDate:null,
-           isLeech:false, isNew:true, firstSeen:null, lastSeen:null,
+           isLeech:false, isFragile:false, isNew:true, firstSeen:null, lastSeen:null,
            avgResponseMs:0, exposures:0, articleDrills:0 };
 }
 
@@ -795,6 +797,9 @@ function gradeWord(wordId, ms, raw) {
   s.interval = clamp(s.interval, 1, 365);
   const due  = new Date(); due.setDate(due.getDate()+s.interval);
   s.dueDate  = due.toISOString().slice(0,10);
+
+  // Fragile: 1–2 lapses + declining ease, not yet a leech
+  s.isFragile = !s.isLeech && s.lapses >= 1 && s.easeFactor < 2.2;
 
   s.isNew  = false;
   s.lastSeen = today();
@@ -1151,13 +1156,17 @@ function showCard() {
   document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
   document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
 
-  // Leech tint on card area
-  const isLeech = !!(state && state.isLeech);
-  document.querySelector('.card-area').classList.toggle('is-leech', isLeech);
+  // Leech / fragile tint on card area (leech takes priority)
+  const isLeech    = !!(state && state.isLeech);
+  const isFragile  = !isLeech && !!(state && state.isFragile);
+  document.querySelector('.card-area').classList.toggle('is-leech',   isLeech);
+  document.querySelector('.card-area').classList.toggle('is-fragile', isFragile);
 
-  // Prompt
-  const leechBadge = isLeech ? ' <span class="leech-badge">⚠ LEECH</span>' : '';
-  document.getElementById('prompt-mode').innerHTML = (isNew ? 'NEW WORD — Translate to German' : 'Translate to German') + leechBadge;
+  // Prompt badge
+  const promptBadge = isLeech   ? ' <span class="leech-badge">⚠ LEECH</span>'
+                    : isFragile ? ' <span class="fragile-badge">◈ FRAGILE</span>'
+                    : '';
+  document.getElementById('prompt-mode').innerHTML = (isNew ? 'NEW WORD — Translate to German' : 'Translate to German') + promptBadge;
   document.getElementById('prompt-word').textContent = word.en;
   document.getElementById('prompt-sub').textContent  = '';
 
@@ -1289,10 +1298,16 @@ function showFeedback(word, res) {
     </div>
   `).join('');
 
-  // Leech-specific note in feedback
-  const leechNote = (SRS[word.id] && SRS[word.id].isLeech)
+  // Leech / fragile notes in feedback
+  const st = SRS[word.id];
+  const leechNote = (st && st.isLeech)
     ? `<div class="confused-box" style="background:#f8717112;border-color:#f8717133;color:var(--red)">
          ⚠ <strong>This is a leech word</strong> — it will repeat in this session for extra practice.
+       </div>`
+    : '';
+  const fragileNote = (!leechNote && st && st.isFragile && !res.ok)
+    ? `<div class="confused-box" style="background:#fb923c12;border-color:#fb923c33;color:var(--orange)">
+         ◈ <strong>Fragile word</strong> — you've missed this before. One more miss and it becomes a leech.
        </div>`
     : '';
 
@@ -1302,6 +1317,7 @@ function showFeedback(word, res) {
     ${ansDisplay}
     ${confusedBox}
     ${leechNote}
+    ${fragileNote}
     <div class="examples-block">
       <div class="ex-header">📖 Example sentences — read all three before continuing</div>
       ${exHTML}
@@ -1538,12 +1554,17 @@ function refreshHome() {
   const panel    = document.getElementById('weak-words-panel');
   const drillBtn = document.getElementById('btn-drill');
   if (weak.length > 0) {
-    const rows = weak.map(({w,s}) =>
-      `<div class="weak-row">
-         <span><span class="weak-de">${w.de}</span> <span class="weak-en">${w.en}</span></span>
+    const rows = weak.map(({w,s}) => {
+      const stateTag = s.isLeech
+        ? `<span class="leech-badge" style="font-size:.58rem">LEECH</span>`
+        : s.isFragile
+        ? `<span class="fragile-badge" style="font-size:.58rem">FRAGILE</span>`
+        : '';
+      return `<div class="weak-row">
+         <span><span class="weak-de">${w.de}</span> <span class="weak-en">${w.en}</span>${stateTag}</span>
          <span class="weak-lapses">${s.lapses} miss${s.lapses!==1?'es':''}</span>
-       </div>`
-    ).join('');
+       </div>`;
+    }).join('');
     panel.innerHTML = `<div class="weak-panel-title">Trouble words</div>${rows}`;
     panel.classList.remove('hidden');
     drillBtn.style.display = '';
