@@ -224,6 +224,11 @@ body {
 .res-cell .rv { font-size:1.3rem; font-weight:700; }
 .res-cell .rl { font-size:.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
 
+/* ── Cloze mode ── */
+.cloze-sentence { font-size:1.1rem; line-height:1.7; text-align:center; }
+.cloze-blank { display:inline-block; min-width:64px; border-bottom:2px solid var(--accent);
+  color:var(--accent-light); font-weight:700; text-align:center; margin:0 3px; padding:0 4px; }
+
 /* ── Results missed-word list ── */
 .res-missed { width:100%; max-width:310px; margin-bottom:20px; text-align:left; }
 .res-missed-title { font-size:.7rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
@@ -946,7 +951,7 @@ function restoreSession() {
     timerInterval:null, cardStartTime:null,
     correctInSession:s.correctInSession||0,
     newWordsInSession:s.newInSession||0,
-    restored:true, introduced: new Set(), mcMode: new Set(), hintTimers: []
+    restored:true, introduced: new Set(), mcMode: new Set(), hintTimers: [], clozeTarget: null
   };
   document.getElementById('crash-banner').style.display='none';
   showScreen('session');
@@ -978,7 +983,7 @@ function startSession() {
     queue, currentIndex:0, results:[], startTime:Date.now(),
     timerInterval:null, cardStartTime:null,
     correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
-    introduced: new Set(), mcMode: new Set(), hintTimers: []
+    introduced: new Set(), mcMode: new Set(), hintTimers: [], clozeTarget: null
   };
   clearCrash();
   showScreen('session');
@@ -1117,6 +1122,103 @@ function selectMC(btn, isCorrect, wordId) {
   }, 600);
 }
 
+// ── Cloze Mode ────────────────────────────────────────────────
+function findClozeMatch(sentence, wordDe) {
+  const core = wordDe.includes(' ') ? stripArt(wordDe) : wordDe;
+  const esc  = core.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const m    = sentence.match(new RegExp(esc, 'i'));
+  return m ? m[0] : null;
+}
+
+function shouldCloze(word, state) {
+  if (!state || state.isNew || state.isLeech) return false;
+  if (state.repetitions < 2) return false;
+  if (Math.random() > 0.35) return false;
+  return word.examples.some(ex => findClozeMatch(ex.de, word.de) !== null);
+}
+
+function showClozeCard(word) {
+  const valid = word.examples
+    .map((ex,i) => ({ ex, i, match: findClozeMatch(ex.de, word.de) }))
+    .filter(x => x.match !== null);
+  if (!valid.length) { showCard(); return; }
+  const pick = valid[Math.floor(Math.random() * valid.length)];
+  SESSION.clozeTarget = { answer: pick.match, sentence: pick.ex.de, en: pick.ex.en, grammar: pick.ex.grammar };
+
+  const esc = pick.match.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const displayed = pick.ex.de.replace(new RegExp(esc,'i'),
+    `<span class="cloze-blank">____</span>`);
+
+  const state = SRS[word.id];
+  const isLeech   = !!(state && state.isLeech);
+  const isFragile = !isLeech && !!(state && state.isFragile);
+  document.querySelector('.card-area').classList.toggle('is-leech',   isLeech);
+  document.querySelector('.card-area').classList.toggle('is-fragile', isFragile);
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+  document.getElementById('prompt-mode').innerHTML  = 'CLOZE — Fill in the blank';
+  document.getElementById('prompt-word').innerHTML  = `<span class="cloze-sentence">${displayed}</span>`;
+  document.getElementById('prompt-sub').textContent = pick.ex.en;
+
+  const inp = document.getElementById('answer-input');
+  inp.value=''; inp.className='answer-input'; inp.disabled=false;
+  inp.placeholder='Type the missing word…';
+  document.getElementById('action-row').innerHTML =
+    `<button class="btn btn-primary" onclick="checkCloze()">Check</button>`;
+  document.getElementById('skip-btn').classList.remove('hidden');
+  document.getElementById('feedback-section').classList.add('hidden');
+  document.getElementById('feedback-section').innerHTML='';
+  clearHintTimers();
+  SESSION.cardStartTime = Date.now();
+  SESSION.awaitingNext  = false;
+  setTimeout(() => inp.focus(), 50);
+}
+
+function checkCloze() {
+  const word   = SESSION.queue[SESSION.currentIndex];
+  const inp    = document.getElementById('answer-input');
+  const raw    = inp.value.trim();
+  if (!raw) { inp.focus(); return; }
+  const ms     = Date.now() - SESSION.cardStartTime;
+  const target = SESSION.clozeTarget.answer;
+  const isCorrect = norm(raw) === norm(target) || normSoft(raw) === normSoft(target);
+  const isTypo    = !isCorrect && lev(norm(raw), norm(target)) <= (target.length <= 5 ? 1 : 2);
+  const ok        = isCorrect || isTypo;
+
+  // Grade SRS via proxy: pass correct form if ok, empty if not
+  const res = gradeWord(word.id, ms, ok ? word.de : '');
+  SESSION.results.push({ wordId:word.id, correct:ok, type: ok?(isTypo?'typo':'correct'):'wrong', ms });
+  if (ok) SESSION.correctInSession++;
+  persist(); saveCrash();
+
+  // Feedback
+  inp.disabled = true;
+  inp.className = `answer-input ${ok ? (isTypo ? 'st-typo' : 'st-correct') : 'st-wrong'}`;
+  const msg = ok ? (isTypo ? 'Close — small typo!' : rnd(['Correct!','Richtig!','Genau!'])) : 'Not quite.';
+  const fc  = ok ? (isTypo ? 'fb-typo' : 'fb-correct') : 'fb-wrong';
+  const ansLine = ok ? '' : `<div class="correct-ans"><span style="font-size:.85rem;color:var(--text-dim)">Answer: </span><span class="ca-word">${target}</span></div>`;
+  const ct = SESSION.clozeTarget;
+  const revealed = ct.sentence.replace(new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),
+    `<span class="hl">${target}</span>`);
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `
+    <div class="fb-result ${fc}">${msg}</div>
+    ${ansLine}
+    <div class="examples-block">
+      <div class="ex-de">${revealed}</div>
+      <div class="ex-en" style="margin-top:6px">${ct.en}</div>
+      <span class="ex-grammar" style="margin-top:8px;display:inline-block">${ct.grammar}</span>
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" id="next-btn" onclick="advanceCard()">Next → <span style="font-size:.75rem;opacity:.6">(or Enter)</span></button>
+    </div>`;
+  fs.classList.remove('hidden');
+  document.getElementById('action-row').innerHTML='';
+  document.getElementById('skip-btn').classList.add('hidden');
+  setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+  SESSION.awaitingNext = true;
+}
+
 function maskedHint(word, level) {
   return word.de.split(' ').map(part => {
     const show = level === 0 ? 1 : level === 1 ? 2 : part.length;
@@ -1152,6 +1254,9 @@ function showCard() {
 
   // Recognition (MC) mode for first quiz attempt on new words
   if (SESSION.mcMode.has(word.id)) { showMCCard(word); return; }
+
+  // Cloze mode for review words with sufficient repetitions (35% chance)
+  if (shouldCloze(word, state)) { showClozeCard(word); return; }
 
   // Progress bar
   document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
@@ -1193,6 +1298,7 @@ function showCard() {
 function handleKey(e) {
   if (e.key!=='Enter') return;
   if (SESSION.awaitingNext) advanceCard();
+  else if (SESSION.clozeTarget) checkCloze();
   else checkAnswer();
 }
 
