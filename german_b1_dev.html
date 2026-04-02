@@ -924,7 +924,7 @@ function restoreSession() {
     timerInterval:null, cardStartTime:null,
     correctInSession:s.correctInSession||0,
     newWordsInSession:s.newInSession||0,
-    restored:true, introduced: new Set(), mcMode: new Set()
+    restored:true, introduced: new Set(), mcMode: new Set(), hintTimers: []
   };
   document.getElementById('crash-banner').style.display='none';
   showScreen('session');
@@ -956,7 +956,7 @@ function startSession() {
     queue, currentIndex:0, results:[], startTime:Date.now(),
     timerInterval:null, cardStartTime:null,
     correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
-    introduced: new Set(), mcMode: new Set()
+    introduced: new Set(), mcMode: new Set(), hintTimers: []
   };
   clearCrash();
   showScreen('session');
@@ -1095,6 +1095,30 @@ function selectMC(btn, isCorrect, wordId) {
   }, 600);
 }
 
+function maskedHint(word, level) {
+  return word.de.split(' ').map(part => {
+    const show = level === 0 ? 1 : level === 1 ? 2 : part.length;
+    return part.slice(0, show) + '·'.repeat(Math.max(0, part.length - show));
+  }).join(' ');
+}
+
+function clearHintTimers() {
+  SESSION.hintTimers.forEach(t => clearTimeout(t));
+  SESSION.hintTimers = [];
+}
+
+function startHintReveal(word) {
+  clearHintTimers();
+  const sub = document.getElementById('prompt-sub');
+  sub.textContent = maskedHint(word, 0);
+  SESSION.hintTimers.push(setTimeout(() => {
+    if (document.getElementById('prompt-sub') === sub) sub.textContent = maskedHint(word, 1);
+  }, 5000));
+  SESSION.hintTimers.push(setTimeout(() => {
+    if (document.getElementById('prompt-sub') === sub) sub.textContent = maskedHint(word, 2);
+  }, 10000));
+}
+
 function showCard() {
   if (SESSION.currentIndex>=SESSION.queue.length||SESSION.timeReached) { endSession(); return; }
   const word  = SESSION.queue[SESSION.currentIndex];
@@ -1119,13 +1143,15 @@ function showCard() {
   const leechBadge = isLeech ? ' <span class="leech-badge">⚠ LEECH</span>' : '';
   document.getElementById('prompt-mode').innerHTML = (isNew ? 'NEW WORD — Translate to German' : 'Translate to German') + leechBadge;
   document.getElementById('prompt-word').textContent = word.en;
-  document.getElementById('prompt-sub').textContent  = isNew
-    ? `Hint: ${word.de}${word.gender?' ('+gLabel(word.gender)+')':''}`
-    : '';
+  document.getElementById('prompt-sub').textContent  = '';
 
   // Reset input
   const inp = document.getElementById('answer-input');
   inp.value=''; inp.className='answer-input'; inp.disabled=false; inp.focus();
+
+  // Graduated hint for new words (not MC — those have their own UI)
+  clearHintTimers();
+  if (isNew) startHintReveal(word);
 
   // Reset action area
   document.getElementById('action-row').innerHTML =
@@ -1185,6 +1211,7 @@ function checkAnswer() {
            (Enter key also works to advance.)
 */
 function showFeedback(word, res) {
+  clearHintTimers(); // stop hint reveal once answer is submitted
   const inp = document.getElementById('answer-input');
   const cl  = res.cl;
 
@@ -1278,12 +1305,14 @@ function showFeedback(word, res) {
 
   SESSION.awaitingNext = true;
 
-  // Micro-drill: if leech answered wrong, re-insert 2 times spaced 2 cards apart
+  // Micro-drill: if leech answered wrong, re-insert 2 times with random 3–5 card spacing
   if (SRS[word.id] && SRS[word.id].isLeech && !res.ok) {
-    const qi = SESSION.currentIndex;
+    let insertAt = SESSION.currentIndex;
     for (let i = 0; i < 2; i++) {
-      const pos = Math.min(SESSION.queue.length, qi + 2 + i * 2);
-      SESSION.queue.splice(pos, 0, word);
+      const gap = 3 + Math.floor(Math.random() * 3); // 3, 4, or 5
+      insertAt   = Math.min(SESSION.queue.length, insertAt + gap);
+      SESSION.queue.splice(insertAt, 0, word);
+      insertAt++; // account for the splice offset
     }
   }
 
@@ -1350,8 +1379,18 @@ function endSession() {
       if (SETTINGS.responseWindow.length > 20) SETTINGS.responseWindow.shift();
       if (SETTINGS.responseWindow.length >= 3) {
         const sorted = [...SETTINGS.responseWindow].sort((a,b)=>a-b);
-        SETTINGS.medianResponseMs = sorted[Math.floor(sorted.length/2)];
-        SETTINGS.calibrationDone  = true;
+        const windowMedian = sorted[Math.floor(sorted.length/2)];
+        // Adaptive decay: if last 3 sessions are consistently faster, accelerate downward
+        const recent    = SETTINGS.responseWindow.slice(-3);
+        const recentAvg = recent.reduce((a,b)=>a+b,0) / recent.length;
+        const current   = SETTINGS.medianResponseMs || windowMedian;
+        if (recentAvg < current * 0.8) {
+          // User has sped up >20% — blend heavily toward recent data
+          SETTINGS.medianResponseMs = Math.round(current * 0.4 + recentAvg * 0.6);
+        } else {
+          SETTINGS.medianResponseMs = windowMedian;
+        }
+        SETTINGS.calibrationDone = true;
       }
     }
   }
