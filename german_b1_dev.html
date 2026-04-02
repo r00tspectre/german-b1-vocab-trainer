@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Deutsch B1 — Dev Build v1.1</title>
+<style>
+/* ═══════════════════════════════════════════════
+   Phase 1 Dev Build — Clean CSS
+   Fixes applied: umlaut keys, gender colours,
+   examples persistent, confused-state feedback
+   ═══════════════════════════════════════════════ */
+:root {
+  --bg:           #0f1117;
+  --surface:      #1a1d27;
+  --card:         #222632;
+  --accent:       #6c63ff;
+  --accent-light: #8b83ff;
+  --green:        #4ade80;
+  --red:          #f87171;
+  --orange:       #fb923c;
+  --yellow:       #facc15;
+  --blue:         #60a5fa;
+  --pink:         #f472b6;
+  --cyan:         #22d3ee;
+  --text:         #e8e6f0;
+  --text-dim:     #8b8a94;
+  --text-muted:   #555460;
+  --radius:       16px;
+  --radius-sm:    10px;
+  --ease:         cubic-bezier(.4,0,.2,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100dvh; overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.app { max-width:480px; margin:0 auto; padding:20px 16px; min-height:100dvh; display:flex; flex-direction:column; }
+.screen { display:none; flex-direction:column; flex:1; animation: fadeUp .3s var(--ease); }
+.screen.active { display:flex; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Buttons ── */
+.btn { display:block; width:100%; padding:16px; border:none; border-radius:var(--radius-sm);
+  font-size:1rem; font-weight:600; cursor:pointer; transition:all .25s var(--ease); text-align:center; }
+.btn-primary  { background:var(--accent); color:#fff; }
+.btn-primary:hover  { background:var(--accent-light); transform:translateY(-1px); }
+.btn-primary:active { transform:translateY(0); }
+.btn-primary:disabled { opacity:.4; cursor:default; transform:none; }
+.btn-secondary { background:var(--surface); color:var(--text); margin-top:10px; }
+.btn-secondary:hover { background:var(--card); }
+.btn-sm { padding:9px 14px; font-size:.85rem; width:auto; display:inline-block; }
+
+/* ── Home ── */
+.home-header { text-align:center; padding:28px 0 20px; }
+.home-header h1 { font-size:1.55rem; font-weight:700; letter-spacing:-.02em; }
+.home-header .subtitle { color:var(--text-dim); font-size:.82rem; margin-top:4px; }
+.dev-badge { display:inline-block; background:var(--orange); color:#000; font-size:.6rem;
+  font-weight:800; padding:2px 7px; border-radius:4px; margin-left:7px;
+  vertical-align:middle; text-transform:uppercase; letter-spacing:.05em; }
+
+.stats-row { display:flex; gap:10px; margin-bottom:18px; }
+.stat-card { flex:1; background:var(--surface); border-radius:var(--radius-sm); padding:15px 10px; text-align:center; }
+.stat-card .sv { font-size:1.45rem; font-weight:700; }
+.stat-card .sl { font-size:.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
+.stat-card.ac .sv { color:var(--accent-light); }
+.stat-card.gr .sv { color:var(--green); }
+.stat-card.or .sv { color:var(--orange); }
+
+.banner {
+  border-radius:var(--radius-sm); padding:13px 16px; margin-bottom:16px;
+  font-size:.84rem; display:none;
+}
+.banner-streak { background:linear-gradient(135deg,#6c63ff22,#6c63ff11); border:1px solid #6c63ff33;
+  display:flex; align-items:center; gap:12px; }
+.banner-streak .fire { font-size:1.3rem; }
+.banner-streak strong { color:var(--accent-light); }
+.banner-reminder { background:linear-gradient(135deg,#fb923c22,#fb923c11); border:1px solid #fb923c33; color:var(--orange); }
+.banner-crash { background:linear-gradient(135deg,#facc1522,#facc1511); border:1px solid #facc1533; }
+.banner-crash .bc-title { font-weight:600; color:var(--yellow); margin-bottom:8px; font-size:.85rem; }
+.banner-crash .bc-btns { display:flex; gap:8px; }
+.banner-crash .bc-btns button { padding:7px 14px; border:none; border-radius:6px; font-size:.8rem; font-weight:600; cursor:pointer; }
+.bc-restore { background:var(--yellow); color:#000; }
+.bc-discard { background:var(--card); color:var(--text-dim); }
+
+.level-card { background:var(--surface); border-radius:var(--radius-sm); padding:15px; margin-bottom:18px; }
+.level-card .lc-title { font-size:.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:9px; }
+.bar-track { background:var(--bg); border-radius:5px; height:7px; overflow:hidden; }
+.bar-fill  { height:100%; border-radius:5px; background:linear-gradient(90deg,var(--accent),var(--accent-light)); transition:width .4s var(--ease); }
+.bar-info  { display:flex; justify-content:space-between; margin-top:7px; font-size:.72rem; color:var(--text-dim); }
+
+/* ── Session ── */
+.session-topbar { display:flex; justify-content:space-between; align-items:center; padding:6px 0 14px; }
+.s-timer   { font-size:.84rem; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.s-prog    { font-size:.84rem; color:var(--text-dim); }
+.s-end-btn { background:none; border:none; color:var(--text-muted); font-size:.8rem; cursor:pointer; padding:6px; }
+.s-end-btn:hover { color:var(--text-dim); }
+
+.s-prog-bar { height:3px; background:var(--surface); border-radius:2px; margin-bottom:26px; overflow:hidden; }
+.s-prog-bar .fill { height:100%; background:var(--accent); transition:width .35s var(--ease); }
+
+.card-area { display:flex; flex-direction:column; }
+
+.prompt-mode { font-size:.7rem; color:var(--text-dim); text-transform:uppercase;
+  letter-spacing:.1em; text-align:center; margin-bottom:8px; }
+.prompt-word { font-size:2rem; font-weight:700; text-align:center; margin-bottom:6px; line-height:1.2; }
+.prompt-sub  { font-size:.8rem; color:var(--text-muted); text-align:center;
+  margin-bottom:22px; font-style:italic; min-height:18px; }
+
+/* ── Input wrap ── */
+.input-wrap { width:100%; max-width:360px; margin:0 auto; }
+
+/* Umlaut quick-tap row — NEW in Phase 1 fix */
+.umlaut-row { display:flex; gap:5px; justify-content:center; margin-bottom:10px; flex-wrap:wrap; }
+.u-btn {
+  padding:6px 11px; border:1px solid var(--card); border-radius:7px;
+  background:var(--surface); color:var(--text); font-size:1rem;
+  cursor:pointer; transition:background .2s; user-select:none;
+  -webkit-user-select:none;
+}
+.u-btn:hover, .u-btn:active { background:var(--card); }
+
+.answer-input {
+  width:100%; padding:14px 16px; border:2px solid var(--card);
+  border-radius:var(--radius-sm); background:var(--surface); color:var(--text);
+  font-size:1.15rem; text-align:center; outline:none;
+  transition:border-color .25s var(--ease), background .25s var(--ease);
+}
+.answer-input:focus          { border-color:var(--accent); }
+.answer-input.st-correct     { border-color:var(--green);  background:#4ade8012; }
+.answer-input.st-wrong       { border-color:var(--red);    background:#f8717112; }
+.answer-input.st-typo        { border-color:var(--yellow); background:#facc1512; }
+.answer-input::placeholder   { color:var(--text-muted); }
+
+.action-row { display:flex; gap:10px; margin-top:14px; min-height:52px; }
+.action-row .btn { flex:1; }
+.skip-btn { background:none; border:none; color:var(--text-muted); font-size:.78rem;
+  cursor:pointer; padding:7px; display:block; margin:7px auto 0; }
+.skip-btn:hover { color:var(--text-dim); }
+
+/* ── Feedback & Examples (Phase 1 fix: stays until Next is clicked) ── */
+.feedback-section { margin-top:18px; }
+
+.fb-result { font-size:1rem; font-weight:600; text-align:center; margin-bottom:10px; }
+.fb-correct  { color:var(--green); }
+.fb-typo     { color:var(--yellow); }
+.fb-article  { color:var(--orange); }
+.fb-confused { color:var(--orange); }
+.fb-wrong    { color:var(--red); }
+
+.correct-ans { text-align:center; margin-bottom:14px; }
+.ca-word { font-size:1.2rem; font-weight:700; color:var(--accent-light); }
+
+/* Gender colour badges — NEW: now actually rendered */
+.gbadge { display:inline-block; font-size:.7rem; font-weight:700; padding:2px 8px;
+  border-radius:5px; margin-left:6px; vertical-align:middle; }
+.gbadge-m { background:#3b82f628; color:var(--blue); }
+.gbadge-f { background:#ec489928; color:var(--pink); }
+.gbadge-n { background:#22d3ee28; color:var(--cyan); }
+
+/* Confused-state detail box */
+.confused-box { background:#fb923c18; border:1px solid #fb923c33; border-radius:var(--radius-sm);
+  padding:10px 14px; margin-bottom:12px; font-size:.84rem; color:var(--orange); }
+
+/* Examples section — stays fully visible until user clicks Next */
+.examples-block {
+  background:var(--surface); border-radius:var(--radius-sm);
+  padding:16px; margin-bottom:14px;
+  animation: fadeUp .3s var(--ease);
+}
+.ex-header { font-size:.68rem; color:var(--text-dim); text-transform:uppercase;
+  letter-spacing:.08em; margin-bottom:14px; }
+.ex-item { margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--card); }
+.ex-item:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+.ex-de { font-size:.95rem; color:var(--text); line-height:1.55; margin-bottom:3px; }
+.ex-de .hl { color:var(--accent-light); font-weight:700; }
+.ex-en { font-size:.79rem; color:var(--text-dim); margin-bottom:5px; font-style:italic; }
+.ex-grammar { display:inline-block; font-size:.64rem; font-weight:600; padding:2px 8px;
+  border-radius:4px; background:#6c63ff20; color:var(--accent-light); letter-spacing:.03em; }
+
+/* ── Results ── */
+.results-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.res-icon  { font-size:3rem; margin-bottom:14px; }
+.res-title { font-size:1.4rem; font-weight:700; margin-bottom:7px; }
+.res-sub   { color:var(--text-dim); font-size:.88rem; margin-bottom:28px; }
+.res-grid  { display:grid; grid-template-columns:1fr 1fr; gap:11px; width:100%; max-width:310px; margin-bottom:28px; }
+.res-cell  { background:var(--surface); border-radius:var(--radius-sm); padding:15px; }
+.res-cell .rv { font-size:1.3rem; font-weight:700; }
+.res-cell .rl { font-size:.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
+
+/* ── Modal ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6);
+  display:none; align-items:center; justify-content:center; z-index:50; padding:18px; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border-radius:var(--radius); padding:24px;
+  width:100%; max-width:390px; max-height:82vh; overflow-y:auto; }
+.modal h2 { font-size:1.1rem; margin-bottom:18px; }
+.modal label { display:block; font-size:.78rem; color:var(--text-dim); margin-bottom:5px;
+  text-transform:uppercase; letter-spacing:.05em; }
+.modal input { width:100%; padding:10px 12px; border:1px solid var(--card); border-radius:8px;
+  background:var(--bg); color:var(--text); font-size:.95rem; margin-bottom:14px; outline:none; }
+.modal input:focus { border-color:var(--accent); }
+.modal-actions { display:flex; gap:10px; margin-top:8px; }
+.modal-actions .btn { flex:1; }
+
+/* Utilities */
+.mt-auto { margin-top:auto; }
+.hidden  { display:none !important; }
+.mb-12   { margin-bottom:12px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════ HOME SCREEN ══════════ -->
+  <div id="home" class="screen active">
+    <div class="home-header">
+      <h1>Deutsch B1 <span class="dev-badge">Dev v1.1</span></h1>
+      <div class="subtitle">Phase 1 core engine · 10-word test set</div>
+    </div>
+
+    <!-- Crash recovery banner (NEW) -->
+    <div id="crash-banner" class="banner banner-crash">
+      <div class="bc-title">⚠️ Unfinished session found — restore it?</div>
+      <div class="bc-btns">
+        <button class="bc-restore" onclick="restoreSession()">Restore</button>
+        <button class="bc-discard" onclick="discardCrash()">Discard</button>
+      </div>
+    </div>
+
+    <div id="reminder-banner" class="banner banner-reminder"></div>
+
+    <div id="streak-banner" class="banner banner-streak hidden">
+      <span class="fire">🔥</span>
+      <span id="streak-text"></span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card ac"><div class="sv" id="stat-due">0</div><div class="sl">Due today</div></div>
+      <div class="stat-card gr"><div class="sv" id="stat-mastered">0</div><div class="sl">Mastered</div></div>
+      <div class="stat-card or"><div class="sv" id="stat-ret">—</div><div class="sl">Retention</div></div>
+    </div>
+
+    <div class="level-card">
+      <div class="lc-title" id="lc-title">Level 1 — Dev Set</div>
+      <div class="bar-track"><div class="bar-fill" id="lc-bar" style="width:0%"></div></div>
+      <div class="bar-info">
+        <span id="lc-words">0 / 10 seen</span>
+        <span id="lc-unlock"></span>
+      </div>
+    </div>
+
+    <div class="mt-auto">
+      <button class="btn btn-primary" id="btn-start" onclick="startSession()">Start Session</button>
+      <button class="btn btn-secondary" onclick="openModal('settings')">Settings</button>
+      <button class="btn btn-secondary" onclick="openModal('backup')">Export / Import Progress</button>
+    </div>
+  </div>
+
+  <!-- ══════════ SESSION SCREEN ══════════ -->
+  <div id="session" class="screen">
+    <div class="session-topbar">
+      <span class="s-timer" id="s-timer">0:00</span>
+      <span class="s-prog"  id="s-prog">1/10</span>
+      <button class="s-end-btn" onclick="endEarly()">End</button>
+    </div>
+    <div class="s-prog-bar"><div class="fill" id="s-bar" style="width:0%"></div></div>
+
+    <div class="card-area">
+      <div class="prompt-mode" id="prompt-mode">Translate to German</div>
+      <div class="prompt-word" id="prompt-word"></div>
+      <div class="prompt-sub"  id="prompt-sub"></div>
+
+      <div class="input-wrap" id="input-wrap">
+        <!-- ── Umlaut quick-tap keyboard (NEW in Phase 1 fix) ── -->
+        <div class="umlaut-row">
+          <button class="u-btn" onclick="ins('ä')">ä</button>
+          <button class="u-btn" onclick="ins('ö')">ö</button>
+          <button class="u-btn" onclick="ins('ü')">ü</button>
+          <button class="u-btn" onclick="ins('ß')">ß</button>
+          <button class="u-btn" onclick="ins('Ä')">Ä</button>
+          <button class="u-btn" onclick="ins('Ö')">Ö</button>
+          <button class="u-btn" onclick="ins('Ü')">Ü</button>
+        </div>
+
+        <input type="text" class="answer-input" id="answer-input"
+               placeholder="Type the German word…"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               onkeydown="handleKey(event)">
+
+        <div class="action-row" id="action-row">
+          <button class="btn btn-primary" onclick="checkAnswer()">Check</button>
+        </div>
+        <button class="skip-btn" id="skip-btn" onclick="skipCard()">Skip this card</button>
+      </div>
+
+      <!-- Feedback + examples rendered here after Check — stays visible until Next -->
+      <div class="feedback-section hidden" id="feedback-section"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ RESULTS SCREEN ══════════ -->
+  <div id="results" class="screen">
+    <div class="results-wrap">
+      <div class="res-icon"  id="res-icon">🎯</div>
+      <div class="res-title" id="res-title">Session Complete!</div>
+      <div class="res-sub"   id="res-sub"></div>
+      <div class="res-grid">
+        <div class="res-cell"><div class="rv" id="rv-correct">0</div><div class="rl">Correct</div></div>
+        <div class="res-cell"><div class="rv" id="rv-total">0</div><div class="rl">Total</div></div>
+        <div class="res-cell"><div class="rv" id="rv-new">0</div><div class="rl">New words</div></div>
+        <div class="res-cell"><div class="rv" id="rv-time">0:00</div><div class="rl">Duration</div></div>
+      </div>
+      <button class="btn btn-primary"    style="max-width:310px;margin-bottom:10px" onclick="startSession()">Keep Going</button>
+      <button class="btn btn-secondary"  style="max-width:310px" onclick="gotoHome()">Home</button>
+    </div>
+  </div>
+
+  <!-- ══════════ SETTINGS MODAL ══════════ -->
+  <div id="settings" class="modal-overlay" onclick="if(event.target===this)closeModal('settings')">
+    <div class="modal">
+      <h2>Settings</h2>
+      <label>Daily Review Cap</label>
+      <input type="number" id="s-cap"  min="5"  max="200" value="80">
+      <label>Session Length (minutes)</label>
+      <input type="number" id="s-mins" min="3"  max="30"  value="7">
+      <label style="color:var(--red)">Danger Zone</label>
+      <button class="btn btn-secondary btn-sm" style="color:var(--red);margin-bottom:14px" onclick="confirmReset()">Reset All Progress</button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('settings')">Cancel</button>
+        <button class="btn btn-primary"   onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ BACKUP MODAL ══════════ -->
+  <div id="backup" class="modal-overlay" onclick="if(event.target===this)closeModal('backup')">
+    <div class="modal">
+      <h2>Export / Import Progress</h2>
+      <p style="font-size:.84rem;color:var(--text-dim);margin-bottom:14px">
+        Save a JSON backup of your SRS progress. Protects against browser data clears.
+      </p>
+      <button class="btn btn-primary btn-sm mb-12" onclick="exportData()">Download Progress (JSON)</button>
+      <label>Restore from file</label>
+      <input type="file" id="import-file" accept=".json" style="color:var(--text-dim);margin-bottom:14px">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('backup')">Close</button>
+        <button class="btn btn-primary"   onclick="importData()">Import</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .app -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DEUTSCH B1 TRAINER — Phase 1 Dev Build  v1.1
+   ─────────────────────────────────────────────────────────────
+   10-word development subset with 3 example sentences each.
+
+   FIXES APPLIED vs. original build:
+   1. Umlaut normalisation  — ae/oe/ue/ss accepted as ä/ö/ü/ß
+   2. Mobile umlaut keys    — ä ö ü ß Ä Ö Ü tap buttons
+   3. Confused-state        — English answer detected, grade 2,
+                              custom message + production nudge
+   4. Example persistence   — all 3 examples visible until user
+                              manually clicks "Next →"
+   5. Crash recovery        — session saved after every card;
+                              restore banner on return to home
+   6. Gender colour badges  — der/die/das coloured in feedback
+   7. Progressive unlock    — min-reviews adjusted for 10-word set
+
+   DEFERRED (Phase 2/3):
+   — Recognition / Cloze modes
+   — Stats dashboard & heatmap
+   — Exam mode & proximity multiplier
+   — Leech micro-drills
+   — Badges & advanced UX
+   ═══════════════════════════════════════════════════════════════ */
+
+// ── 10-Word Development Vocabulary ───────────────────────────
+// 3 example sentences per word, at increasing grammatical complexity.
+// grammar field = specific point being illustrated for the learner.
+const WORDS = [
+  {
+    id:1, de:"der Mann", en:"the man", gender:"m", cat:"people", level:1,
+    examples:[
+      { de:"Der Mann liest ein Buch.",
+        en:"The man reads a book.",
+        grammar:"Nom: der — masculine subject" },
+      { de:"Ich sehe den Mann auf der Straße.",
+        en:"I see the man on the street.",
+        grammar:"Acc: den — masculine direct object" },
+      { de:"Das Buch gehört dem Mann, der dort wohnt.",
+        en:"The book belongs to the man who lives there.",
+        grammar:"Dat: dem — after gehören + relative clause" }
+    ]
+  },
+  {
+    id:2, de:"die Frau", en:"the woman", gender:"f", cat:"people", level:1,
+    examples:[
+      { de:"Die Frau trinkt Kaffee.",
+        en:"The woman drinks coffee.",
+        grammar:"Nom: die — feminine subject" },
+      { de:"Ich helfe der Frau mit dem Koffer.",
+        en:"I help the woman with the suitcase.",
+        grammar:"Dat: der — after helfen (dative verb)" },
+      { de:"Die Frau, die hier arbeitet, spricht drei Sprachen.",
+        en:"The woman who works here speaks three languages.",
+        grammar:"Relative clause: die (same gender as antecedent)" }
+    ]
+  },
+  {
+    id:3, de:"das Kind", en:"the child", gender:"n", cat:"people", level:1,
+    examples:[
+      { de:"Das Kind spielt im Garten.",
+        en:"The child plays in the garden.",
+        grammar:"Nom: das — neuter subject" },
+      { de:"Wir kaufen dem Kind ein Geschenk.",
+        en:"We buy the child a gift.",
+        grammar:"Dat: dem — double-object (indirect object first)" },
+      { de:"Das Kind, das gestern krank war, ist heute wieder fit.",
+        en:"The child who was sick yesterday is well again today.",
+        grammar:"Relative clause: das (neuter) + war / ist (Präteritum vs Präsens)" }
+    ]
+  },
+  {
+    id:4, de:"gehen", en:"to go", gender:"", cat:"verbs", level:1,
+    examples:[
+      { de:"Ich gehe in die Schule.",
+        en:"I go to school.",
+        grammar:"Present: ich gehe — regular present (irregular only in Perfekt)" },
+      { de:"Wohin gehst du heute Abend?",
+        en:"Where are you going tonight?",
+        grammar:"Present: du gehst — wohin (direction) vs. wo (location)" },
+      { de:"Er ist früh schlafen gegangen, weil er sehr müde war.",
+        en:"He went to bed early because he was very tired.",
+        grammar:"Perfekt: ist gegangen (sein verb) + weil-clause (verb final)" }
+    ]
+  },
+  {
+    id:5, de:"lernen", en:"to learn", gender:"", cat:"verbs", level:1,
+    examples:[
+      { de:"Ich lerne Deutsch.",
+        en:"I am learning German.",
+        grammar:"Present: ich lerne — regular -en verb conjugation" },
+      { de:"Sie lernt jeden Abend für die Prüfung.",
+        en:"She studies every evening for the exam.",
+        grammar:"Acc time: jeden Abend — masculine accusative (jeden)" },
+      { de:"Wir haben viel gelernt, als wir in Deutschland lebten.",
+        en:"We learnt a lot when we lived in Germany.",
+        grammar:"Perfekt: haben gelernt + als-clause (Präteritum for both)" }
+    ]
+  },
+  {
+    id:6, de:"groß", en:"big / tall", gender:"", cat:"adjectives", level:1,
+    examples:[
+      { de:"Das Haus ist sehr groß.",
+        en:"The house is very big.",
+        grammar:"Predicate adj: no ending after sein" },
+      { de:"Er ist größer als sein Bruder.",
+        en:"He is taller than his brother.",
+        grammar:"Comparative: größer + als (umlaut change)" },
+      { de:"In der großen Stadt gibt es viele Möglichkeiten.",
+        en:"In the big city there are many possibilities.",
+        grammar:"Adj ending: -en after der in dative (in + Dat)" }
+    ]
+  },
+  {
+    id:7, de:"trinken", en:"to drink", gender:"", cat:"verbs", level:1,
+    examples:[
+      { de:"Ich trinke Wasser.",
+        en:"I drink water.",
+        grammar:"Present: ich trinke — strong verb (vowel change in du/er)" },
+      { de:"Was möchtest du trinken?",
+        en:"What would you like to drink?",
+        grammar:"Modal: möchten + infinitive at end of clause" },
+      { de:"Er hat gestern zu viel getrunken und konnte nicht fahren.",
+        en:"He drank too much yesterday and couldn't drive.",
+        grammar:"Perfekt: hat getrunken (strong, irregular participle) + konnte (Präteritum)" }
+    ]
+  },
+  {
+    id:8, de:"die Zeit", en:"the time", gender:"f", cat:"abstract", level:1,
+    examples:[
+      { de:"Ich habe keine Zeit.",
+        en:"I have no time.",
+        grammar:"Kein: keine — feminine accusative (keine replaces eine)" },
+      { de:"Die Zeit vergeht sehr schnell.",
+        en:"Time passes very quickly.",
+        grammar:"Inseparable prefix: vergehen — ver- is inseparable (stays attached)" },
+      { de:"Wir müssen uns mehr Zeit nehmen, um das zu verstehen.",
+        en:"We need to take more time to understand this.",
+        grammar:"Modal: müssen + um...zu infinitive clause (purpose)" }
+    ]
+  },
+  {
+    id:9, de:"das Haus", en:"the house", gender:"n", cat:"places", level:1,
+    examples:[
+      { de:"Das Haus ist sehr alt.",
+        en:"The house is very old.",
+        grammar:"Nom: das — neuter subject" },
+      { de:"Wir gehen ins Haus.",
+        en:"We go into the house.",
+        grammar:"Acc contraction: ins = in + das — direction uses accusative" },
+      { de:"Im Haus meiner Großmutter riecht es immer nach Kuchen.",
+        en:"In my grandmother's house it always smells of cake.",
+        grammar:"Dat contraction: im = in + dem — location uses dative + Genitiv possession" }
+    ]
+  },
+  {
+    id:10, de:"kaufen", en:"to buy", gender:"", cat:"verbs", level:1,
+    examples:[
+      { de:"Ich kaufe Brot.",
+        en:"I buy bread.",
+        grammar:"Present: ich kaufe — regular -en verb" },
+      { de:"Hast du das Buch schon gekauft?",
+        en:"Have you already bought the book?",
+        grammar:"Perfekt: hast gekauft — weak verb, regular ge- participle" },
+      { de:"Sie kauft immer ein, bevor sie nach Hause kommt.",
+        en:"She always goes shopping before she comes home.",
+        grammar:"Separable: einkaufen — ein splits to end + bevor-clause (verb final)" }
+    ]
+  }
+];
+
+const MAX_LEVEL = 1; // Dev build: single level — expand when moving to full word set
+
+// ── localStorage Keys ─────────────────────────────────────────
+const LS = {
+  srs:      'gvt_srs',
+  stats:    'gvt_stats',
+  settings: 'gvt_settings',
+  session:  'gvt_session',   // crash recovery
+};
+
+// ── Default Objects ───────────────────────────────────────────
+function dfSettings() {
+  return { dailyCap:80, sessionMinutes:7, unlockedLevel:1,
+           calibrationDone:false, medianResponseMs:7000,
+           totalSessionsCompleted:0 };
+}
+function dfStats() {
+  return { currentStreak:0, longestStreak:0, lastStudyDate:null,
+           dailyLog:{}, recentRetention:[] };
+}
+function dfSRS(id) {
+  return { wordId:id, interval:0, easeFactor:2.5, dueDate:null,
+           repetitions:0, lapses:0, recentLapses:0, lastLapseDate:null,
+           isLeech:false, isNew:true, firstSeen:null, lastSeen:null,
+           avgResponseMs:0, exposures:0, articleDrills:0 };
+}
+
+// ── Persistence ───────────────────────────────────────────────
+function loadJ(key, fb) {
+  try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : fb(); }
+  catch(e) { return fb(); }
+}
+function saveJ(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); }
+  catch(e) { console.warn('localStorage write failed:', e); }
+}
+
+let SRS      = loadJ(LS.srs,      () => ({}));
+let STATS    = loadJ(LS.stats,    dfStats);
+let SETTINGS = loadJ(LS.settings, dfSettings);
+
+function persist() {
+  saveJ(LS.srs, SRS);
+  saveJ(LS.stats, STATS);
+  saveJ(LS.settings, SETTINGS);
+}
+
+// ── Utility Functions ─────────────────────────────────────────
+function today()            { return new Date().toISOString().slice(0,10); }
+function daysBetween(a, b)  { return Math.round((new Date(b)-new Date(a))/86400000); }
+function clamp(v, lo, hi)   { return Math.max(lo, Math.min(hi, v)); }
+function rnd(arr)           { return arr[Math.floor(Math.random()*arr.length)]; }
+
+// Levenshtein distance (for typo detection)
+function lev(a, b) {
+  const m=a.length, n=b.length;
+  const dp = Array.from({length:m+1}, ()=>Array(n+1).fill(0));
+  for (let i=0;i<=m;i++) dp[i][0]=i;
+  for (let j=0;j<=n;j++) dp[0][j]=j;
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+/* ── FIX 1: Umlaut Normalisation ─────────────────────────────
+   BEFORE: norm() only lowercased. ä ≠ ae, ü ≠ ue etc.
+           Mobile users without German keyboard always failed.
+   AFTER:  norm() maps ä→ae, ö→oe, ü→ue, ß→ss.
+           Both user input AND expected answer normalised.
+           Result: Straße = Strasse = strasse. All pass.
+*/
+function norm(s) {
+  return s.toLowerCase().trim().replace(/\s+/g,' ')
+    .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+    .replace(/Ä/g,'ae').replace(/Ö/g,'oe').replace(/Ü/g,'ue');
+}
+// Soft-norm: lowercase only (for when user DID type proper umlauts)
+function normSoft(s) { return s.toLowerCase().trim().replace(/\s+/g,' '); }
+
+function stripArt(s) {
+  return s.replace(/^(der|die|das|ein|eine|einen|einem|einer)\s+/i,'').trim();
+}
+function gLabel(g) { return g==='m'?'der':g==='f'?'die':g==='n'?'das':''; }
+function gClass(g) { return g==='m'?'gbadge-m':g==='f'?'gbadge-f':'gbadge-n'; }
+
+// Highlight target word (or its core) inside an example sentence
+function hlWord(sentence, wordDe) {
+  const core = wordDe.includes(' ') ? stripArt(wordDe) : wordDe;
+  const esc  = core.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return sentence.replace(new RegExp(`(${esc})`, 'gi'), '<span class="hl">$1</span>');
+}
+
+/* ── FIX 4: Error Classification — now includes confused state ──
+   BEFORE: if user typed English ("the man" instead of "der Mann")
+           → classified as 'wrong', reset repetitions to 0 hard fail.
+   AFTER:  'confused' state detected. Grade 2 (not 0/1).
+           Message distinguishes: "you know the meaning, produce German".
+*/
+function classifyAnswer(word, raw) {
+  if (!raw || !raw.trim()) return { type:'wrong', detail:'No answer' };
+
+  const expected = norm(word.de);
+  const given    = norm(raw);
+
+  // Exact match (umlaut-normalised)
+  if (given === expected) return { type:'correct', detail:'' };
+  // Exact match (proper umlauts typed)
+  if (normSoft(raw) === normSoft(word.de)) return { type:'correct', detail:'' };
+
+  /* ── CONFUSED STATE ──
+     Detect if user answered in English instead of German.
+     word.en may be "the man" or "big / tall" — split variants by "/".
+     Strip leading articles/particles before comparing. */
+  const enVariants = word.en.split('/').map(v =>
+    v.toLowerCase().trim().replace(/^(the|a|an|to)\s+/i,'')
+  );
+  const givenClean = given.replace(/^(the|a|an|to)\s+/i,'');
+  if (enVariants.some(v => lev(v, givenClean) <= 1)) {
+    return {
+      type:'confused',
+      detail:`You know the meaning — now produce the German: ${word.de}`
+    };
+  }
+
+  // Article error: word core correct, article wrong/missing
+  if (word.gender) {
+    const expCore  = norm(stripArt(word.de));
+    const givCore  = norm(stripArt(raw));
+    const expCoreSoft = normSoft(stripArt(word.de));
+    const givCoreSoft = normSoft(stripArt(raw));
+    if (givCore === expCore || givCoreSoft === expCoreSoft) {
+      return {
+        type:'article',
+        detail:`Article should be "${gLabel(word.gender)}" — full answer: ${word.de}`
+      };
+    }
+  }
+
+  // Typo: Levenshtein ≤ 2 on core, minimum 3 chars
+  const expC = word.gender ? norm(stripArt(word.de)) : expected;
+  const givC = word.gender ? norm(stripArt(raw))     : given;
+  if (lev(expC, givC) <= 2 && givC.length >= 3) {
+    return { type:'typo', detail:`Small typo — correct: ${word.de}` };
+  }
+
+  return { type:'wrong', detail:'' };
+}
+
+// ── Response Time Grade ───────────────────────────────────────
+function timeGrade(ms) {
+  const med = SETTINGS.medianResponseMs || 7000;
+  if (!SETTINGS.calibrationDone) {
+    if (ms < 4000)  return 'fast';
+    if (ms < 10000) return 'normal';
+    if (ms < 20000) return 'slow';
+    return 'very_slow';
+  }
+  if (ms < med*0.5) return 'fast';
+  if (ms < med*1.3) return 'normal';
+  if (ms < med*2.5) return 'slow';
+  return 'very_slow';
+}
+
+/* ── FIX 1 (continued): SM-2+ Grading — confused now grade 2 ─
+   BEFORE: confused/English-answer → grade 0 or 1, full reset.
+   AFTER:  confused → grade 2 (knows meaning, can't produce).
+           Interval reset to 1 but repetitions not wiped immediately;
+           ease penalty is softer than full fail.
+*/
+function gradeWord(wordId, ms, raw) {
+  const word = WORDS.find(w => w.id === wordId);
+  if (!word) return null;
+
+  let s = SRS[wordId] || dfSRS(wordId);
+  const cl = classifyAnswer(word, raw);
+  const tg = timeGrade(ms);
+
+  // Grade 0–5
+  let grade;
+  switch(cl.type) {
+    case 'correct':
+      grade = tg==='fast'?5 : tg==='normal'?4 : tg==='slow'?3 : 2; break;
+    case 'typo':
+      grade = tg==='fast'?4 : tg==='normal'?3 : 2; break;
+    case 'article':
+      grade = 3; s.articleDrills++; break;  // partial credit — knows word, not gender
+    case 'confused':
+      grade = 2; break;  // knows meaning, stuck in passive mode
+    default:
+      grade = tg==='very_slow'?0 : 1;
+  }
+  if (tg==='very_slow' && grade>2) grade=2;
+
+  const ok = grade >= 3;
+
+  // SM-2 interval formula
+  if (ok) {
+    s.interval = s.repetitions===0?1 : s.repetitions===1?3 : Math.round(s.interval*s.easeFactor);
+    s.repetitions++;
+  } else {
+    s.lapses++;
+    s.repetitions = 0;
+    s.interval    = 1;
+    // Leech detection: 3 failures in any 10-day window
+    const tenAgo = new Date(Date.now()-10*86400000).toISOString().slice(0,10);
+    s.recentLapses = (!s.lastLapseDate || s.lastLapseDate >= tenAgo) ? s.recentLapses+1 : 1;
+    s.lastLapseDate = today();
+    if (s.recentLapses >= 3) { s.isLeech=true; s.easeFactor=2.0; }
+  }
+
+  // Ease factor update (modified SM-2)
+  const ef = s.easeFactor + (0.1 - (5-grade)*(0.08+(5-grade)*0.02));
+  s.easeFactor = Math.max(1.3, ef);
+  if (ok && tg==='fast') s.easeFactor += 0.05;
+  if (ok && tg==='slow') { s.easeFactor -= 0.05; s.interval = Math.round(s.interval*0.8); }
+
+  s.interval = clamp(s.interval, 1, 365);
+  const due  = new Date(); due.setDate(due.getDate()+s.interval);
+  s.dueDate  = due.toISOString().slice(0,10);
+
+  s.isNew  = false;
+  s.lastSeen = today();
+  if (!s.firstSeen) s.firstSeen = today();
+  s.exposures++;
+  s.avgResponseMs = s.avgResponseMs ? Math.round(s.avgResponseMs*0.7+ms*0.3) : ms;
+
+  SRS[wordId] = s;
+  workloadSmooth();
+  return { cl, grade, ok, state:s };
+}
+
+// ── Workload Smoothing ────────────────────────────────────────
+function workloadSmooth() {
+  const cap=SETTINGS.dailyCap||80, counts={};
+  for (const id in SRS) { const s=SRS[id]; if(s.dueDate) counts[s.dueDate]=(counts[s.dueDate]||0)+1; }
+  for (const date in counts) {
+    if (counts[date]<=cap) continue;
+    const excess = Object.keys(SRS).filter(id=>SRS[id].dueDate===date);
+    excess.sort((a,b)=>(SRS[b].easeFactor||2.5)-(SRS[a].easeFactor||2.5));
+    for (const id of excess) {
+      if (counts[date]<=cap) break;
+      for (let d=1;d<=7;d++) {
+        const nd = new Date(new Date(date).getTime()+d*86400000).toISOString().slice(0,10);
+        if ((counts[nd]||0)<cap) {
+          SRS[id].dueDate=nd; counts[date]--; counts[nd]=(counts[nd]||0)+1; break;
+        }
+      }
+    }
+  }
+}
+
+/* ── FIX 3: Progressive Unlock — adjusted for 10-word dev set ─
+   BEFORE: minimum 15 unique reviews required (too high for 10 words).
+   AFTER:  min = Math.min(8, levelWordCount). For 10 words: 8 reviews
+           needed before performance gate can unlock. Sensible for dev.
+*/
+function checkUnlock() {
+  if (SETTINGS.unlockedLevel >= MAX_LEVEL) return false;
+  const ret = STATS.recentRetention || [];
+  if (ret.length >= 3) {
+    const last3   = ret.slice(-3);
+    const avgRet  = last3.reduce((a,b)=>a+b,0)/last3.length;
+    const lvlWds  = WORDS.filter(w=>w.level===SETTINGS.unlockedLevel);
+    const reviewed= lvlWds.filter(w=>SRS[w.id]&&!SRS[w.id].isNew).length;
+    const minRev  = Math.min(8, lvlWds.length); // ← was hardcoded 15
+    if (avgRet>=0.8 && reviewed>=minRev) {
+      SETTINGS.unlockedLevel++;
+      persist();
+      return true;
+    }
+  }
+  // Fallback: 2-day gap with at least one session completed
+  if (STATS.lastStudyDate && SETTINGS.totalSessionsCompleted>0) {
+    if (daysBetween(STATS.lastStudyDate, today())>=2) {
+      SETTINGS.unlockedLevel++;
+      persist();
+      return true;
+    }
+  }
+  return false;
+}
+
+// ── Queue Builder ─────────────────────────────────────────────
+function buildQueue() {
+  const t = today();
+  const cap      = SETTINGS.dailyCap || 80;
+  const todayLog = STATS.dailyLog[t] || { total:0 };
+  const remaining= Math.max(0, cap - todayLog.total);
+  if (remaining===0) return [];
+
+  const unlocked = WORDS.filter(w=>w.level<=SETTINGS.unlockedLevel);
+  const due=[], fresh=[];
+  for (const w of unlocked) {
+    const s = SRS[w.id];
+    if (!s||s.isNew)                        { fresh.push(w); continue; }
+    if (s.dueDate && s.dueDate<=t)          { due.push(w); }
+  }
+  due.sort((a,b)=>{
+    const sa=SRS[a.id],sb=SRS[b.id];
+    if (sa.isLeech!==sb.isLeech) return sa.isLeech?-1:1;
+    return (sa.dueDate||'').localeCompare(sb.dueDate||'');
+  });
+
+  const queue=[]; const maxNew=5; let nc=0;
+  for (const w of due)   { if(queue.length>=remaining) break; queue.push(w); }
+  for (const w of fresh) { if(queue.length>=remaining||nc>=maxNew) break; queue.push(w); nc++; }
+  return queue;
+}
+
+/* ── FIX 5: Crash Recovery ───────────────────────────────────
+   BEFORE: LS.session key defined but never written to.
+           A browser crash or accidental tab close lost the entire session.
+   AFTER:  Session state saved to localStorage after EVERY card grade.
+           Home screen checks for crashed session from today.
+           Restore banner with Restore / Discard buttons.
+           clearCrash() called on clean session end.
+*/
+function saveCrash() {
+  if (!SESSION||!SESSION.queue||SESSION.queue.length===0) return;
+  saveJ(LS.session, {
+    date:             today(),
+    queueIds:         SESSION.queue.map(w=>w.id),
+    currentIndex:     SESSION.currentIndex,
+    results:          SESSION.results,
+    startTime:        SESSION.startTime,
+    correctInSession: SESSION.correctInSession,
+    newInSession:     SESSION.newWordsInSession
+  });
+}
+function clearCrash() {
+  try { localStorage.removeItem(LS.session); } catch(e) {}
+}
+function hasCrash() {
+  const s = loadJ(LS.session, ()=>null);
+  if (!s||s.date!==today()) return false;
+  if (!s.queueIds||s.queueIds.length===0) return false;
+  return s.currentIndex < s.queueIds.length; // incomplete
+}
+function restoreSession() {
+  const s = loadJ(LS.session, ()=>null);
+  if (!s) return;
+  const queue = s.queueIds.map(id=>WORDS.find(w=>w.id===id)).filter(Boolean);
+  SESSION = {
+    queue, currentIndex:s.currentIndex,
+    results:s.results||[], startTime:Date.now(), // reset timer on restore
+    timerInterval:null, cardStartTime:null,
+    correctInSession:s.correctInSession||0,
+    newWordsInSession:s.newInSession||0,
+    restored:true
+  };
+  document.getElementById('crash-banner').style.display='none';
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+function discardCrash() {
+  clearCrash();
+  document.getElementById('crash-banner').style.display='none';
+}
+
+// ── Session State Object ──────────────────────────────────────
+let SESSION = {
+  queue:[], currentIndex:0, results:[], startTime:null,
+  timerInterval:null, cardStartTime:null,
+  correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false
+};
+
+/* ── FIX 2: Session Start — typing mode only, no auto-advance ─
+   BEFORE: Recognition mode auto-advanced after 1,500ms.
+           Impossible to read example sentence in that time.
+   AFTER:  Typing mode only in Phase 1.
+           Feedback stays until manual "Next →" click.
+*/
+function startSession() {
+  const queue = buildQueue();
+  if (queue.length===0) { alert('Nothing due! Come back tomorrow or adjust settings.'); return; }
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false
+  };
+  clearCrash();
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+
+function startTimer() {
+  const el = document.getElementById('s-timer');
+  SESSION.timerInterval = setInterval(()=>{
+    const sec = Math.floor((Date.now()-SESSION.startTime)/1000);
+    el.textContent = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+    const target = (SETTINGS.sessionMinutes||7)*60000;
+    if (Date.now()-SESSION.startTime>=target && SESSION.currentIndex>0 && !SESSION.awaitingNext) {
+      SESSION.timeReached = true;
+    }
+  }, 1000);
+}
+
+function showCard() {
+  if (SESSION.currentIndex>=SESSION.queue.length||SESSION.timeReached) { endSession(); return; }
+  const word  = SESSION.queue[SESSION.currentIndex];
+  const state = SRS[word.id];
+  const isNew = !state||state.isNew;
+
+  // Progress bar
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+
+  // Prompt
+  document.getElementById('prompt-mode').textContent = isNew ? 'NEW WORD — Translate to German' : 'Translate to German';
+  document.getElementById('prompt-word').textContent = word.en;
+  document.getElementById('prompt-sub').textContent  = isNew
+    ? `Hint: ${word.de}${word.gender?' ('+gLabel(word.gender)+')':''}`
+    : '';
+
+  // Reset input
+  const inp = document.getElementById('answer-input');
+  inp.value=''; inp.className='answer-input'; inp.disabled=false; inp.focus();
+
+  // Reset action area
+  document.getElementById('action-row').innerHTML =
+    `<button class="btn btn-primary" onclick="checkAnswer()">Check</button>`;
+  document.getElementById('skip-btn').classList.remove('hidden');
+  document.getElementById('feedback-section').classList.add('hidden');
+  document.getElementById('feedback-section').innerHTML='';
+
+  SESSION.cardStartTime = Date.now();
+  SESSION.awaitingNext  = false;
+}
+
+function handleKey(e) {
+  if (e.key!=='Enter') return;
+  if (SESSION.awaitingNext) advanceCard();
+  else checkAnswer();
+}
+
+// Umlaut button — insert character at cursor position
+function ins(c) {
+  const inp = document.getElementById('answer-input');
+  if (inp.disabled) return;
+  const s=inp.selectionStart, e=inp.selectionEnd;
+  inp.value = inp.value.slice(0,s)+c+inp.value.slice(e);
+  inp.selectionStart = inp.selectionEnd = s+c.length;
+  inp.focus();
+}
+
+function checkAnswer() {
+  const word = SESSION.queue[SESSION.currentIndex];
+  const inp  = document.getElementById('answer-input');
+  const ans  = inp.value.trim();
+  if (!ans) { inp.focus(); return; }
+
+  const ms   = Date.now() - SESSION.cardStartTime;
+  const res  = gradeWord(word.id, ms, ans);
+
+  const wasNew = !(SRS[word.id]&&SRS[word.id].exposures>1);
+  SESSION.results.push({ wordId:word.id, correct:res.ok, type:res.cl.type, ms });
+  if (res.ok)    SESSION.correctInSession++;
+  if (wasNew)    SESSION.newWordsInSession++;
+
+  persist();
+  saveCrash(); // ← crash recovery: save after every graded card
+
+  showFeedback(word, res);
+}
+
+/* ── FIX 4: Feedback — all 3 examples visible, requires Next ──
+   BEFORE: single example shown, buried in feedback div.
+           In recognition mode: auto-advanced after 1,500ms.
+   AFTER:  showFeedback() renders ALL 3 example sentences.
+           Target word highlighted in each sentence.
+           Grammar note shown as coloured chip.
+           "Next →" button placed BELOW examples.
+           No auto-advance — user controls pacing entirely.
+           (Enter key also works to advance.)
+*/
+function showFeedback(word, res) {
+  const inp = document.getElementById('answer-input');
+  const cl  = res.cl;
+
+  inp.disabled = true;
+  const borderMap = { correct:'st-correct', typo:'st-typo', article:'st-typo',
+                      confused:'st-wrong', wrong:'st-wrong' };
+  inp.className = `answer-input ${borderMap[cl.type]||'st-wrong'}`;
+
+  // Message pool
+  const pool = {
+    correct:  ['Correct!','Richtig!','Genau!','Perfekt!','Well done!'],
+    typo:     ['Close — small typo!','Nearly there!','Check the spelling.'],
+    article:  ['Right word, wrong article!','Check the gender!'],
+    confused: ['That\'s the English — try German!','You know the meaning — now produce German!'],
+    wrong:    ['Not quite.','Try again next time.','Keep going!']
+  };
+  const msg = rnd(pool[cl.type]||pool.wrong);
+
+  // Feedback class
+  const fc = { correct:'fb-correct', typo:'fb-typo', article:'fb-article',
+               confused:'fb-confused', wrong:'fb-wrong' }[cl.type]||'fb-wrong';
+
+  /* ── FIX 6: Gender colour badge — now actually rendered ──
+     BEFORE: CSS for gbadge-m/f/n existed but was NEVER inserted into any card HTML.
+     AFTER:  Badge rendered in feedback for every noun, using gender-specific colour.
+  */
+  const badge = word.gender
+    ? `<span class="gbadge ${gClass(word.gender)}">${gLabel(word.gender)}</span>`
+    : '';
+
+  // Correct answer display
+  let ansDisplay = '';
+  if (cl.type==='correct') {
+    if (word.gender) {
+      ansDisplay = `<div class="correct-ans" style="font-size:.88rem;color:var(--text-dim)">
+        <span class="ca-word">${word.de}</span>${badge}
+      </div>`;
+    }
+  } else {
+    ansDisplay = `<div class="correct-ans">
+      <span class="ca-word">${word.de}</span>${badge}
+    </div>`;
+  }
+
+  // Confused-state extra nudge
+  const confusedBox = cl.type==='confused'
+    ? `<div class="confused-box">
+         💡 Your brain is in <strong>recognition mode</strong> — you understood, but couldn't produce.
+         This word is now queued for extra production practice.
+       </div>`
+    : '';
+
+  // ── 3 Example sentences (all visible) ──
+  const exHTML = word.examples.map(ex => `
+    <div class="ex-item">
+      <div class="ex-de">${hlWord(ex.de, word.de)}</div>
+      <div class="ex-en">${ex.en}</div>
+      <span class="ex-grammar">${ex.grammar}</span>
+    </div>
+  `).join('');
+
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `
+    <div class="fb-result ${fc}">${msg}</div>
+    ${ansDisplay}
+    ${confusedBox}
+    <div class="examples-block">
+      <div class="ex-header">📖 Example sentences — read all three before continuing</div>
+      ${exHTML}
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" id="next-btn" onclick="advanceCard()">Next → <span style="font-size:.75rem;opacity:.6">(or Enter)</span></button>
+    </div>
+  `;
+  fs.classList.remove('hidden');
+
+  // Clear old action row (avoid duplicate buttons)
+  document.getElementById('action-row').innerHTML='';
+  document.getElementById('skip-btn').classList.add('hidden');
+
+  // Focus Next button so Enter key works
+  setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+
+  SESSION.awaitingNext = true;
+}
+
+function advanceCard() {
+  SESSION.currentIndex++;
+  showCard();
+}
+
+function skipCard() {
+  const word = SESSION.queue[SESSION.currentIndex];
+  gradeWord(word.id, Date.now()-SESSION.cardStartTime, '');
+  SESSION.results.push({ wordId:word.id, correct:false, type:'skip', ms:0 });
+  persist();
+  saveCrash();
+  SESSION.currentIndex++;
+  showCard();
+}
+
+function endEarly() { SESSION.timeReached=true; endSession(); }
+
+function endSession() {
+  clearInterval(SESSION.timerInterval);
+  clearCrash();
+
+  const dur   = Date.now()-SESSION.startTime;
+  const total = SESSION.results.length;
+  const ok    = SESSION.correctInSession;
+  const ret   = total>0 ? ok/total : 0;
+  const t     = today();
+
+  if (!STATS.dailyLog[t]) STATS.dailyLog[t]={ correct:0,total:0,newWords:0,minutes:0 };
+  STATS.dailyLog[t].correct += ok;
+  STATS.dailyLog[t].total   += total;
+  STATS.dailyLog[t].newWords+= SESSION.newWordsInSession;
+  STATS.dailyLog[t].minutes += dur/60000;
+
+  if (STATS.lastStudyDate!==t) {
+    const gap = STATS.lastStudyDate ? daysBetween(STATS.lastStudyDate,t) : 0;
+    STATS.currentStreak = gap===1 ? STATS.currentStreak+1 : 1;
+    STATS.lastStudyDate = t;
+    if (STATS.currentStreak>STATS.longestStreak) STATS.longestStreak=STATS.currentStreak;
+  }
+  if (total>0) {
+    STATS.recentRetention.push(ret);
+    if (STATS.recentRetention.length>10) STATS.recentRetention.shift();
+  }
+  SETTINGS.totalSessionsCompleted++;
+
+  // Calibrate response time after 3 sessions
+  if (SETTINGS.totalSessionsCompleted>=3 && SESSION.results.length>0) {
+    const times = SESSION.results.map(r=>r.ms).filter(v=>v>0).sort((a,b)=>a-b);
+    if (times.length>0) {
+      const med = times[Math.floor(times.length/2)];
+      SETTINGS.medianResponseMs = SETTINGS.calibrationDone
+        ? Math.round(SETTINGS.medianResponseMs*0.7+med*0.3) : med;
+      SETTINGS.calibrationDone=true;
+    }
+  }
+  checkUnlock();
+  persist();
+
+  // Results screen
+  const sec = Math.floor(dur/1000);
+  const pct = total>0 ? Math.round(ret*100) : 0;
+  let icon='🎯',title='Session Complete!',sub='';
+  if (total===0) { icon='🕐';title='Nothing answered';sub='Session ended before any cards'; }
+  else if (pct>=90) { icon='🌟';title='Outstanding!';sub=`${pct}% accuracy`; }
+  else if (pct>=70) { icon='💪';title='Good work!';sub=`${pct}% accuracy`; }
+  else if (pct>=50) { icon='📚';title='Keep practicing!';sub=`${pct}% accuracy`; }
+  else              { icon='🔄';title='Room to grow';sub=`${pct}% accuracy`; }
+
+  document.getElementById('res-icon').textContent  = icon;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-sub').textContent   = sub;
+  document.getElementById('rv-correct').textContent= ok;
+  document.getElementById('rv-total').textContent  = total;
+  document.getElementById('rv-new').textContent    = SESSION.newWordsInSession;
+  document.getElementById('rv-time').textContent   = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+  showScreen('results');
+}
+
+// ── Navigation ────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id==='home') refreshHome();
+}
+function gotoHome() { showScreen('home'); }
+
+// ── Home Refresh ──────────────────────────────────────────────
+function refreshHome() {
+  const t        = today();
+  const unlocked = WORDS.filter(w=>w.level<=SETTINGS.unlockedLevel);
+  let due=0, mastered=0;
+
+  for (const w of unlocked) {
+    const s = SRS[w.id];
+    if (!s||s.isNew)                        { due++; continue; }
+    if (s.dueDate && s.dueDate<=t)          { due++; }
+    if (s.interval>=21 && s.repetitions>=5) { mastered++; }
+  }
+
+  const todayLog   = STATS.dailyLog[t]||{total:0};
+  const displayDue = Math.min(due, Math.max(0,(SETTINGS.dailyCap||80)-todayLog.total));
+
+  document.getElementById('stat-due').textContent      = displayDue;
+  document.getElementById('stat-mastered').textContent = mastered;
+  const avgRet = STATS.recentRetention.length>0
+    ? STATS.recentRetention.reduce((a,b)=>a+b,0)/STATS.recentRetention.length : null;
+  document.getElementById('stat-ret').textContent = avgRet!=null ? Math.round(avgRet*100)+'%' : '—';
+
+  // Streak
+  const sb = document.getElementById('streak-banner');
+  if (STATS.currentStreak>0) {
+    sb.style.display='flex';
+    const t3 = STATS.currentStreak>=7?' — outstanding!':STATS.currentStreak>=3?' — keep it up!':'';
+    document.getElementById('streak-text').innerHTML = `<strong>${STATS.currentStreak} day streak</strong>${t3}`;
+  } else { sb.style.display='none'; }
+
+  // Reminder
+  const rb = document.getElementById('reminder-banner');
+  if (STATS.lastStudyDate && STATS.lastStudyDate!==t) {
+    const gap = daysBetween(STATS.lastStudyDate,t);
+    if (gap>=1) { rb.style.display='block'; rb.textContent=gap===1?'Welcome back! Your words are waiting.':
+      `${gap} days since last session — let's get back on track!`; }
+    else rb.style.display='none';
+  } else rb.style.display='none';
+
+  // Level progress
+  const lvlWds = WORDS.filter(w=>w.level===SETTINGS.unlockedLevel);
+  const seen   = lvlWds.filter(w=>SRS[w.id]&&!SRS[w.id].isNew).length;
+  document.getElementById('lc-title').textContent    = `Level ${SETTINGS.unlockedLevel} — Dev (10 words)`;
+  document.getElementById('lc-bar').style.width      = `${lvlWds.length>0?(seen/lvlWds.length)*100:0}%`;
+  document.getElementById('lc-words').textContent    = `${seen}/${lvlWds.length} seen`;
+  document.getElementById('lc-unlock').textContent   = avgRet!=null ? `${Math.round(avgRet*100)}% retention` : '';
+
+  // Crash banner
+  document.getElementById('crash-banner').style.display = hasCrash() ? 'block' : 'none';
+
+  // Start button
+  const btn = document.getElementById('btn-start');
+  btn.disabled    = displayDue===0;
+  btn.textContent = displayDue===0 ? '✓ All done for today!' : `Start Session (${displayDue} cards)`;
+}
+
+// ── Settings ──────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function saveSettings() {
+  SETTINGS.dailyCap      = parseInt(document.getElementById('s-cap').value)||80;
+  SETTINGS.sessionMinutes= parseInt(document.getElementById('s-mins').value)||7;
+  persist(); closeModal('settings'); refreshHome();
+}
+function confirmReset() {
+  if (confirm('This will erase ALL progress. Cannot be undone.')) {
+    Object.values(LS).forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});
+    SRS={}; STATS=dfStats(); SETTINGS=dfSettings();
+    closeModal('settings'); refreshHome();
+  }
+}
+
+// ── Export / Import ───────────────────────────────────────────
+function exportData() {
+  const d={ srs:SRS, stats:STATS, settings:SETTINGS,
+            exportDate:new Date().toISOString(), version:2, wordCount:WORDS.length };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
+  a.download = `deutsch-b1-dev-${today()}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importData() {
+  const f = document.getElementById('import-file').files[0];
+  if (!f) { alert('Select a file first.'); return; }
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (d.srs&&d.stats&&d.settings) {
+        SRS=d.srs; STATS=d.stats; SETTINGS=d.settings;
+        persist(); closeModal('backup'); refreshHome(); alert('Progress restored!');
+      } else { alert('Invalid backup file.'); }
+    } catch { alert('Could not parse file.'); }
+  };
+  r.readAsText(f);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+// Pre-fill settings modal with current values
+document.getElementById('s-cap').value  = SETTINGS.dailyCap||80;
+document.getElementById('s-mins').value = SETTINGS.sessionMinutes||7;
+refreshHome();
+</script>
+</body>
+</html>
