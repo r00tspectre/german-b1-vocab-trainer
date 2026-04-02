@@ -264,6 +264,16 @@ body {
 .mt-auto { margin-top:auto; }
 .hidden  { display:none !important; }
 .mb-12   { margin-bottom:12px; }
+
+/* ── Celebration toast ── */
+#toast {
+  position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--card); border:1px solid #6c63ff44; border-radius:24px;
+  padding:10px 20px; font-size:.9rem; font-weight:600; color:var(--text);
+  white-space:nowrap; z-index:200; pointer-events:none;
+  opacity:0; transition:opacity .3s ease, transform .3s ease;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -412,6 +422,7 @@ body {
   </div>
 
 </div><!-- .app -->
+<div id="toast"></div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
@@ -608,7 +619,7 @@ function dfStats() {
 function dfSRS(id) {
   return { wordId:id, interval:0, easeFactor:2.5, dueDate:null,
            repetitions:0, lapses:0, recentLapses:0, lastLapseDate:null,
-           isLeech:false, isFragile:false, isNew:true, firstSeen:null, lastSeen:null,
+           isLeech:false, isFragile:false, isNew:true, mastered:false, firstSeen:null, lastSeen:null,
            avgResponseMs:0, exposures:0, articleDrills:0 };
 }
 
@@ -814,9 +825,12 @@ function gradeWord(wordId, ms, raw) {
   s.exposures++;
   s.avgResponseMs = s.avgResponseMs ? Math.round(s.avgResponseMs*0.7+ms*0.3) : ms;
 
+  const firstMastery = !s.mastered && s.interval >= 21 && s.repetitions >= 5;
+  if (firstMastery) s.mastered = true;
+
   SRS[wordId] = s;
   workloadSmooth();
-  return { cl, grade, ok, state:s };
+  return { cl, grade, ok, state:s, firstMastery };
 }
 
 // ── Workload Smoothing ────────────────────────────────────────
@@ -1191,6 +1205,7 @@ function checkCloze() {
   SESSION.results.push({ wordId:word.id, correct:ok, type: ok?(isTypo?'typo':'correct'):'wrong', ms });
   if (ok) SESSION.correctInSession++;
   persist(); saveCrash();
+  if (res.firstMastery) celebrate(`⭐ "${word.de}" mastered!`);
 
   // Feedback
   inp.disabled = true;
@@ -1328,7 +1343,8 @@ function checkAnswer() {
   if (wasNew)    SESSION.newWordsInSession++;
 
   persist();
-  saveCrash(); // ← crash recovery: save after every graded card
+  saveCrash();
+  if (res.firstMastery) celebrate(`⭐ "${word.de}" mastered!`);
 
   showFeedback(word, res);
 }
@@ -1479,6 +1495,17 @@ function skipCard() {
   showCard();
 }
 
+let _toastTimer = null;
+function celebrate(msg, delay=400) {
+  clearTimeout(_toastTimer);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  setTimeout(() => {
+    t.classList.add('show');
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }, delay);
+}
+
 function endEarly() { SESSION.timeReached=true; endSession(); }
 
 function endSession() {
@@ -1502,6 +1529,8 @@ function endSession() {
     STATS.currentStreak = gap===1 ? STATS.currentStreak+1 : 1;
     STATS.lastStudyDate = t;
     if (STATS.currentStreak>STATS.longestStreak) STATS.longestStreak=STATS.currentStreak;
+    if ([3,7,14,30].includes(STATS.currentStreak))
+      celebrate(`🔥 ${STATS.currentStreak} day streak!`, 600);
   }
   if (total>0) {
     STATS.recentRetention.push(ret);
@@ -1584,6 +1613,8 @@ function endSession() {
   } else {
     missedEl.classList.add('hidden');
   }
+
+  if (pct === 100 && total >= 3) celebrate('🌟 Perfect session!', 600);
 
   showScreen('results');
 }
