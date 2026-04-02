@@ -221,6 +221,21 @@ body {
 .res-cell .rv { font-size:1.3rem; font-weight:700; }
 .res-cell .rl { font-size:.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
 
+/* ── Results missed-word list ── */
+.res-missed { width:100%; max-width:310px; margin-bottom:20px; text-align:left; }
+.res-missed-title { font-size:.7rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.missed-row { display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface); border-radius:8px; padding:10px 12px; margin-bottom:6px; gap:8px; }
+.missed-de  { font-weight:700; font-size:.9rem; flex:1; }
+.missed-en  { font-size:.78rem; color:var(--text-dim); flex:1; }
+.missed-tag { font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px;
+  white-space:nowrap; flex-shrink:0; }
+.tag-wrong    { background:#f8717120; color:var(--red); }
+.tag-confused { background:#fb923c20; color:var(--orange); }
+.tag-article  { background:#facc1520; color:var(--yellow); }
+.tag-typo     { background:#6c63ff20; color:var(--accent-light); }
+.tag-skip     { background:#55546020; color:var(--text-muted); }
+
 /* ── Modal ── */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6);
   display:none; align-items:center; justify-content:center; z-index:50; padding:18px; }
@@ -347,6 +362,7 @@ body {
         <div class="res-cell"><div class="rv" id="rv-new">0</div><div class="rl">New words</div></div>
         <div class="res-cell"><div class="rv" id="rv-time">0:00</div><div class="rl">Duration</div></div>
       </div>
+      <div id="res-missed" class="res-missed hidden"></div>
       <button class="btn btn-primary"    style="max-width:310px;margin-bottom:10px" onclick="startSession()">Keep Going</button>
       <button class="btn btn-secondary"  style="max-width:310px" onclick="gotoHome()">Home</button>
     </div>
@@ -1414,6 +1430,37 @@ function endSession() {
   document.getElementById('rv-total').textContent  = total;
   document.getElementById('rv-new').textContent    = SESSION.newWordsInSession;
   document.getElementById('rv-time').textContent   = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+
+  // Missed-word list — deduplicated, non-correct results only
+  const tagMap = { wrong:'tag-wrong', confused:'tag-confused',
+                   article:'tag-article', typo:'tag-typo', skip:'tag-skip' };
+  const tagLabel = { wrong:'Wrong', confused:'English', article:'Article',
+                     typo:'Typo', skip:'Skipped' };
+  const seen = new Set();
+  const missedRows = SESSION.results
+    .filter(r => r.type !== 'correct' && r.type !== 'mc' && !seen.has(r.wordId) && seen.add(r.wordId))
+    .map(r => {
+      const w = WORDS.find(x => x.id === r.wordId);
+      if (!w) return '';
+      const badge = w.gender
+        ? `<span class="gbadge ${gClass(w.gender)}" style="font-size:.6rem;padding:1px 5px">${gLabel(w.gender)}</span>` : '';
+      const cls = tagMap[r.type] || 'tag-wrong';
+      const lbl = tagLabel[r.type] || 'Wrong';
+      return `<div class="missed-row">
+        <span class="missed-de">${w.de}${badge}</span>
+        <span class="missed-en">${w.en}</span>
+        <span class="missed-tag ${cls}">${lbl}</span>
+      </div>`;
+    }).join('');
+
+  const missedEl = document.getElementById('res-missed');
+  if (missedRows) {
+    missedEl.innerHTML = `<div class="res-missed-title">Needs work</div>${missedRows}`;
+    missedEl.classList.remove('hidden');
+  } else {
+    missedEl.classList.add('hidden');
+  }
+
   showScreen('results');
 }
 
