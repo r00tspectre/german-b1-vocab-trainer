@@ -176,6 +176,18 @@ body {
 .intro-ex { font-size:.88rem; color:var(--text-dim); line-height:1.6; border-top:1px solid var(--card); padding-top:12px; }
 .intro-ex .hl { color:var(--accent-light); font-weight:700; }
 
+/* Session history strip */
+.history-strip { background:var(--surface); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; }
+.history-title { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+.history-bars  { display:flex; gap:5px; align-items:flex-end; height:52px; }
+.h-bar-wrap    { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.h-bar         { width:100%; border-radius:3px 3px 0 0; min-height:3px; }
+.h-bar.good    { background:var(--green); }
+.h-bar.ok      { background:var(--orange); }
+.h-bar.bad     { background:var(--red); }
+.h-pct         { font-size:.58rem; color:var(--text-dim); }
+.h-day         { font-size:.58rem; color:var(--text-muted); }
+
 /* Weak words panel */
 .weak-panel { background:var(--surface); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; }
 .weak-panel-title { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
@@ -316,6 +328,8 @@ body {
         <span id="lc-unlock"></span>
       </div>
     </div>
+
+    <div id="session-history" class="history-strip hidden"></div>
 
     <div id="weak-words-panel" class="weak-panel hidden"></div>
 
@@ -604,6 +618,7 @@ const LS = {
   stats:    'gvt_stats',
   settings: 'gvt_settings',
   session:  'gvt_session',   // crash recovery
+  history:  'gvt_history',  // last 7 sessions
 };
 
 // ── Default Objects ───────────────────────────────────────────
@@ -636,11 +651,13 @@ function saveJ(key, data) {
 let SRS      = loadJ(LS.srs,      () => ({}));
 let STATS    = loadJ(LS.stats,    dfStats);
 let SETTINGS = loadJ(LS.settings, dfSettings);
+let HISTORY  = loadJ(LS.history,  () => []);
 
 function persist() {
   saveJ(LS.srs, SRS);
   saveJ(LS.stats, STATS);
   saveJ(LS.settings, SETTINGS);
+  saveJ(LS.history, HISTORY);
 }
 
 // ── Utility Functions ─────────────────────────────────────────
@@ -1564,6 +1581,13 @@ function endSession() {
     }
   }
   checkUnlock();
+
+  // Session history — keep last 7
+  if (total > 0) {
+    const t2 = today();
+    HISTORY.push({ date:t2, pct:Math.round(ret*100), total, newWords:SESSION.newWordsInSession });
+    if (HISTORY.length > 7) HISTORY.shift();
+  }
   persist();
 
   // Results screen
@@ -1673,6 +1697,28 @@ function refreshHome() {
   document.getElementById('lc-bar').style.width      = `${lvlWds.length>0?(seen/lvlWds.length)*100:0}%`;
   document.getElementById('lc-words').textContent    = `${seen}/${lvlWds.length} seen`;
   document.getElementById('lc-unlock').textContent   = avgRet!=null ? `${Math.round(avgRet*100)}% retention` : '';
+
+  // Session history strip
+  const histEl = document.getElementById('session-history');
+  if (HISTORY.length > 0) {
+    const todayStr = today();
+    const bars = HISTORY.map(h => {
+      const height = Math.max(4, Math.round(h.pct / 100 * 36));
+      const cls    = h.pct >= 80 ? 'good' : h.pct >= 50 ? 'ok' : 'bad';
+      const day    = h.date === todayStr ? 'Today'
+                   : new Date(h.date + 'T12:00:00').toLocaleDateString('en', {weekday:'short'});
+      return `<div class="h-bar-wrap">
+        <div class="h-pct">${h.pct}%</div>
+        <div class="h-bar ${cls}" style="height:${height}px"></div>
+        <div class="h-day">${day}</div>
+      </div>`;
+    }).join('');
+    histEl.innerHTML = `<div class="history-title">Last ${HISTORY.length} session${HISTORY.length!==1?'s':''}</div>
+      <div class="history-bars">${bars}</div>`;
+    histEl.classList.remove('hidden');
+  } else {
+    histEl.classList.add('hidden');
+  }
 
   // Crash banner
   document.getElementById('crash-banner').style.display = hasCrash() ? 'block' : 'none';
