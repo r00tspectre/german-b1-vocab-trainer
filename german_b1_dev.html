@@ -635,7 +635,7 @@ function dfSRS(id) {
   return { wordId:id, interval:0, easeFactor:2.5, dueDate:null,
            repetitions:0, lapses:0, recentLapses:0, lastLapseDate:null,
            isLeech:false, isFragile:false, isNew:true, mastered:false, firstSeen:null, lastSeen:null,
-           avgResponseMs:0, exposures:0, articleDrills:0 };
+           avgResponseMs:0, exposures:0, articleDrills:0, mcExposures:0 };
 }
 
 // ── Persistence ───────────────────────────────────────────────
@@ -1011,11 +1011,16 @@ let SESSION = {
 function startSession() {
   const queue = buildQueue();
   if (queue.length===0) { alert('Nothing due! Come back tomorrow or adjust settings.'); return; }
+  // Seed mcMode for review words with < 2 MC exposures (second recognition round)
+  const seededMC = new Set(
+    queue.filter(w => { const s=SRS[w.id]; return s && !s.isNew && (s.mcExposures||0) < 2; })
+         .map(w => w.id)
+  );
   SESSION = {
     queue, currentIndex:0, results:[], startTime:Date.now(),
     timerInterval:null, cardStartTime:null,
     correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
-    introduced: new Set(), mcMode: new Set(), hintTimers: [], clozeTarget: null
+    introduced: new Set(), mcMode: seededMC, hintTimers: [], clozeTarget: null
   };
   clearCrash();
   showScreen('session');
@@ -1080,16 +1085,25 @@ function dismissIntro() {
   showCard();
 }
 
-function buildMCOptions(correct) {
-  const distractors = WORDS.filter(w => w.id !== correct.id);
-  const picks = [];
-  const pool  = [...distractors];
+function buildMCOptions(correct, hard = false) {
+  // hard=false (1st exposure): distractors from different categories — easier to distinguish
+  // hard=true  (2nd exposure): distractors from same category — harder to distinguish
+  const samecat = WORDS.filter(w => w.id !== correct.id && w.cat === correct.cat);
+  const diffcat = WORDS.filter(w => w.id !== correct.id && w.cat !== correct.cat);
+  const preferred = hard ? samecat : diffcat;
+  const fallback  = hard ? diffcat : samecat;
+  const pool      = preferred.length >= 3 ? [...preferred] : [...preferred, ...fallback];
+  const picks     = [];
   while (picks.length < 3 && pool.length) {
-    const i = Math.floor(Math.random() * pool.length);
-    picks.push(pool.splice(i, 1)[0]);
+    picks.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+  // Fill if still short
+  const used = new Set([correct.id, ...picks.map(p => p.id)]);
+  const any  = WORDS.filter(w => !used.has(w.id));
+  while (picks.length < 3 && any.length) {
+    picks.push(any.splice(Math.floor(Math.random() * any.length), 1)[0]);
   }
   const opts = [...picks, correct];
-  // Fisher-Yates shuffle
   for (let i = opts.length-1; i > 0; i--) {
     const j = Math.floor(Math.random()*(i+1));
     [opts[i], opts[j]] = [opts[j], opts[i]];
@@ -1101,7 +1115,11 @@ function showMCCard(word) {
   document.querySelector('.card-area').classList.remove('is-leech');
   document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
   document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
-  document.getElementById('prompt-mode').innerHTML  = 'RECOGNITION — Choose the German';
+  const mcExp  = (SRS[word.id] && SRS[word.id].mcExposures) || 0;
+  const hard   = mcExp >= 1;
+  const label  = hard ? 'RECOGNITION · Round 2 — same category'
+                      : 'RECOGNITION · Round 1 — choose the German';
+  document.getElementById('prompt-mode').innerHTML  = label;
   document.getElementById('prompt-word').textContent = word.en;
   document.getElementById('prompt-sub').textContent  = '';
   document.getElementById('answer-input').value      = '';
@@ -1109,7 +1127,7 @@ function showMCCard(word) {
   document.getElementById('action-row').innerHTML    = '';
   document.getElementById('skip-btn').classList.add('hidden');
 
-  const opts = buildMCOptions(word);
+  const opts = buildMCOptions(word, hard);
   const optsHTML = opts.map(o => {
     const badge = o.gender ? `<span class="gbadge ${gClass(o.gender)}" style="float:right">${gLabel(o.gender)}</span>` : '';
     return `<button class="mc-opt" onclick="selectMC(this,${o.id===word.id},${word.id})">${o.de}${badge}</button>`;
@@ -1137,7 +1155,8 @@ function selectMC(btn, isCorrect, wordId) {
   const raw = isCorrect ? WORDS.find(w=>w.id===wordId).de : '';
   const res = gradeWord(wordId, ms, raw);
 
-  SESSION.mcMode.delete(wordId); // next encounter uses typing mode
+  if (SRS[wordId]) SRS[wordId].mcExposures = (SRS[wordId].mcExposures || 0) + 1;
+  SESSION.mcMode.delete(wordId); // remove from current session; next session re-seeds if needed
   SESSION.results.push({ wordId, correct:res.ok, type:'mc', ms });
   if (res.ok) SESSION.correctInSession++;
   SESSION.newWordsInSession++;
