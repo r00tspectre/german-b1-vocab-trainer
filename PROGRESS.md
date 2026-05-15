@@ -1,11 +1,11 @@
 # Deutsch B1 Vocabulary Trainer — Project Progress
 
-**Canonical app file:** `german_b1_preview.html`
+**Canonical app file:** `german_b1_app.html`
 **Design reference:** `stitch_design_upgrade_principles_questions/grammatik_geist/DESIGN.md`
 **Baseline status:** Batch 2 content pipeline ready
 **Last updated:** 2026-05-15
 
-> Baseline lock: `german_b1_preview.html` is the app to keep developing. Older references to `german_b1_dev.html`, `german_b1_trainer.html`, and `design_mockup.html` are legacy only unless those files are restored intentionally.
+> Baseline lock: `german_b1_app.html` is the app to keep developing. Older references to `german_b1_dev.html`, `german_b1_trainer.html`, and `design_mockup.html` are legacy only unless those files are restored intentionally.
 
 ---
 
@@ -217,7 +217,7 @@ Order of checks:
 - visibilitychange + pagehide → passive saveCrash()
 
 ### Batch 1 — Baseline Stabilization
-- Canonical app file locked to `german_b1_preview.html`
+- Canonical app file locked to `german_b1_app.html`
 - Header and code comments moved from preview language to baseline language
 - Bottom-nav Practice tab now opens a dedicated Practice screen
 - Practice screen exposes Daily, Review Only, Hard Words, Article Drill, and Weak Word Drill entry points
@@ -231,7 +231,7 @@ Order of checks:
 - Added `content/CONTENT_WORKFLOW.md` with source policy, required fields, level sizing, and batch gates
 - Added `content/words.baseline.json`, generated from the current 50 app words with metadata fields
 - Added `tools/validate_words.mjs` for no-dependency validation
-- Added `tools/sync_words.mjs` to sync validated content JSON into `german_b1_preview.html`
+- Added `tools/sync_words.mjs` to sync validated content JSON into `german_b1_app.html`
 - App now exposes `CONTENT_SCHEMA_VERSION` and dynamic `MAX_LEVEL`
 - Lexicon search now includes future metadata fields: `topic`, `frequencyBand`, and `tags`
 - Export JSON now records `contentSchemaVersion`

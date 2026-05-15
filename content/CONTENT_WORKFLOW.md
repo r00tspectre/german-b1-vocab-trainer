@@ -7,9 +7,9 @@ Batch 2 locks the content system, not the final word bank. The app still runs as
 - `content/word-schema.json` defines the target word-bank shape.
 - `content/words.baseline.json` mirrors the current 50-word app seed in that shape.
 - `tools/validate_words.mjs` validates content before it reaches the app.
-- `tools/sync_words.mjs` injects a validated content file into `german_b1_preview.html`.
+- `tools/sync_words.mjs` injects a validated content file into `german_b1_app.html`.
 
-The app file remains `german_b1_preview.html`. The content JSON is the editing surface for future batches.
+The app file remains `german_b1_app.html`. The content JSON is the editing surface for future batches.
 
 ## Source Policy
 
@@ -85,7 +85,7 @@ node tools/validate_words.mjs --strict content/words.goethe-b1.json
 Sync validated content into the app:
 
 ```bash
-node tools/sync_words.mjs content/words.baseline.json german_b1_preview.html
+node tools/sync_words.mjs content/words.baseline.json german_b1_app.html
 ```
 
 Future content batches should follow this order:

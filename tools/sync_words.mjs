@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { validateWordFile, formatValidationResult } from './validate_words.mjs';
 
-const DEFAULT_HTML = 'german_b1_preview.html';
+const DEFAULT_HTML = 'german_b1_app.html';
 
 function appWord(word) {
   return {
@@ -61,7 +61,7 @@ const contentPath = args[0];
 const htmlPath = args[1] || DEFAULT_HTML;
 
 if (!contentPath) {
-  console.error('Usage: node tools/sync_words.mjs content/words.baseline.json [german_b1_preview.html]');
+  console.error('Usage: node tools/sync_words.mjs content/words.baseline.json [german_b1_app.html]');
   process.exit(2);
 }
 
