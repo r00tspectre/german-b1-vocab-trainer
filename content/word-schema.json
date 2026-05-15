@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grammatik-geist.local/schemas/word-bank.schema.json",
+  "title": "Grammatik Geist B1 Word Bank",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "meta", "words"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "targetLanguage", "nativeLanguage", "cefr", "targetWordCount", "sourcePolicy"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "targetLanguage": { "type": "string", "const": "de" },
+        "nativeLanguage": { "type": "string", "const": "en" },
+        "cefr": { "type": "string", "const": "B1" },
+        "targetWordCount": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min", "max"],
+          "properties": {
+            "min": { "type": "integer", "minimum": 1200 },
+            "max": { "type": "integer", "maximum": 1500 }
+          }
+        },
+        "sourcePolicy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "build": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "levelSize": { "type": "integer", "minimum": 10, "maximum": 50 },
+            "generatedAt": { "type": "string" },
+            "generator": { "type": "string" }
+          }
+        }
+      }
+    },
+    "words": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/word" }
+    }
+  },
+  "$defs": {
+    "word": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "de",
+        "en",
+        "partOfSpeech",
+        "gender",
+        "cat",
+        "topic",
+        "frequencyBand",
+        "level",
+        "sourceStatus",
+        "sourceRefs",
+        "examples"
+      ],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "de": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 },
+        "partOfSpeech": {
+          "type": "string",
+          "enum": [
+            "noun",
+            "verb",
+            "adjective",
+            "adverb",
+            "phrase",
+            "connector",
+            "preposition",
+            "pronoun",
+            "determiner",
+            "number",
+            "interjection"
+          ]
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["m", "f", "n", ""]
+        },
+        "cat": {
+          "type": "string",
+          "enum": [
+            "people",
+            "family",
+            "home",
+            "places",
+            "food",
+            "health",
+            "travel",
+            "transport",
+            "shopping",
+            "work",
+            "education",
+            "bureaucracy",
+            "digital",
+            "time",
+            "nature",
+            "emotions",
+            "social",
+            "media",
+            "abstract",
+            "verbs",
+            "adjectives",
+            "adverbs",
+            "connectors",
+            "grammar",
+            "exam",
+            "daily"
+          ]
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frequencyBand": {
+          "type": "string",
+          "enum": ["core_daily", "high_daily", "goethe_b1", "exam_topic", "extension"]
+        },
+        "level": { "type": "integer", "minimum": 1 },
+        "priorityRank": { "type": "integer", "minimum": 1 },
+        "hint": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "forms": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plural": { "type": "string" },
+            "preterite": { "type": "string" },
+            "perfect": { "type": "string" },
+            "comparative": { "type": "string" },
+            "superlative": { "type": "string" },
+            "separablePrefix": { "type": "string" },
+            "takesCase": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["nom", "acc", "dat", "gen"] },
+              "uniqueItems": true
+            },
+            "fixedPreposition": { "type": "string" }
+          }
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": ["seed", "candidate", "needs_review", "verified", "rejected"]
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sourceRef" }
+        },
+        "examples": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/example" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "partOfSpeech": { "const": "noun" } },
+            "required": ["partOfSpeech"]
+          },
+          "then": {
+            "properties": { "gender": { "enum": ["m", "f", "n"] } }
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": { "partOfSpeech": { "const": "noun" } },
+              "required": ["partOfSpeech"]
+            }
+          },
+          "then": {
+            "properties": { "gender": { "const": "" } }
+          }
+        }
+      ]
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "ref"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "internal_seed",
+            "goethe_b1",
+            "frequency_list",
+            "corpus",
+            "dictionary",
+            "human_review",
+            "generated"
+          ]
+        },
+        "ref": { "type": "string", "minLength": 1 },
+        "note": { "type": "string" }
+      }
+    },
+    "example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["de", "en", "grammar"],
+      "properties": {
+        "de": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 },
+        "grammar": { "type": "string", "minLength": 1 },
+        "focus": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "nom",
+              "acc",
+              "dat",
+              "gen",
+              "present",
+              "perfect",
+              "preterite",
+              "modal",
+              "separable",
+              "reflexive",
+              "relative",
+              "subordinate",
+              "adjective-ending",
+              "preposition",
+              "word-order",
+              "passive",
+              "comparison",
+              "fixed-phrase"
+            ]
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

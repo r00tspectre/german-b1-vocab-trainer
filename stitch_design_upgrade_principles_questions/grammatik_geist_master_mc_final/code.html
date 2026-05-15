@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Grammatik Geist - Session</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb3ac",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#001c37",
+                        "tertiary-fixed": "#ffdad6",
+                        "surface": "#f9f9f9",
+                        "on-tertiary-fixed-variant": "#72342f",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#304865",
+                        "surface-container": "#eeeeee",
+                        "surface-bright": "#f9f9f9",
+                        "on-primary-fixed": "#1c1b1b",
+                        "on-primary-container": "#d1cece",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474746",
+                        "surface-variant": "#e2e2e2",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#884540",
+                        "secondary": "#48607e",
+                        "primary-container": "#595858",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e8e8",
+                        "on-secondary-container": "#49617f",
+                        "primary": "#414141",
+                        "secondary-container": "#c3dcff",
+                        "outline": "#737780",
+                        "primary-fixed": "#e5e2e1",
+                        "inverse-on-surface": "#f0f1f1",
+                        "background": "#f9f9f9",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "surface-dim": "#dadada",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-tertiary-container": "#ffc0ba",
+                        "inverse-surface": "#2f3131",
+                        "tertiary": "#6b2e2a",
+                        "surface-tint": "#5f5e5e",
+                        "secondary-fixed": "#d2e4ff",
+                        "inverse-primary": "#c8c6c5",
+                        "outline-variant": "#c2c6d1",
+                        "on-tertiary-fixed": "#3a0908",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#b0c8eb",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1a1c1c",
+                        "on-surface": "#1a1c1c",
+                        "on-surface-variant": "#42474f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        h1, h2, h3 {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#f9f9f9]/80 backdrop-blur-md flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#414141] hover:opacity-70 transition-opacity cursor-pointer scale-95 active:scale-90 transition-transform" data-icon="arrow_back" onclick="window.location.href='{{DATA:SCREEN:SCREEN_56}}'">arrow_back</span>
+<h1 class="text-lg font-bold text-[#414141] font-['Manrope'] tracking-tight">Session</h1>
+</div>
+<div class="flex flex-col items-center flex-1 mx-4 max-w-md">
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+</div>
+<div class="flex items-center">
+<span class="text-[#414141] font-['Manrope'] font-semibold tracking-tight">05:00</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col items-center justify-center px-6 pt-16 pb-24 max-w-4xl mx-auto w-full">
+<!-- Header Word Section -->
+<div class="w-full text-left md:text-center mb-16">
+<span class="text-on-secondary-container font-label uppercase tracking-widest text-xs font-bold mb-4 block">Translate this word</span>
+<h2 class="text-5xl md:text-6xl font-extrabold text-primary tracking-tight mb-2">das Erlebnis</h2>
+<div class="inline-flex items-center px-3 py-1 bg-on-secondary-container/10 rounded-full">
+<span class="text-on-secondary-container text-xs font-bold font-label uppercase tracking-tighter">Neuter</span>
+</div>
+</div>
+<!-- Multiple Choice Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<!-- Option 1 -->
+<button class="group relative flex items-center justify-between p-8 bg-surface-container-lowest rounded-xl border-none text-left transition-all duration-200 scale-98 active:scale-95 hover:bg-surface-container-low shadow-[0px_20px_40px_rgba(26,28,28,0.02)]">
+<span class="text-xl font-headline font-semibold text-on-surface">The Result</span>
+<div class="w-2 h-2 rounded-full bg-outline-variant opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+<!-- Option 2 (Target/Active) -->
+<button class="group relative flex items-center justify-between p-8 bg-surface-container-lowest rounded-xl text-left transition-all duration-200 scale-98 active:scale-95 border-2 border-primary shadow-[0px_20px_40px_rgba(26,28,28,0.04)]" onclick="console.log('Correct option selected')">
+<span class="text-xl font-headline font-semibold text-primary">The Experience</span>
+<span class="material-symbols-outlined text-primary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Option 3 -->
+<button class="group relative flex items-center justify-between p-8 bg-surface-container-lowest rounded-xl border-none text-left transition-all duration-200 scale-98 active:scale-95 hover:bg-surface-container-low shadow-[0px_20px_40px_rgba(26,28,28,0.02)]">
+<span class="text-xl font-headline font-semibold text-on-surface">The Memory</span>
+<div class="w-2 h-2 rounded-full bg-outline-variant opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+<!-- Option 4 -->
+<button class="group relative flex items-center justify-between p-8 bg-surface-container-lowest rounded-xl border-none text-left transition-all duration-200 scale-98 active:scale-95 hover:bg-surface-container-low shadow-[0px_20px_40px_rgba(26,28,28,0.02)]">
+<span class="text-xl font-headline font-semibold text-on-surface">The Event</span>
+<div class="w-2 h-2 rounded-full bg-outline-variant opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+</div>
+<!-- Context Hint (Asymmetric Editorial Element) -->
+<div class="mt-12 self-start md:self-center max-w-sm">
+<p class="text-on-surface-variant font-body text-sm leading-relaxed border-l-2 border-outline-variant/20 pl-4 italic">
+                "Ein Erlebnis ist etwas, das man selbst erfährt und das einen bleibenden Eindruck hinterlässt."
+            </p>
+</div>
+</main>
+<!-- Footer Action -->
+<div class="fixed bottom-0 w-full bg-[#f9f9f9] px-6 py-6 flex flex-col items-center">
+<button class="w-full max-w-md bg-primary text-on-primary font-headline font-bold py-4 rounded-lg text-lg tracking-tight hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2" onclick="window.location.href='{{DATA:SCREEN:SCREEN_37}}'">
+            Continue Practice
+            <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- BottomNavBar (Suppressed for focused task as per mandate, but structure available in JSON) -->
+<!-- Suppression Logic: User is in a 'Session' which is a focused, task-based sub-page -->
+</body></html>

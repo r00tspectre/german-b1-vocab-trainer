@@ -1,0 +1,3982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Grammatik Geist</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════
+   Baseline Build — Stitch UI + 50-Word B1 Set
+   ═══════════════════════════════════════════════ */
+:root {
+  /* ── Stitch Light Theme ─────────────────────────── */
+  --bg:           #F9F9F9;   /* background */
+  --surface:      #EEEEEE;   /* surface-container */
+  --card:         #FFFFFF;   /* surface-container-lowest */
+  --accent:       #414141;   /* primary charcoal */
+  --accent-light: #595858;   /* primary-container */
+  --green:        #49617f;   /* neuter — on-secondary-container */
+  --red:          #6b2e2a;   /* feminine / error — tertiary */
+  --orange:       #8B5E3C;   /* warning (functional only) */
+  --yellow:       #b08A3E;   /* typo / caution (functional only) */
+  --blue:         #48607e;   /* masculine — secondary */
+  --pink:         #6b2e2a;   /* feminine — tertiary (alias) */
+  --cyan:         #49617f;   /* neuter — on-secondary-container (alias) */
+  --text:         #1A1C1C;   /* on-surface */
+  --text-dim:     #42474F;   /* on-surface-variant */
+  --text-muted:   #737780;   /* outline */
+  /* Layout + design tokens (Stitch-aligned) */
+  --gutter:       24px;
+  --topbar-h:     64px;
+  --bottombar-h:  80px;
+  --radius-md:    12px;
+
+  /* Radii */
+  --radius:       var(--radius-md);
+  --radius-sm:    8px;
+
+  /* Typography scale */
+  --fs-hero:      2.4rem;
+  --fs-title:     1.05rem;
+  --fs-body:      .92rem;
+  --fs-label:     .62rem;
+
+  /* Depth — Stitch ambient shadow spec */
+  --shadow-elev:  0 20px 40px rgba(26, 28, 28, .04);
+
+  /* Semantic tints (no raw warning hex usage) */
+  --tint-info-bg:   rgba(73,97,127,.07);
+  --tint-info-bd:   rgba(73,97,127,.20);
+  --tint-danger-bg: rgba(107,46,42,.07);
+  --tint-danger-bd: rgba(107,46,42,.20);
+  --tint-warn-bg:   rgba(255,218,214,.65);
+  --tint-warn-bd:   rgba(107,46,42,.22);
+
+  /* Focus ring */
+  --focus-ring:   rgba(72,96,126,.35);
+  --ease:         cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Dark Mode Overrides ─────────────────────────── */
+.dark {
+  --bg:           #1A1C1C;
+  --surface:      #2F3131;
+  --card:         #363939;
+  --accent:       #C8C6C5;
+  --accent-light: #E5E2E1;
+  --green:        #8FAAB3;
+  --red:          #E8948F;
+  --orange:       #D4956A;
+  --yellow:       #D4B870;
+  --blue:         #8FAAB3;
+  --pink:         #E8948F;
+  --cyan:         #8FAAB3;
+  --text:         #F9F9F9;
+  --text-dim:     #C4C7C5;
+  --text-muted:   #8C8F8F;
+  --shadow-elev:  0 20px 40px rgba(0, 0, 0, .15);
+  --tint-info-bg:   rgba(143,170,179,.10);
+  --tint-info-bd:   rgba(143,170,179,.22);
+  --tint-danger-bg: rgba(232,148,143,.10);
+  --tint-danger-bd: rgba(232,148,143,.22);
+  --tint-warn-bg:   rgba(232,148,143,.12);
+  --tint-warn-bd:   rgba(232,148,143,.22);
+  --focus-ring:     rgba(143,170,179,.35);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100dvh; overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .25s var(--ease), color .25s var(--ease);
+}
+h1, h2, h3,
+.btn, .prompt-word, .ca-word, .intro-de,
+.res-title, .home-header h1, .stat-card .sv { font-family: 'Manrope', sans-serif; }
+.app { max-width:600px; margin:0 auto; padding:20px var(--gutter); min-height:100dvh; display:flex; flex-direction:column; }
+.screen { display:none; flex-direction:column; flex:1; animation: fadeUp .3s var(--ease); }
+.screen.active { display:flex; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen { animation:none; }
+  * { transition:none !important; scroll-behavior:auto !important; }
+}
+
+:where(button, [role="button"], input, select, textarea, a):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--focus-ring);
+  border-radius: 10px;
+}
+
+/* ── Buttons ── */
+.btn { display:block; width:100%; padding:16px; border:none; border-radius:var(--radius-sm);
+  font-size:1rem; font-weight:600; cursor:pointer; transition:all .25s var(--ease); text-align:center; }
+.btn-primary  { background:var(--accent); color:#fff; }
+.btn-primary:hover  { background:var(--accent-light); transform:translateY(-1px); }
+.btn-primary:active { transform:translateY(0); }
+.btn-primary:disabled { opacity:.4; cursor:default; transform:none; }
+.btn-secondary { background:var(--surface); color:var(--text); margin-top:10px; }
+.btn-secondary:hover { background:var(--card); }
+.btn-sm { padding:9px 14px; font-size:.85rem; width:auto; display:inline-block; }
+
+.btn.elev { box-shadow: var(--shadow-elev); }
+
+/* ── Home ── */
+.home-header { text-align:center; padding:28px 0 20px; }
+.home-header h1 { font-size:1.55rem; font-weight:700; letter-spacing:-.02em; }
+.home-header .subtitle { color:var(--text-dim); font-size:.82rem; margin-top:4px; }
+.dev-badge { display:inline-block; background:var(--orange); color:#000; font-size:.6rem;
+  font-weight:800; padding:2px 7px; border-radius:4px; margin-left:7px;
+  vertical-align:middle; text-transform:uppercase; letter-spacing:.05em; }
+
+.stats-row { display:flex; gap:10px; margin-bottom:18px; }
+.stat-card { flex:1; background:var(--surface); border-radius:var(--radius-sm); padding:15px 10px; text-align:center; }
+.stat-card .sv { font-size:1.45rem; font-weight:700; }
+.stat-card .sl { font-size:.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
+.stat-card.ac .sv { color:var(--accent-light); }
+.stat-card.gr .sv { color:var(--green); }
+.stat-card.or .sv { color:var(--orange); }
+
+.banner {
+  border-radius:var(--radius-sm); padding:13px 16px; margin-bottom:16px;
+  font-size:.84rem; display:none;
+}
+.banner-streak { background:linear-gradient(135deg,rgba(65,65,65,.1),rgba(65,65,65,.05)); border:1px solid rgba(65,65,65,.15);
+  display:flex; align-items:center; gap:12px; }
+.banner-streak .fire { font-size:1.3rem; }
+.banner-streak strong { color:var(--accent); }
+.banner-reminder { background:linear-gradient(135deg,var(--tint-warn-bg),rgba(255,255,255,0)); border:1px solid var(--tint-warn-bd); color:var(--red); }
+.banner-crash { background:linear-gradient(135deg,var(--tint-warn-bg),rgba(255,255,255,0)); border:1px solid var(--tint-warn-bd); }
+.banner-crash .bc-title { font-weight:600; color:var(--yellow); margin-bottom:8px; font-size:.85rem; }
+.banner-crash .bc-btns { display:flex; gap:8px; }
+.banner-crash .bc-btns button { padding:7px 14px; border:none; border-radius:6px; font-size:.8rem; font-weight:600; cursor:pointer; }
+.bc-restore { background:var(--yellow); color:#000; }
+.bc-discard { background:var(--card); color:var(--text-dim); }
+
+.level-card { background:var(--surface); border-radius:var(--radius-sm); padding:15px; margin-bottom:18px; }
+.level-card .lc-title { font-size:.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:9px; }
+.bar-track { background:var(--bg); border-radius:5px; height:7px; overflow:hidden; }
+.bar-fill  { height:100%; border-radius:5px; background:linear-gradient(90deg,var(--accent),var(--accent-light)); transition:width .4s var(--ease); }
+.bar-info  { display:flex; justify-content:space-between; margin-top:7px; font-size:.72rem; color:var(--text-dim); }
+
+/* ── Session — Stitch topbar style ── */
+.session-topbar {
+  display:flex; justify-content:space-between; align-items:center;
+  margin:0; width:100%;
+  padding:0 var(--gutter); height:var(--topbar-h);
+  background:rgba(249,249,249,.88); backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(65,65,65,.08);
+  position:sticky; top:0; z-index:50;
+  transition:background .25s var(--ease);
+}
+.dark .session-topbar {
+  background:rgba(26,28,28,.88);
+  border-bottom-color:rgba(249,249,249,.08);
+}
+.s-topbar-left  { display:flex; align-items:center; gap:10px; }
+.s-topbar-title { font-family:'Manrope',sans-serif; font-size:.92rem; font-weight:700;
+  letter-spacing:-.01em; color:var(--text); }
+.s-topbar-right { display:flex; align-items:center; gap:10px; }
+.s-timer   { font-family:'Manrope',sans-serif; font-size:.9rem; font-weight:700;
+  color:var(--text); font-variant-numeric:tabular-nums; }
+.s-prog    { font-size:.78rem; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.s-end-btn { background:none; border:none; color:var(--text-muted);
+  font-size:.78rem; cursor:pointer; padding:5px 8px; border-radius:6px;
+  transition:background .15s, color .15s; }
+.s-end-btn:hover { background:var(--surface); color:var(--text-dim); }
+
+.s-prog-bar { height:2px; background:var(--surface); margin-bottom:28px; overflow:hidden; }
+.s-prog-bar .fill { height:100%; background:var(--accent); transition:width .35s var(--ease); border-radius:0 1px 1px 0; }
+
+.card-area { display:flex; flex-direction:column; }
+
+.prompt-mode { font-size:.62rem; color:var(--text-dim); text-transform:uppercase;
+  letter-spacing:.13em; text-align:center; margin-bottom:12px; font-weight:600; }
+.prompt-word { font-family:'Manrope',sans-serif; font-size:var(--fs-hero); font-weight:800;
+  text-align:center; margin-bottom:6px; line-height:1.15; letter-spacing:-.02em; }
+.prompt-sub  { font-size:.78rem; color:var(--text-muted); text-align:center;
+  margin-bottom:20px; font-style:italic; min-height:18px; letter-spacing:.03em; }
+
+/* ── Input wrap ── */
+.input-wrap { width:100%; max-width:360px; margin:0 auto; }
+
+/* Umlaut quick-tap row — Stitch square style */
+.umlaut-row { display:flex; gap:6px; justify-content:center; margin-bottom:12px; flex-wrap:wrap; }
+.u-btn {
+  width:44px; height:44px; border:1px solid rgba(65,65,65,.12); border-radius:8px;
+  background:var(--surface); color:var(--text); font-size:1.05rem;
+  font-family:'Manrope',sans-serif; font-weight:600;
+  cursor:pointer; transition:background .2s; user-select:none;
+  -webkit-user-select:none;
+}
+.u-btn:hover, .u-btn:active { background:var(--card); }
+
+.answer-input {
+  width:100%; padding:12px 4px; border:none; border-bottom:2px solid var(--accent);
+  border-radius:0; background:transparent; color:var(--text);
+  font-family:'Manrope',sans-serif; font-weight:700;
+  text-align:center; letter-spacing:-.01em;
+  font-size:1.15rem; outline:none;
+  transition:border-color .25s var(--ease), background .25s var(--ease);
+}
+.answer-input:focus          { outline:none; border-bottom-color:var(--accent); }
+.answer-input.st-correct     { border-bottom-color:var(--green); color:var(--green); }
+.answer-input.st-wrong       { border-bottom-color:var(--red);   color:var(--red); }
+.answer-input.st-typo        { border-bottom-color:var(--yellow); color:var(--yellow); }
+.answer-input::placeholder   { color:var(--text-muted); font-weight:400; font-size:1rem; }
+
+.action-row { display:flex; gap:10px; margin-top:14px; min-height:52px; }
+.action-row .btn { flex:1; }
+.skip-btn { background:none; border:none; color:var(--text-muted); font-size:.78rem;
+  cursor:pointer; padding:7px; display:block; margin:7px auto 0; }
+.skip-btn:hover { color:var(--text-dim); }
+
+/* ── Feedback — Stitch hero style ── */
+.feedback-section { margin-top:14px; }
+
+/* Status header */
+.fb-header { text-align:center; margin-bottom:14px; }
+.fb-status-lbl { font-size:.58rem; text-transform:uppercase; letter-spacing:.18em;
+  color:var(--text-muted); font-weight:700; }
+.fb-result { font-family:'Manrope',sans-serif; font-size:2rem; font-weight:800;
+  letter-spacing:-.03em; line-height:1; margin-top:4px; }
+.fb-correct  { color:var(--green); }
+.fb-typo     { color:var(--yellow); }
+.fb-article  { color:var(--orange); }
+.fb-confused { color:var(--orange); }
+.fb-wrong    { color:var(--red); }
+
+/* Vocabulary card — Stitch: larger padding */
+.fb-word-card { background:var(--card); border-radius:var(--radius);
+  padding:28px 24px; margin:0 0 12px; text-align:center;
+  border:1px solid rgba(65,65,65,.08); }
+.dark .fb-word-card { border-color:rgba(249,249,249,.06); }
+.fb-word-card.is-correct { border-color:rgba(73,97,127,.2); background:rgba(73,97,127,.05); }
+.fb-word-card.is-wrong   { border-color:rgba(107,46,42,.18); background:rgba(107,46,42,.04); }
+.fb-de { font-family:'Manrope',sans-serif; font-size:1.9rem; font-weight:800;
+  letter-spacing:-.03em; color:var(--text); line-height:1.1; }
+.fb-en { font-size:.88rem; color:var(--text-dim); margin-top:8px; font-style:italic; }
+
+/* Correct-answer inline (legacy — kept for cloze) */
+.correct-ans { text-align:center; margin-bottom:10px; }
+.ca-word { font-size:1.1rem; font-weight:700; color:var(--accent-light); }
+
+/* ── Stitch Interval Buttons — 4-col SM-2 grid ── */
+.interval-grid {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
+  margin-top:14px; margin-bottom:4px;
+}
+@media (min-width:480px) {
+  .interval-grid { grid-template-columns:repeat(4,1fr); }
+}
+.interval-grid.two-col { grid-template-columns:repeat(2,1fr) !important; }
+.interval-btn {
+  background:var(--card); border:1px solid rgba(65,65,65,.08);
+  border-radius:12px; padding:18px 12px;
+  cursor:pointer; text-align:center;
+  transition:background .15s var(--ease), border-color .15s var(--ease), transform .1s;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.dark .interval-btn { border-color:rgba(249,249,249,.06); background:var(--surface); }
+.interval-btn:hover { background:var(--surface); border-color:rgba(65,65,65,.2); }
+.interval-btn:active { transform:scale(.97); }
+.interval-btn.is-primary {
+  background:var(--accent); border-color:var(--accent);
+  box-shadow:0 8px 20px rgba(65,65,65,.15);
+}
+.interval-btn.is-primary:hover { background:var(--accent-light); border-color:var(--accent-light); }
+.ib-label {
+  font-family:'Manrope',sans-serif; font-size:.78rem; font-weight:700;
+  letter-spacing:.02em; color:var(--text);
+}
+.interval-btn.is-primary .ib-label { color:#fff; }
+.ib-val {
+  font-size:.62rem; color:var(--text-dim); font-variant-numeric:tabular-nums;
+}
+.interval-btn.is-primary .ib-val { color:rgba(255,255,255,.65); }
+
+/* ── Feedback gender badge (above word, centered) ── */
+.fb-gender-badge {
+  display:flex; justify-content:center; margin-bottom:10px;
+}
+
+/* ── Feedback green ambient tint (Stitch bg-green-tint) ── */
+.card-area.fb-active {
+  background-image:
+    radial-gradient(at 0% 0%, rgba(76,175,80,.025) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(76,175,80,.015) 0px, transparent 50%);
+}
+
+/* ── MC context hint quote ── */
+.mc-context-hint {
+  font-style:italic; font-size:.82rem; color:var(--text-dim);
+  border-left:2px solid rgba(65,65,65,.15); padding-left:14px;
+  margin:14px 0 4px; line-height:1.65;
+}
+
+/* Gender colour badges — Stitch palette (square) */
+.gbadge { display:inline-block; font-size:.7rem; font-weight:700; padding:2px 8px;
+  border-radius:5px; margin-left:6px; vertical-align:middle; }
+.gbadge-m { background:rgba(72,96,126,.14);  color:var(--blue); }
+.gbadge-f { background:rgba(107,46,42,.14);  color:var(--red);  }
+.gbadge-n { background:rgba(73,97,127,.14);  color:var(--cyan); }
+
+/* ── Pill badges — Stitch rounded-full style (feedback card) ── */
+.gbadge-pill {
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:.72rem; font-weight:700; padding:4px 12px;
+  border-radius:999px; letter-spacing:.03em;
+  margin-left:6px; vertical-align:middle;
+}
+.gbadge-pill.gbadge-m { background:#48607e; color:#fff; }
+.gbadge-pill.gbadge-f { background:#6b2e2a; color:#fff; }
+.gbadge-pill.gbadge-n { background:#49617f; color:#fff; }
+
+/* Leech card tint + badge */
+.card-area.is-leech    { background: linear-gradient(180deg, rgba(248,113,113,0.07) 0%, transparent 55%); border-radius: var(--radius-sm); }
+.card-area.is-fragile  { background: linear-gradient(180deg, rgba(251,146,60,0.06)  0%, transparent 55%); border-radius: var(--radius-sm); }
+.leech-badge   { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:rgba(107,46,42,.14); color:var(--red);    margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+.fragile-badge { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:var(--tint-warn-bg); color:var(--red); margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+.article-badge { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:rgba(65,65,65,.08); color:var(--text-dim); margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+.slow-badge    { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; background:rgba(72,96,126,.14); color:var(--blue);   margin-left:7px; vertical-align:middle; letter-spacing:.04em; }
+
+/* New word intro card */
+.intro-card { background:var(--surface); border-radius:var(--radius); padding:20px; margin-bottom:18px; border:1px solid rgba(65,65,65,.12); animation:fadeUp .3s var(--ease); }
+.intro-label { font-size:.68rem; color:var(--accent-light); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; font-weight:700; }
+.intro-de { font-size:2rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+.intro-en { font-size:1rem; color:var(--text-dim); margin-bottom:14px; }
+.intro-ex { font-size:.88rem; color:var(--text-dim); line-height:1.6; border-top:1px solid var(--card); padding-top:12px; }
+.intro-ex .hl { color:var(--accent-light); font-weight:700; }
+
+/* Session history strip */
+.history-strip { background:var(--surface); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; }
+.history-title { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+.history-bars  { display:flex; gap:5px; align-items:flex-end; height:52px; }
+.h-bar-wrap    { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.h-bar         { width:100%; border-radius:3px 3px 0 0; min-height:3px; }
+.h-bar.good    { background:var(--green); }
+.h-bar.ok      { background:var(--orange); }
+.h-bar.bad     { background:var(--red); }
+.h-pct         { font-size:.58rem; color:var(--text-dim); }
+.h-day         { font-size:.58rem; color:var(--text-muted); }
+
+/* Weak words panel — Stitch trouble-card style */
+.weak-panel { background:transparent; border-radius:0; padding:0; margin-bottom:16px; border:none; }
+.dark .weak-panel { background:transparent; border-color:transparent; }
+.weak-panel-title { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+.weak-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--card); font-size:.88rem; }
+.weak-row:last-of-type { border-bottom:none; }
+.weak-de { font-weight:600; color:var(--red); }
+.weak-en { color:var(--text-dim); font-size:.78rem; }
+.weak-lapses { font-size:.72rem; color:var(--text-muted); }
+
+/* Multiple-choice options — Stitch 2-col bento grid */
+.mc-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; margin:0; }
+.mc-opt {
+  padding:28px 22px; border:1px solid rgba(65,65,65,.08); border-radius:12px;
+  background:var(--card); color:var(--text); text-align:left;
+  cursor:pointer; transition:border-color .15s var(--ease), background .15s var(--ease), transform .1s;
+  min-height:80px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  box-shadow:0 20px 40px rgba(26,28,28,.02);
+}
+.dark .mc-opt { border-color:rgba(249,249,249,.06); }
+.mc-opt:hover { border-color:rgba(65,65,65,.2); background:var(--surface); }
+.mc-opt:active { transform:scale(.98); }
+.mc-opt-text { font-family:'Manrope',sans-serif; font-size:1rem; font-weight:700;
+  color:var(--text); flex:1; line-height:1.3; }
+.mc-opt-ind  { font-size:1rem; flex-shrink:0; opacity:0; transition:opacity .15s; }
+.mc-opt:hover .mc-opt-ind { opacity:.3; }
+.mc-opt.mc-correct { border-color:var(--green); background:rgba(73,97,127,.08); pointer-events:none; }
+.mc-opt.mc-correct .mc-opt-text { color:var(--green); }
+.mc-opt.mc-correct .mc-opt-ind  { opacity:1; color:var(--green); }
+.mc-opt.mc-wrong   { border-color:var(--red);   background:rgba(107,46,42,.06); opacity:.55; pointer-events:none; }
+.mc-opt.mc-locked  { pointer-events:none; }
+/* Session mastery progress bar (under MC prompt) */
+.mc-mastery-bar { height:2px; background:var(--surface); border-radius:1px; margin-bottom:20px; overflow:hidden; }
+.mc-mastery-bar .fill { height:100%; background:var(--green); transition:width .6s var(--ease); }
+
+/* Confused-state detail box */
+.confused-box { background:var(--tint-warn-bg); border:1px solid var(--tint-warn-bd); border-radius:var(--radius-sm);
+  padding:10px 14px; margin-bottom:12px; font-size:.84rem; color:var(--red); }
+.confused-box.cb-info   { background:var(--tint-info-bg);   border-color:var(--tint-info-bd);   color:var(--cyan); }
+.confused-box.cb-danger { background:var(--tint-danger-bg); border-color:var(--tint-danger-bd); color:var(--red); }
+
+/* ── B2: Stitch Intro (hero typography + bento examples) ── */
+.intro-hero { padding:20px 0 6px; text-align:center; }
+.intro-badge-row { font-size:.63rem; text-transform:uppercase; letter-spacing:.13em;
+  color:var(--text-dim); font-weight:700; margin-bottom:10px; }
+/* Stitch: text-7xl headline on intro */
+.intro-word-large { font-family:'Manrope',sans-serif; font-size:3.5rem; font-weight:800;
+  letter-spacing:-.03em; line-height:1.05; color:var(--text); margin-bottom:10px; }
+.intro-trans { font-size:1rem; color:var(--text-dim); margin-bottom:6px; }
+.intro-examples-grid { display:grid; grid-template-columns:1fr; gap:8px; margin:14px 0 4px; }
+@media (min-width:560px) {
+  .intro-examples-grid { grid-template-columns:repeat(3,1fr); }
+}
+/* Stitch: intro retention footer */
+.intro-retention-row {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:14px; padding-top:12px; border-top:1px solid rgba(65,65,65,.06);
+}
+.intro-ret-bar-wrap { display:flex; flex-direction:column; gap:5px; min-width:160px; }
+.intro-ret-bar-label { font-size:.6rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.12em; color:var(--text-dim); }
+.intro-ret-bar-track { height:5px; background:var(--surface); border-radius:3px; overflow:hidden; }
+.intro-ret-bar-fill  { height:100%; background:var(--cyan); transition:width .4s; border-radius:3px; }
+.intro-ret-pct { font-family:'Manrope',sans-serif; font-size:1.6rem; font-weight:800;
+  letter-spacing:-.03em; color:var(--text); line-height:1; }
+.intro-ret-sublabel { font-size:.6rem; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--text-dim); margin-top:2px; }
+.intro-ex-header { font-size:.62rem; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--text-muted); margin-bottom:6px; font-weight:600;
+  display:flex; align-items:center; gap:4px; }
+.intro-ex-bento { background:var(--card); border-radius:var(--radius);
+  padding:14px 16px; border:1px solid rgba(65,65,65,.08); }
+.dark .intro-ex-bento { border-color:rgba(249,249,249,.06); }
+.intro-ex-accent { height:2px; width:24px; background:rgba(65,65,65,.14);
+  border-radius:1px; margin-bottom:10px; }
+.dark .intro-ex-accent { background:rgba(249,249,249,.14); }
+.intro-ex-de { font-size:.92rem; color:var(--text); line-height:1.6;
+  margin-bottom:6px; font-style:italic; }
+.intro-ex-de .hl { font-style:normal; font-weight:700; color:var(--accent-light); }
+.intro-ex-en { font-size:.76rem; color:var(--text-dim); margin-bottom:6px;
+  padding-top:7px; border-top:1px solid rgba(65,65,65,.06); }
+
+/* Examples section */
+.examples-block {
+  background:var(--surface); border-radius:var(--radius-sm);
+  padding:16px; margin-bottom:14px;
+  animation: fadeUp .3s var(--ease);
+}
+.ex-header { font-size:.68rem; color:var(--text-dim); text-transform:uppercase;
+  letter-spacing:.08em; margin-bottom:14px; }
+.ex-item { margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--card); }
+.ex-item:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+.ex-de { font-size:.95rem; color:var(--text); line-height:1.55; margin-bottom:3px; }
+.ex-de .hl { color:var(--accent-light); font-weight:700; }
+.ex-en { font-size:.79rem; color:var(--text-dim); margin-bottom:5px; font-style:italic; }
+.ex-grammar { display:inline-block; font-size:.64rem; font-weight:600; padding:2px 8px;
+  border-radius:4px; background:rgba(65,65,65,.08); color:var(--text-dim); letter-spacing:.03em; }
+
+/* ── Results — Stitch (C1) ── */
+.res-scroll { padding-bottom:24px; }
+.res-hero { display:flex; flex-direction:column; align-items:center; padding:20px 0 8px; }
+.res-hero-text { text-align:center; margin-top:14px; }
+.res-title { font-family:'Manrope',sans-serif; font-size:1.55rem; font-weight:800;
+  letter-spacing:-.02em; color:var(--text); margin-bottom:5px; line-height:1.2; }
+.res-sub   { color:var(--text-dim); font-size:.85rem; }
+/* Results ring — Stitch w-64 size (256px, r=110) */
+.res-ring-wrap { position:relative; width:256px; height:256px; flex-shrink:0; }
+.res-ring-pct { font-family:'Manrope',sans-serif; font-size:2.2rem; font-weight:800;
+  letter-spacing:-.04em; color:var(--text); line-height:1; }
+.res-ring-lbl { font-size:.56rem; text-transform:uppercase; letter-spacing:.18em;
+  color:var(--text-dim); margin-top:4px; font-weight:600; }
+/* Results stats — Stitch 3-col equal grid (md:grid-cols-3) */
+.res-stats-3col {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:10px; margin:14px 0;
+}
+/* Results CTA — Stitch horizontal flex row (sm:flex-row) */
+.res-actions-row {
+  display:flex; flex-direction:column; gap:10px; margin:14px 0 20px;
+}
+@media (min-width:440px) {
+  .res-actions-row { flex-direction:row; }
+  .res-actions-row .btn { flex:1; }
+}
+/* Legacy IDs kept for JS compat */
+.res-actions { display:flex; flex-direction:column; gap:10px; margin:14px 0 20px; }
+.res-icon { display:none; }
+.res-grid { display:none; }
+
+/* ── Cloze mode — Stitch card style ── */
+.cloze-card {
+  background:var(--card); border-radius:16px; padding:28px 24px;
+  margin-bottom:12px; border:1px solid rgba(65,65,65,.08);
+  box-shadow:0 20px 40px rgba(26,28,28,.04);
+}
+.dark .cloze-card { border-color:rgba(249,249,249,.06); }
+
+/* Stitch: decorative blur circles (secondary/5, tertiary/5) */
+.cloze-orb-r {
+  position:fixed; top:25%; right:-48px; width:256px; height:256px;
+  background:rgba(72,96,126,.05); border-radius:50%; filter:blur(40px);
+  pointer-events:none; z-index:0; display:none;
+}
+.cloze-orb-l {
+  position:fixed; bottom:25%; left:-48px; width:192px; height:192px;
+  background:rgba(107,46,42,.05); border-radius:50%; filter:blur(32px);
+  pointer-events:none; z-index:0; display:none;
+}
+.cloze-orb-r.active, .cloze-orb-l.active { display:block; }
+.cloze-sentence { font-family:'Manrope',sans-serif; font-size:1.4rem; font-weight:600;
+  line-height:1.65; color:var(--text); letter-spacing:-.01em; }
+.cloze-blank {
+  display:inline-block;
+  min-width: calc(var(--answer-len, 6) * 0.65em + 1.2rem);
+  border-bottom:2px solid var(--accent);
+  color:var(--accent); font-weight:700; text-align:center;
+  margin:0 3px; padding:0 6px; vertical-align:baseline;
+  border-radius:0 0 2px 2px;
+}
+.cloze-translation { display:flex; align-items:center; gap:6px;
+  margin-top:14px; padding-top:12px; border-top:1px solid rgba(65,65,65,.07);
+  font-size:.88rem; color:var(--text-dim); font-style:italic; }
+.cloze-grammar-note { background:rgba(65,65,65,.05); border-radius:8px;
+  padding:10px 14px; margin-bottom:12px; }
+.dark .cloze-grammar-note { background:rgba(249,249,249,.04); }
+.cloze-grammar-note .cgn-label { font-size:.58rem; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--text-dim); font-weight:700; margin-bottom:4px; }
+.cloze-grammar-note .cgn-text { font-size:.82rem; color:var(--text-dim); line-height:1.5; }
+
+/* ── Results missed-word list ── */
+.res-missed { width:100%; margin-bottom:16px; text-align:left; }
+.res-missed-title { font-size:.7rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.missed-row { display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface); border-radius:8px; padding:10px 12px; margin-bottom:6px; gap:8px; }
+.missed-de  { font-weight:700; font-size:.9rem; flex:1; }
+.missed-en  { font-size:.78rem; color:var(--text-dim); flex:1; }
+.missed-tag { font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px;
+  white-space:nowrap; flex-shrink:0; }
+.tag-wrong    { background:rgba(107,46,42,.12); color:var(--red); }
+.tag-confused { background:var(--tint-warn-bg); color:var(--red); }
+.tag-article  { background:rgba(65,65,65,.08); color:var(--text-dim); }
+.tag-typo     { background:rgba(65,65,65,.08); color:var(--text-dim); }
+.tag-skip     { background:rgba(115,119,128,.12); color:var(--text-muted); }
+.missed-count { font-size:.68rem; font-weight:700; color:var(--red); min-width:18px; text-align:right; flex-shrink:0; }
+.missed-row.is-fragile { border-left:3px solid var(--orange); }
+.missed-row.is-leech   { border-left:3px solid var(--red); }
+.res-drill-btn { display:block; width:100%; max-width:310px; margin-bottom:10px; }
+
+/* ── Modal ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6);
+  display:none; align-items:center; justify-content:center; z-index:50; padding:18px; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border-radius:var(--radius); padding:24px;
+  width:100%; max-width:390px; max-height:82vh; overflow-y:auto; }
+.modal h2 { font-size:1.1rem; margin-bottom:18px; }
+.modal label { display:block; font-size:.78rem; color:var(--text-dim); margin-bottom:5px;
+  text-transform:uppercase; letter-spacing:.05em; }
+.modal input { width:100%; padding:10px 12px; border:1px solid var(--card); border-radius:8px;
+  background:var(--bg); color:var(--text); font-size:.95rem; margin-bottom:14px; outline:none; }
+.modal input:focus { border-color:var(--accent); outline:none; }
+.modal-actions { display:flex; gap:10px; margin-top:8px; }
+.modal-actions .btn { flex:1; }
+
+/* Utilities */
+.mt-auto { margin-top:auto; }
+.hidden  { display:none !important; }
+.mb-12   { margin-bottom:12px; }
+
+/* ── A3: Shared Layout Shell ─────────────────────── */
+.app-header {
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--gutter); height:var(--topbar-h);
+  background:rgba(249,249,249,.88); backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(65,65,65,.08);
+  font-family:'Manrope',sans-serif;
+  transition: background .25s var(--ease);
+}
+.dark .app-header {
+  background:rgba(26,28,28,.88);
+  border-bottom-color:rgba(249,249,249,.08);
+}
+.app-header-left  { display:flex; align-items:center; gap:10px; }
+.app-header-title { font-size:.95rem; font-weight:700; letter-spacing:-.01em; color:var(--text); }
+.app-header-right { display:flex; align-items:center; gap:8px; font-size:.9rem;
+  font-weight:600; color:var(--text); font-family:'Manrope',sans-serif; }
+
+/* Session progress bar */
+.s-top-bar { height:2px; background:var(--surface); overflow:hidden; margin-bottom:0; }
+.s-top-bar .fill { height:100%; background:var(--accent); transition:width .35s var(--ease); border-radius:0 2px 2px 0; }
+
+/* Bottom nav — Stitch Navigation Bar */
+.app-nav {
+  position:fixed; bottom:0; left:0; right:0; z-index:50;
+  display:flex; justify-content:space-around; align-items:center;
+  height:var(--bottombar-h); padding:0;
+  background:var(--surface);
+  border-top:1px solid rgba(65,65,65,.06);
+  font-family:'Inter',sans-serif;
+  transition:background .25s var(--ease);
+}
+.dark .app-nav { border-top-color:rgba(249,249,249,.06); }
+.nav-item {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  flex:1; padding:10px 0; cursor:pointer;
+  background:none; border:none;
+  color:var(--text-muted);
+  text-decoration:none;
+  transition:color .2s var(--ease);
+}
+.nav-item:hover  { color:var(--text-dim); }
+.nav-item.active { color:var(--accent); }
+.nav-item .nav-icon  { font-size:1.35rem; line-height:1; }
+.nav-item .nav-label { font-size:.58rem; text-transform:uppercase; letter-spacing:.07em; color:inherit; }
+.material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; }
+.nav-item.active .material-symbols-outlined { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+
+/* Theme toggle button */
+.theme-toggle {
+  background:none; border:none; cursor:pointer;
+  color:var(--text-dim); font-size:1.1rem; padding:6px;
+  border-radius:8px; transition:background .2s, color .2s;
+  display:flex; align-items:center; justify-content:center;
+}
+.theme-toggle:hover { background:var(--surface); color:var(--text); }
+.theme-toggle .material-symbols-outlined { font-size:1.15rem; }
+
+/* ── B1: Dashboard ───────────────────────────────────── */
+.dash-hero { display:flex; flex-direction:column; align-items:center; padding:24px 0 16px; }
+/* Stitch: 192px ring (r=88, circumference=552.92) */
+.mastery-ring-wrap { position:relative; width:192px; height:192px; }
+.mastery-ring-svg { width:100%; height:100%; transform:rotate(-90deg); }
+.ring-track { fill:none; stroke:var(--surface); stroke-width:8; }
+.ring-fill  { fill:none; stroke:var(--accent); stroke-width:8; stroke-linecap:round;
+  transition:stroke-dashoffset 1s var(--ease);
+  stroke-dasharray:552.92; stroke-dashoffset:552.92; }
+.ring-center {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.ring-stat-val { font-family:'Manrope',sans-serif; font-size:2.2rem; font-weight:800;
+  letter-spacing:-.04em; color:var(--text); line-height:1; }
+.ring-stat-lbl { font-size:.58rem; text-transform:uppercase; letter-spacing:.18em;
+  color:var(--text-dim); margin-top:4px; font-weight:600; }
+.dash-hero-text { text-align:center; margin-top:14px; }
+.dash-level-name { font-family:'Manrope',sans-serif; font-size:1.05rem; font-weight:700;
+  color:var(--text); letter-spacing:-.01em; }
+.dash-sub { font-size:.78rem; color:var(--text-dim); margin-top:3px; }
+
+.dash-bento { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0; }
+.dash-bento-card { background:var(--card); border-radius:var(--radius);
+  padding:16px; border:1px solid rgba(65,65,65,.08); }
+.dark .dash-bento-card { border-color:rgba(249,249,249,.06); }
+.dash-bento-label { font-size:.6rem; text-transform:uppercase; letter-spacing:.14em;
+  color:var(--text-dim); font-weight:700; margin-bottom:8px; }
+.dash-bento-val { font-family:'Manrope',sans-serif; font-size:2rem; font-weight:700;
+  color:var(--text); letter-spacing:-.03em; line-height:1; }
+.dash-bento-meta { font-size:.72rem; color:var(--text-dim); margin-top:2px; }
+.streak-pips { display:flex; gap:4px; margin-top:10px; }
+.streak-pip { height:3px; flex:1; border-radius:2px; background:var(--surface); }
+.streak-pip.active { background:var(--accent); }
+
+.weekly-bars-mini { display:flex; gap:3px; align-items:flex-end; height:40px; margin-top:6px; }
+.wbm-bar { flex:1; border-radius:2px 2px 0 0; min-height:3px; opacity:.85; }
+.wbm-bar.good { background:var(--green); }
+.wbm-bar.ok   { background:var(--orange); }
+.wbm-bar.bad  { background:var(--red); }
+.wbm-bar.empty{ background:var(--surface); }
+
+.dash-cta { margin:4px 0 14px; border-radius:var(--radius); padding:17px;
+  font-size:1rem; font-weight:700; letter-spacing:-.01em; }
+.dash-util-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; padding-bottom:0; }
+.dash-util-row:last-child { padding-bottom:80px; }
+.dash-util-row .btn { flex:1; min-width:100px; padding:10px 12px; font-size:.82rem; }
+
+/* ── Trouble words (Stitch style) — border-left: 4px ── */
+.trouble-header { display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:10px; }
+.trouble-title-txt { font-family:'Manrope',sans-serif; font-size:.95rem; font-weight:700;
+  color:var(--text); }
+.trouble-view-all { font-size:.72rem; color:var(--text-dim); cursor:pointer; }
+.trouble-view-all:hover { color:var(--accent); }
+.trouble-card { display:flex; justify-content:space-between; align-items:center;
+  padding:14px 16px; background:var(--card); border-radius:var(--radius);
+  border:1px solid rgba(65,65,65,.08); border-left:4px solid var(--red); margin-bottom:8px; }
+.trouble-card.is-fragile { border-left-color:var(--orange); }
+.trouble-card.is-slow    { border-left-color:var(--blue); }
+.dark .trouble-card { border-color:rgba(249,249,249,.06); }
+.trouble-word { font-family:'Manrope',sans-serif; font-weight:700; color:var(--text);
+  font-size:.95rem; }
+.trouble-trans { font-size:.72rem; color:var(--text-dim); margin-top:2px; }
+.trouble-tag-badge { font-size:.58rem; font-weight:700; padding:2px 7px; border-radius:4px;
+  text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }
+
+/* ── Dash crash + reminder chips ── */
+.dash-crash-banner {
+  display:flex; align-items:center; gap:12px;
+  background:var(--card); border-radius:var(--radius);
+  border:1px solid rgba(65,65,65,.10); border-left:3px solid var(--yellow);
+  padding:12px 14px; margin-bottom:12px;
+}
+.dark .dash-crash-banner { border-color:rgba(249,249,249,.07); }
+.dash-info-chip {
+  background:var(--card); border-radius:var(--radius);
+  border:1px solid rgba(65,65,65,.08); border-left:3px solid var(--orange);
+  padding:10px 14px; margin-bottom:12px;
+  font-size:.82rem; color:var(--text-dim);
+}
+.dark .dash-info-chip { border-color:rgba(249,249,249,.07); }
+
+/* ── D1: Hint Bottom Sheet ── */
+.hint-backdrop {
+  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  z-index:100; opacity:0; pointer-events:none;
+  transition:opacity .25s var(--ease);
+}
+.hint-backdrop.open { opacity:1; pointer-events:all; }
+.hint-sheet {
+  position:fixed; bottom:0; left:0; right:0;
+  max-width:600px; margin:0 auto;
+  background:var(--card); border-radius:16px 16px 0 0;
+  padding:0 0 24px; z-index:101;
+  transform:translateY(100%);
+  transition:transform .3s var(--ease);
+  max-height:72vh; overflow-y:auto;
+}
+.hint-sheet.open { transform:translateY(0); }
+.hint-drag { width:36px; height:4px; background:rgba(65,65,65,.18);
+  border-radius:2px; margin:12px auto 16px; }
+.dark .hint-drag { background:rgba(249,249,249,.18); }
+.hint-body { padding:0 20px 8px; }
+.hint-word-row { display:flex; align-items:baseline; gap:8px; margin-bottom:4px; flex-wrap:wrap; }
+.hint-word { font-family:'Manrope',sans-serif; font-size:1.8rem; font-weight:800;
+  letter-spacing:-.03em; color:var(--text); line-height:1.1; }
+.hint-trans { font-size:.9rem; color:var(--text-dim); }
+.hint-section { margin-top:14px; }
+.hint-label { font-size:.6rem; text-transform:uppercase; letter-spacing:.14em;
+  color:var(--text-muted); font-weight:700; margin-bottom:6px; }
+.hint-etymology { font-size:.88rem; color:var(--text-dim); line-height:1.6;
+  background:var(--surface); border-radius:8px; padding:10px 14px; }
+.hint-ex { background:var(--surface); border-radius:8px; padding:12px 14px; margin-bottom:6px; }
+.hint-ex-de { font-size:.9rem; color:var(--text); line-height:1.55; }
+.hint-ex-de .hl { color:var(--accent-light); font-weight:700; }
+.hint-ex-en { font-size:.75rem; color:var(--text-dim); margin-top:4px; font-style:italic; }
+.hint-close-btn { width:100%; margin-top:14px; }
+
+/* ── D3: Lexicon Screen ── */
+.lex-search-wrap { position:relative; margin:16px 0 4px; }
+.lex-search { width:100%; padding:10px 14px 10px 38px;
+  border:1px solid rgba(65,65,65,.12); border-radius:var(--radius);
+  background:var(--card); color:var(--text); font-size:.9rem; outline:none;
+  transition:border-color .2s; }
+.lex-search:focus { border-color:var(--accent); }
+.dark .lex-search { border-color:rgba(249,249,249,.1); }
+.lex-search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  font-size:1rem; color:var(--text-muted); pointer-events:none; }
+.lex-count { font-size:.72rem; color:var(--text-muted); margin-bottom:8px; }
+.lex-list { display:flex; flex-direction:column; gap:6px; padding-bottom:80px; }
+.lex-card { background:var(--card); border-radius:var(--radius);
+  border:1px solid rgba(65,65,65,.08); padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer; transition:border-color .15s; }
+.dark .lex-card { border-color:rgba(249,249,249,.06); }
+.lex-card:hover { border-color:rgba(65,65,65,.2); }
+.lex-card.is-new { opacity:.65; }
+.lex-card-left { flex:1; min-width:0; }
+.lex-de { font-family:'Manrope',sans-serif; font-size:1rem; font-weight:700;
+  color:var(--text); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.lex-en { font-size:.78rem; color:var(--text-dim); margin-top:2px; }
+.lex-card-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; min-width:56px; }
+.lex-mastery-bar { width:48px; height:4px; background:var(--surface); border-radius:2px; overflow:hidden; }
+.lex-mastery-fill { height:100%; border-radius:2px; transition:width .4s; }
+.lex-mastery-pct { font-size:.62rem; color:var(--text-muted); font-variant-numeric:tabular-nums; }
+.lex-due { font-size:.62rem; color:var(--text-muted); }
+.lex-empty { text-align:center; color:var(--text-muted); font-size:.88rem; padding:24px 0; }
+
+/* ── Practice Screen ── */
+.practice-scroll { padding:20px 0 90px; }
+.practice-hero { margin-bottom:16px; }
+.practice-kicker {
+  font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em;
+  color:var(--text-dim); margin-bottom:6px;
+}
+.practice-title {
+  font-family:'Manrope',sans-serif; font-size:1.55rem; font-weight:800;
+  letter-spacing:-.03em; color:var(--text); line-height:1.15;
+}
+.practice-sub { color:var(--text-dim); font-size:.86rem; margin-top:6px; line-height:1.5; }
+.practice-grid { display:flex; flex-direction:column; gap:10px; }
+.practice-card {
+  width:100%; display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;
+  padding:16px; background:var(--card); color:var(--text); border:1px solid rgba(65,65,65,.08);
+  border-radius:var(--radius); cursor:pointer; text-align:left;
+  transition:border-color .15s var(--ease), background .15s var(--ease), transform .1s;
+}
+.dark .practice-card { border-color:rgba(249,249,249,.06); }
+.practice-card:hover:not(:disabled) { border-color:rgba(65,65,65,.2); background:var(--surface); }
+.practice-card:active:not(:disabled) { transform:scale(.99); }
+.practice-card:disabled { opacity:.48; cursor:not-allowed; }
+.practice-icon {
+  width:42px; height:42px; border-radius:10px; background:var(--surface);
+  display:flex; align-items:center; justify-content:center; color:var(--accent);
+}
+.practice-icon .material-symbols-outlined { font-size:1.25rem; }
+.practice-copy { min-width:0; }
+.practice-card-title {
+  font-family:'Manrope',sans-serif; font-size:.98rem; font-weight:700;
+  letter-spacing:-.01em; color:var(--text); margin-bottom:3px;
+}
+.practice-card-meta { font-size:.76rem; color:var(--text-dim); line-height:1.45; }
+.practice-count {
+  font-family:'Manrope',sans-serif; font-size:1.25rem; font-weight:800;
+  color:var(--text); font-variant-numeric:tabular-nums; line-height:1;
+}
+.practice-count-label {
+  font-size:.58rem; color:var(--text-muted); text-transform:uppercase;
+  letter-spacing:.08em; margin-top:3px; text-align:right;
+}
+
+/* ── D2: Grammar / Progress Screen ── */
+.gram-section { margin-bottom:22px; }
+.gram-section-title { font-family:'Manrope',sans-serif; font-size:1rem; font-weight:700;
+  color:var(--text); margin-bottom:10px; letter-spacing:-.01em; }
+.gram-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:var(--radius);
+  border:1px solid rgba(65,65,65,.08); }
+.dark .gram-table-wrap { border-color:rgba(249,249,249,.06); }
+.gram-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+.gram-table th { background:var(--surface); font-weight:700; font-family:'Manrope',sans-serif;
+  font-size:.62rem; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--text-dim); padding:8px 12px; text-align:left; }
+.gram-table td { padding:9px 12px; border-top:1px solid rgba(65,65,65,.06); color:var(--text); }
+.dark .gram-table td { border-top-color:rgba(249,249,249,.05); }
+.gram-table td:first-child { font-weight:700; color:var(--text-dim); font-size:.72rem;
+  text-transform:uppercase; letter-spacing:.06em; white-space:nowrap;
+  background:var(--surface); }
+.gram-m { color:var(--blue); font-weight:700; }
+.gram-f { color:var(--pink); font-weight:700; }
+.gram-n { color:var(--cyan); font-weight:700; }
+.gram-p { color:var(--text-dim); font-weight:600; }
+.gram-note { background:var(--surface); border-radius:var(--radius); padding:10px 14px;
+  font-size:.8rem; color:var(--text-dim); line-height:1.6; margin-top:8px;
+  border-left:3px solid rgba(65,65,65,.15); }
+.gram-note strong { color:var(--text); }
+
+/* ── Celebration toast ── */
+#toast {
+  position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--card); border:1px solid rgba(65,65,65,.18); border-radius:24px;
+  padding:10px 20px; font-size:.9rem; font-weight:600; color:var(--text);
+  white-space:nowrap; z-index:200; pointer-events:none;
+  opacity:0; transition:opacity .3s ease, transform .3s ease;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════ HOME SCREEN ══════════ -->
+  <div id="home" class="screen active">
+
+    <!-- Top App Bar -->
+    <div class="app-header">
+      <div class="app-header-left">
+        <span class="material-symbols-outlined" style="font-size:1.2rem;color:var(--accent)">auto_stories</span>
+        <span class="app-header-title">Grammatik Geist</span>
+        <span class="dev-badge">Baseline</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark mode">
+        <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+      </button>
+    </div>
+
+    <!-- Hidden legacy elements (JS compat) -->
+    <span id="stat-mastered" style="display:none">0</span>
+    <span id="lc-bar"        style="display:none"></span>
+    <span id="lc-unlock"     style="display:none"></span>
+    <div  id="streak-banner" style="display:none!important"><span id="streak-text"></span></div>
+    <div  id="session-history" style="display:none!important"></div>
+
+    <!-- Crash recovery card -->
+    <div id="crash-banner" class="dash-crash-banner" style="display:none">
+      <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--yellow);flex-shrink:0">warning</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:.82rem;color:var(--text);font-family:'Manrope',sans-serif">Unfinished session</div>
+        <div style="font-size:.74rem;color:var(--text-dim);margin-top:1px">Resume where you left off?</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="bc-restore" onclick="restoreSession()">Restore</button>
+        <button class="bc-discard" onclick="discardCrash()">Discard</button>
+      </div>
+    </div>
+
+    <!-- Reminder chip -->
+    <div id="reminder-banner" class="dash-info-chip" style="display:none"></div>
+
+    <!-- Hero: Mastery Ring — Stitch 192px (r=88) -->
+    <section class="dash-hero">
+      <div class="mastery-ring-wrap">
+        <svg class="mastery-ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="88"/>
+          <circle class="ring-fill" id="dash-ring-fill" cx="100" cy="100" r="88"/>
+        </svg>
+        <div class="ring-center">
+          <span class="ring-stat-val" id="dash-mastery-pct">0%</span>
+          <span class="ring-stat-lbl">Mastery</span>
+        </div>
+      </div>
+      <div class="dash-hero-text">
+        <div class="dash-level-name" id="lc-title">Level 1 · 10 words</div>
+        <div class="dash-sub" id="lc-words">0 / 10 seen</div>
+      </div>
+    </section>
+
+    <!-- Bento grid -->
+    <div class="dash-bento">
+
+      <!-- Streak card -->
+      <div class="dash-bento-card">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="material-symbols-outlined" style="font-size:.9rem;color:var(--accent);font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">local_fire_department</span>
+          <span class="dash-bento-label" style="margin-bottom:0">Streak</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:5px;margin-top:8px">
+          <span class="dash-bento-val" id="stat-streak-val">0</span>
+          <span class="dash-bento-meta">days</span>
+        </div>
+        <div class="streak-pips" id="dash-streak-pips">
+          <div class="streak-pip"></div><div class="streak-pip"></div><div class="streak-pip"></div>
+          <div class="streak-pip"></div><div class="streak-pip"></div><div class="streak-pip"></div>
+          <div class="streak-pip"></div>
+        </div>
+      </div>
+
+      <!-- Due today card -->
+      <div class="dash-bento-card">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="material-symbols-outlined" style="font-size:.9rem;color:var(--text-dim)">today</span>
+          <span class="dash-bento-label" style="margin-bottom:0">Due Today</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:5px;margin-top:8px">
+          <span class="dash-bento-val" id="stat-due">0</span>
+          <span class="dash-bento-meta">cards</span>
+        </div>
+        <div class="dash-bento-meta" id="stat-ret" style="margin-top:6px">—</div>
+      </div>
+
+      <!-- Weekly activity — full width -->
+      <div class="dash-bento-card" style="grid-column:1/-1">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:8px">
+          <span class="material-symbols-outlined" style="font-size:.9rem;color:var(--text-dim)">bar_chart</span>
+          <span class="dash-bento-label" style="margin-bottom:0">Weekly Activity</span>
+        </div>
+        <div class="weekly-bars-mini" id="dash-weekly-bars">
+          <span style="font-size:.73rem;color:var(--text-muted);align-self:center">No sessions yet</span>
+        </div>
+      </div>
+
+    </div><!-- /.dash-bento -->
+
+    <!-- Trouble words (refreshHome writes innerHTML) -->
+    <div id="weak-words-panel" class="weak-panel hidden"></div>
+
+    <!-- CTA -->
+    <div class="dash-cta">
+      <button class="btn btn-primary elev" id="btn-start" onclick="startSession()">Start Session</button>
+      <div class="dash-util-row" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary" id="btn-hard" onclick="startSession('hard')" style="flex:1;min-width:120px">Hard Words</button>
+        <button class="btn btn-secondary" id="btn-review" onclick="startSession('review')" style="flex:1;min-width:120px">Review Only</button>
+      </div>
+      <div class="dash-util-row">
+        <button id="btn-drill"    class="btn btn-secondary" style="display:none" onclick="drillWeak()">Drill Weak Words</button>
+        <button id="btn-articles" class="btn btn-secondary" onclick="drillArticles()" style="display:none">Drill Articles</button>
+        <button class="btn btn-secondary" onclick="openModal('settings')">Settings</button>
+        <button class="btn btn-secondary" onclick="openModal('backup')">Export / Import</button>
+      </div>
+    </div>
+
+    <!-- Bottom Nav — 4th tab: Progress / bar_chart -->
+    <nav class="app-nav">
+      <button class="nav-item active" onclick="navTo('dashboard')">
+        <span class="material-symbols-outlined nav-icon">dashboard</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="navTo('lexicon')">
+        <span class="material-symbols-outlined nav-icon">menu_book</span>
+        <span class="nav-label">Lexicon</span>
+      </button>
+      <button class="nav-item" onclick="navTo('practice')">
+        <span class="material-symbols-outlined nav-icon">fitness_center</span>
+        <span class="nav-label">Practice</span>
+      </button>
+      <button class="nav-item" onclick="navTo('progress')">
+        <span class="material-symbols-outlined nav-icon">bar_chart</span>
+        <span class="nav-label">Progress</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ══════════ SESSION SCREEN ══════════ -->
+  <div id="session" class="screen">
+    <div class="session-topbar">
+      <div class="s-topbar-left">
+        <button class="s-end-btn" onclick="endEarly()" style="display:flex;align-items:center;gap:4px;padding:4px 6px">
+          <span class="material-symbols-outlined" style="font-size:1.1rem">arrow_back</span>
+        </button>
+        <span class="s-topbar-title">Session</span>
+      </div>
+      <div class="s-topbar-right">
+        <span class="s-prog" id="s-prog">1/10</span>
+        <span class="s-timer" id="s-timer">0:00</span>
+      </div>
+    </div>
+    <div class="s-prog-bar"><div class="fill" id="s-bar" style="width:0%"></div></div>
+
+    <div class="card-area">
+      <div class="prompt-mode" id="prompt-mode">Translate to German</div>
+      <div class="prompt-word" id="prompt-word"></div>
+      <div class="prompt-sub"  id="prompt-sub"></div>
+
+      <div class="input-wrap" id="input-wrap">
+        <!-- Umlaut quick-tap keyboard — Stitch: 4 keys only (ä/ö/ü/ß) -->
+        <div class="umlaut-row">
+          <button class="u-btn" onclick="ins('ä')">ä</button>
+          <button class="u-btn" onclick="ins('ö')">ö</button>
+          <button class="u-btn" onclick="ins('ü')">ü</button>
+          <button class="u-btn" onclick="ins('ß')">ß</button>
+        </div>
+
+        <input type="text" class="answer-input" id="answer-input"
+               placeholder="type German here"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               onkeydown="handleKey(event)">
+
+        <div class="action-row" id="action-row">
+          <button class="btn btn-primary" onclick="checkAnswer()">Check</button>
+        </div>
+        <button class="skip-btn" id="skip-btn" onclick="skipCard()">Skip this card</button>
+      </div>
+
+      <!-- Feedback + examples rendered here after Check -->
+      <div class="feedback-section hidden" id="feedback-section"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ RESULTS SCREEN ══════════ -->
+  <div id="results" class="screen">
+
+    <!-- Topbar -->
+    <div class="session-topbar">
+      <div class="s-topbar-left">
+        <button onclick="gotoHome()" style="display:flex;align-items:center;gap:4px;padding:4px 6px;background:none;border:none;cursor:pointer;color:var(--text-muted)">
+          <span class="material-symbols-outlined" style="font-size:1.1rem">arrow_back</span>
+        </button>
+        <span class="s-topbar-title">Results</span>
+      </div>
+    </div>
+
+    <!-- Hidden legacy IDs for JS compat -->
+    <span id="res-icon"  style="display:none">🎯</span>
+
+    <div class="res-scroll">
+
+      <!-- Accuracy Ring — Stitch 256px (r=110, circumference=691.15) -->
+      <section class="res-hero">
+        <div class="res-ring-wrap">
+          <svg class="mastery-ring-svg" viewBox="0 0 256 256">
+            <circle class="ring-track" cx="128" cy="128" r="110"/>
+            <circle class="ring-fill"  id="res-ring-fill" cx="128" cy="128" r="110"
+                    style="stroke:var(--green);stroke-dasharray:691.15;stroke-dashoffset:691.15"/>
+          </svg>
+          <div class="ring-center">
+            <span class="res-ring-pct" id="res-ring-pct">—</span>
+            <span class="res-ring-lbl">Accuracy</span>
+          </div>
+        </div>
+        <div class="res-hero-text">
+          <div class="res-title" id="res-title">Session Complete!</div>
+          <div class="res-sub"   id="res-sub"></div>
+        </div>
+      </section>
+
+      <!-- Stats — Stitch 3-col equal grid (md:grid-cols-3) -->
+      <div class="res-stats-3col">
+
+        <div class="dash-bento-card">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--text-dim);margin-bottom:10px;display:block">menu_book</span>
+          <div class="dash-bento-val" id="rv-new">0</div>
+          <div class="dash-bento-label" style="margin-top:6px">Words Learned</div>
+        </div>
+
+        <div class="dash-bento-card">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--text-dim);margin-bottom:10px;display:block">timer</span>
+          <div class="dash-bento-val" id="rv-time">0:00</div>
+          <div class="dash-bento-label" style="margin-top:6px">Focus Time</div>
+        </div>
+
+        <div class="dash-bento-card">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--text-dim);margin-bottom:10px;display:block">bolt</span>
+          <div style="display:flex;align-items:baseline;gap:3px">
+            <span class="dash-bento-val" id="rv-correct">0</span>
+            <span class="dash-bento-meta" style="font-size:.7rem">/ <span id="rv-total">0</span></span>
+          </div>
+          <div class="dash-bento-label" style="margin-top:6px">Correct</div>
+        </div>
+
+      </div><!-- /.res-stats-3col -->
+
+      <!-- Missed words (endSession writes innerHTML) -->
+      <div id="res-missed" class="res-missed hidden"></div>
+
+      <!-- CTAs — Stitch: horizontal sm:flex-row (Quick Review + Back to Dashboard) -->
+      <div class="res-actions-row">
+        <button class="btn btn-primary" onclick="startSession()" style="display:flex;align-items:center;justify-content:center;gap:6px">
+          <span class="material-symbols-outlined" style="font-size:.9rem">history</span>
+          Quick Review
+        </button>
+        <button class="btn btn-secondary" onclick="gotoHome()">Back to Dashboard</button>
+      </div>
+
+    </div><!-- /.res-scroll -->
+
+  </div>
+
+  <!-- ══════════ SETTINGS MODAL ══════════ -->
+  <div id="settings" class="modal-overlay" onclick="if(event.target===this)closeModal('settings')">
+    <div class="modal">
+      <h2>Settings</h2>
+      <label>Daily Review Cap</label>
+      <input type="number" id="s-cap"  min="5"  max="200" value="80">
+      <label>Session Length (minutes)</label>
+      <input type="number" id="s-mins" min="3"  max="30"  value="7">
+      <label style="color:var(--red)">Danger Zone</label>
+      <button class="btn btn-secondary btn-sm" style="color:var(--red);margin-bottom:14px" onclick="confirmReset()">Reset All Progress</button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('settings')">Cancel</button>
+        <button class="btn btn-primary"   onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ BACKUP MODAL ══════════ -->
+  <div id="backup" class="modal-overlay" onclick="if(event.target===this)closeModal('backup')">
+    <div class="modal">
+      <h2>Export / Import Progress</h2>
+      <p style="font-size:.84rem;color:var(--text-dim);margin-bottom:14px">
+        Save a JSON backup of your SRS progress. Protects against browser data clears.
+      </p>
+      <button class="btn btn-primary btn-sm mb-12" onclick="exportData()">Download Progress (JSON)</button>
+      <label>Restore from file</label>
+      <input type="file" id="import-file" accept=".json" style="color:var(--text-dim);margin-bottom:14px">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('backup')">Close</button>
+        <button class="btn btn-primary"   onclick="importData()">Import</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════ LEXICON SCREEN ══════════ -->
+  <div id="lexicon" class="screen">
+    <div class="app-header">
+      <div class="app-header-left">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--accent)">menu_book</span>
+        <span class="app-header-title">Lexicon</span>
+      </div>
+      <div class="app-header-right" style="font-size:.8rem;color:var(--text-dim)" id="lex-count-top"></div>
+    </div>
+    <div class="lex-search-wrap" style="position:relative">
+      <span class="material-symbols-outlined lex-search-icon">search</span>
+      <input type="text" class="lex-search" id="lex-search" placeholder="Search words…"
+        oninput="filterLexicon(this.value)"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="lex-count" id="lex-count"></div>
+    <div class="lex-list" id="lex-list"></div>
+    <nav class="app-nav">
+      <button class="nav-item" onclick="navTo('dashboard')">
+        <span class="material-symbols-outlined nav-icon">dashboard</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-item active" onclick="navTo('lexicon')">
+        <span class="material-symbols-outlined nav-icon">menu_book</span>
+        <span class="nav-label">Lexicon</span>
+      </button>
+      <button class="nav-item" onclick="navTo('practice')">
+        <span class="material-symbols-outlined nav-icon">fitness_center</span>
+        <span class="nav-label">Practice</span>
+      </button>
+      <button class="nav-item" onclick="navTo('progress')">
+        <span class="material-symbols-outlined nav-icon">bar_chart</span>
+        <span class="nav-label">Progress</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ══════════ PRACTICE SCREEN ══════════ -->
+  <div id="practice" class="screen">
+    <div class="app-header">
+      <div class="app-header-left">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--accent)">fitness_center</span>
+        <span class="app-header-title">Practice</span>
+      </div>
+      <div class="app-header-right" id="practice-count-top"></div>
+    </div>
+
+    <div class="practice-scroll">
+      <section class="practice-hero">
+        <div class="practice-kicker" id="practice-kicker">50-word baseline</div>
+        <div class="practice-title">Choose a session</div>
+        <div class="practice-sub">Daily review, focused repair, and article work use the same saved progress.</div>
+      </section>
+
+      <div class="practice-grid">
+        <button class="practice-card" id="practice-daily" onclick="startSession()">
+          <span class="practice-icon"><span class="material-symbols-outlined">auto_stories</span></span>
+          <span class="practice-copy">
+            <span class="practice-card-title">Daily Session</span>
+            <span class="practice-card-meta">New and due cards, mixed by the adaptive queue.</span>
+          </span>
+          <span>
+            <span class="practice-count" id="practice-daily-count">0</span>
+            <span class="practice-count-label">cards</span>
+          </span>
+        </button>
+
+        <button class="practice-card" id="practice-review" onclick="startSession('review')">
+          <span class="practice-icon"><span class="material-symbols-outlined">history</span></span>
+          <span class="practice-copy">
+            <span class="practice-card-title">Review Only</span>
+            <span class="practice-card-meta">Due words only, with no new vocabulary added.</span>
+          </span>
+          <span>
+            <span class="practice-count" id="practice-review-count">0</span>
+            <span class="practice-count-label">due</span>
+          </span>
+        </button>
+
+        <button class="practice-card" id="practice-hard" onclick="startSession('hard')">
+          <span class="practice-icon"><span class="material-symbols-outlined">priority_high</span></span>
+          <span class="practice-copy">
+            <span class="practice-card-title">Hard Words</span>
+            <span class="practice-card-meta">Leeches, fragile words, and low-ease cards.</span>
+          </span>
+          <span>
+            <span class="practice-count" id="practice-hard-count">0</span>
+            <span class="practice-count-label">hard</span>
+          </span>
+        </button>
+
+        <button class="practice-card" id="practice-articles" onclick="drillArticles()">
+          <span class="practice-icon"><span class="material-symbols-outlined">category</span></span>
+          <span class="practice-copy">
+            <span class="practice-card-title">Article Drill</span>
+            <span class="practice-card-meta">Nouns with repeated der, die, das misses.</span>
+          </span>
+          <span>
+            <span class="practice-count" id="practice-article-count">0</span>
+            <span class="practice-count-label">nouns</span>
+          </span>
+        </button>
+
+        <button class="practice-card" id="practice-weak" onclick="drillWeak()">
+          <span class="practice-icon"><span class="material-symbols-outlined">psychology_alt</span></span>
+          <span class="practice-copy">
+            <span class="practice-card-title">Weak Word Drill</span>
+            <span class="practice-card-meta">Missed, fragile, article, and slow-response words.</span>
+          </span>
+          <span>
+            <span class="practice-count" id="practice-weak-count">0</span>
+            <span class="practice-count-label">weak</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <nav class="app-nav">
+      <button class="nav-item" onclick="navTo('dashboard')">
+        <span class="material-symbols-outlined nav-icon">dashboard</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="navTo('lexicon')">
+        <span class="material-symbols-outlined nav-icon">menu_book</span>
+        <span class="nav-label">Lexicon</span>
+      </button>
+      <button class="nav-item active" onclick="navTo('practice')">
+        <span class="material-symbols-outlined nav-icon">fitness_center</span>
+        <span class="nav-label">Practice</span>
+      </button>
+      <button class="nav-item" onclick="navTo('progress')">
+        <span class="material-symbols-outlined nav-icon">bar_chart</span>
+        <span class="nav-label">Progress</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ══════════ GRAMMAR / PROGRESS SCREEN ══════════ -->
+  <div id="grammar" class="screen">
+    <div class="app-header">
+      <div class="app-header-left">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--accent)">bar_chart</span>
+        <span class="app-header-title">Progress</span>
+      </div>
+    </div>
+    <div style="padding-top:20px;padding-bottom:80px">
+
+      <!-- Definite articles -->
+      <div class="gram-section">
+        <div class="gram-section-title">Definite Articles — der / die / das</div>
+        <div class="gram-table-wrap">
+          <table class="gram-table">
+            <tr><th>Case</th><th>Masc.</th><th>Fem.</th><th>Neut.</th><th>Plural</th></tr>
+            <tr>
+              <td>Nom</td>
+              <td><span class="gram-m">der</span></td>
+              <td><span class="gram-f">die</span></td>
+              <td><span class="gram-n">das</span></td>
+              <td><span class="gram-p">die</span></td>
+            </tr>
+            <tr>
+              <td>Acc</td>
+              <td><span class="gram-m">den</span></td>
+              <td><span class="gram-f">die</span></td>
+              <td><span class="gram-n">das</span></td>
+              <td><span class="gram-p">die</span></td>
+            </tr>
+            <tr>
+              <td>Dat</td>
+              <td><span class="gram-m">dem</span></td>
+              <td><span class="gram-f">der</span></td>
+              <td><span class="gram-n">dem</span></td>
+              <td><span class="gram-p">den</span></td>
+            </tr>
+            <tr>
+              <td>Gen</td>
+              <td><span class="gram-m">des</span></td>
+              <td><span class="gram-f">der</span></td>
+              <td><span class="gram-n">des</span></td>
+              <td><span class="gram-p">der</span></td>
+            </tr>
+          </table>
+        </div>
+        <div class="gram-note"><strong>Key pattern:</strong> Only Acc masc. changes (der→den). Fem/Neut Nom=Acc. Dat masc/neut both use <em>dem</em>; Dat fem uses <em>der</em>.</div>
+      </div>
+
+      <!-- Indefinite articles -->
+      <div class="gram-section">
+        <div class="gram-section-title">Indefinite Articles — ein / eine</div>
+        <div class="gram-table-wrap">
+          <table class="gram-table">
+            <tr><th>Case</th><th>Masc.</th><th>Fem.</th><th>Neut.</th></tr>
+            <tr>
+              <td>Nom</td>
+              <td><span class="gram-m">ein</span></td>
+              <td><span class="gram-f">eine</span></td>
+              <td><span class="gram-n">ein</span></td>
+            </tr>
+            <tr>
+              <td>Acc</td>
+              <td><span class="gram-m">einen</span></td>
+              <td><span class="gram-f">eine</span></td>
+              <td><span class="gram-n">ein</span></td>
+            </tr>
+            <tr>
+              <td>Dat</td>
+              <td><span class="gram-m">einem</span></td>
+              <td><span class="gram-f">einer</span></td>
+              <td><span class="gram-n">einem</span></td>
+            </tr>
+            <tr>
+              <td>Gen</td>
+              <td><span class="gram-m">eines</span></td>
+              <td><span class="gram-f">einer</span></td>
+              <td><span class="gram-n">eines</span></td>
+            </tr>
+          </table>
+        </div>
+        <div class="gram-note"><strong>No plural:</strong> Use <em>keine / keine / keinen / keiner</em> for negation in plural. <em>ein</em> follows the same endings as <em>kein / mein / dein…</em></div>
+      </div>
+
+      <!-- Two-way prepositions -->
+      <div class="gram-section">
+        <div class="gram-section-title">Prepositions by Case</div>
+        <div class="gram-table-wrap">
+          <table class="gram-table">
+            <tr><th>Acc only</th><th>Dat only</th><th>Two-way</th></tr>
+            <tr>
+              <td style="vertical-align:top;font-size:.8rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text)">durch, für, gegen, ohne, um</td>
+              <td style="vertical-align:top;font-size:.8rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text)">aus, bei, mit, nach, seit, von, zu</td>
+              <td style="vertical-align:top;font-size:.8rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text)">an, auf, hinter, in, neben, über, unter, vor, zwischen</td>
+            </tr>
+          </table>
+        </div>
+        <div class="gram-note"><strong>Two-way prepositions:</strong> Accusative = direction (Wohin?), Dative = location (Wo?). <em>ins Haus gehen</em> (Acc: going in) vs. <em>im Haus sein</em> (Dat: being inside).</div>
+      </div>
+
+    </div><!-- /pad -->
+    <nav class="app-nav">
+      <button class="nav-item" onclick="navTo('dashboard')">
+        <span class="material-symbols-outlined nav-icon">dashboard</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="navTo('lexicon')">
+        <span class="material-symbols-outlined nav-icon">menu_book</span>
+        <span class="nav-label">Lexicon</span>
+      </button>
+      <button class="nav-item" onclick="navTo('practice')">
+        <span class="material-symbols-outlined nav-icon">fitness_center</span>
+        <span class="nav-label">Practice</span>
+      </button>
+      <button class="nav-item active" onclick="navTo('progress')">
+        <span class="material-symbols-outlined nav-icon">bar_chart</span>
+        <span class="nav-label">Progress</span>
+      </button>
+    </nav>
+  </div>
+
+
+</div><!-- .app -->
+
+<!-- ══════════ HINT BOTTOM SHEET ══════════ -->
+<div id="hint-backdrop" class="hint-backdrop" onclick="closeHintSheet()"></div>
+<div id="hint-sheet" class="hint-sheet">
+  <div class="hint-drag"></div>
+  <div class="hint-body" id="hint-body"></div>
+</div>
+
+<!-- Stitch: cloze decorative orbs -->
+<div id="cloze-orb-r" class="cloze-orb-r"></div>
+<div id="cloze-orb-l" class="cloze-orb-l"></div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   GRAMMATIK GEIST — Baseline Build v2.1
+   ─────────────────────────────────────────────────────────────
+   50-word B1 vocabulary set across 5 levels.
+   Stitch UI applied: interval grid, pill badges, larger rings.
+   All SRS logic, crash recovery, and card types preserved.
+   ═══════════════════════════════════════════════════════════════ */
+
+const CONTENT_SCHEMA_VERSION = 1;
+const CONTENT_TARGET_WORD_COUNT = { min: 1200, max: 1500 };
+
+// ── 50-Word B1 Vocabulary Set ─────────────────────────────────
+const WORDS = [
+  // ── Level 1: Foundation (10 words) ──
+  {
+    id:1, de:"der Mann", en:"the man", gender:"m", cat:"people", level:1,
+    hint:"Cognate with English 'man' — same root, unchanged meaning.",
+    examples:[
+      { de:"Der Mann liest ein Buch.", en:"The man reads a book.", grammar:"Nom: der — masculine subject" },
+      { de:"Ich sehe den Mann auf der Straße.", en:"I see the man on the street.", grammar:"Acc: den — masculine direct object" },
+      { de:"Das Buch gehört dem Mann, der dort wohnt.", en:"The book belongs to the man who lives there.", grammar:"Dat: dem — after gehören + relative clause" }
+    ]
+  },
+  {
+    id:2, de:"die Frau", en:"the woman", gender:"f", cat:"people", level:1,
+    hint:"Frau = woman, wife, Mrs. Diminutive Fräulein (now rare) uses -lein suffix.",
+    examples:[
+      { de:"Die Frau trinkt Kaffee.", en:"The woman drinks coffee.", grammar:"Nom: die — feminine subject" },
+      { de:"Ich helfe der Frau mit dem Koffer.", en:"I help the woman with the suitcase.", grammar:"Dat: der — after helfen (dative verb)" },
+      { de:"Die Frau, die hier arbeitet, spricht drei Sprachen.", en:"The woman who works here speaks three languages.", grammar:"Relative clause: die (same gender as antecedent)" }
+    ]
+  },
+  {
+    id:3, de:"das Kind", en:"the child", gender:"n", cat:"people", level:1,
+    hint:"Shares root with 'kin' — both from Proto-Germanic *kindą meaning offspring.",
+    examples:[
+      { de:"Das Kind spielt im Garten.", en:"The child plays in the garden.", grammar:"Nom: das — neuter subject" },
+      { de:"Wir kaufen dem Kind ein Geschenk.", en:"We buy the child a gift.", grammar:"Dat: dem — double-object (indirect object first)" },
+      { de:"Das Kind, das gestern krank war, ist heute wieder fit.", en:"The child who was sick yesterday is well again today.", grammar:"Relative clause: das (neuter) + war / ist (Präteritum vs Präsens)" }
+    ]
+  },
+  {
+    id:4, de:"gehen", en:"to go", gender:"", cat:"verbs", level:1,
+    hint:"Cognate with English 'go' — both go back to Proto-Germanic *gāną.",
+    examples:[
+      { de:"Ich gehe in die Schule.", en:"I go to school.", grammar:"Present: ich gehe — regular present (irregular only in Perfekt)" },
+      { de:"Wohin gehst du heute Abend?", en:"Where are you going tonight?", grammar:"Present: du gehst — wohin (direction) vs. wo (location)" },
+      { de:"Er ist früh schlafen gegangen, weil er sehr müde war.", en:"He went to bed early because he was very tired.", grammar:"Perfekt: ist gegangen (sein verb) + weil-clause (verb final)" }
+    ]
+  },
+  {
+    id:5, de:"lernen", en:"to learn", gender:"", cat:"verbs", level:1,
+    hint:"Direct cognate of English 'learn' — same Proto-Germanic root *liznōną.",
+    examples:[
+      { de:"Ich lerne Deutsch.", en:"I am learning German.", grammar:"Present: ich lerne — regular -en verb conjugation" },
+      { de:"Sie lernt jeden Abend für die Prüfung.", en:"She studies every evening for the exam.", grammar:"Acc time: jeden Abend — masculine accusative (jeden)" },
+      { de:"Wir haben viel gelernt, als wir in Deutschland lebten.", en:"We learnt a lot when we lived in Germany.", grammar:"Perfekt: haben gelernt + als-clause (Präteritum for both)" }
+    ]
+  },
+  {
+    id:6, de:"groß", en:"big / tall", gender:"", cat:"adjectives", level:1,
+    hint:"Related to English 'gross' — originally meant 'large in quantity'. Umlaut in comparison: groß → größer.",
+    examples:[
+      { de:"Das Haus ist sehr groß.", en:"The house is very big.", grammar:"Predicate adj: no ending after sein" },
+      { de:"Er ist größer als sein Bruder.", en:"He is taller than his brother.", grammar:"Comparative: größer + als (umlaut change)" },
+      { de:"In der großen Stadt gibt es viele Möglichkeiten.", en:"In the big city there are many possibilities.", grammar:"Adj ending: -en after der in dative (in + Dat)" }
+    ]
+  },
+  {
+    id:7, de:"trinken", en:"to drink", gender:"", cat:"verbs", level:1,
+    hint:"Cognate with 'drink' — High German consonant shift turned d→t (drink→trinken).",
+    examples:[
+      { de:"Ich trinke Wasser.", en:"I drink water.", grammar:"Present: ich trinke — strong verb (vowel change in du/er)" },
+      { de:"Was möchtest du trinken?", en:"What would you like to drink?", grammar:"Modal: möchten + infinitive at end of clause" },
+      { de:"Er hat gestern zu viel getrunken und konnte nicht fahren.", en:"He drank too much yesterday and couldn't drive.", grammar:"Perfekt: hat getrunken (strong, irregular participle) + konnte (Präteritum)" }
+    ]
+  },
+  {
+    id:8, de:"die Zeit", en:"the time", gender:"f", cat:"abstract", level:1,
+    hint:"Cognate with English 'tide' — as in eventide, Yuletide. Both once meant 'a period of time'.",
+    examples:[
+      { de:"Ich habe keine Zeit.", en:"I have no time.", grammar:"Kein: keine — feminine accusative (keine replaces eine)" },
+      { de:"Die Zeit vergeht sehr schnell.", en:"Time passes very quickly.", grammar:"Inseparable prefix: vergehen — ver- is inseparable (stays attached)" },
+      { de:"Wir müssen uns mehr Zeit nehmen, um das zu verstehen.", en:"We need to take more time to understand this.", grammar:"Modal: müssen + um...zu infinitive clause (purpose)" }
+    ]
+  },
+  {
+    id:9, de:"das Haus", en:"the house", gender:"n", cat:"places", level:1,
+    hint:"Direct cognate: English 'house' — identical meaning, near-identical spelling.",
+    examples:[
+      { de:"Das Haus ist sehr alt.", en:"The house is very old.", grammar:"Nom: das — neuter subject" },
+      { de:"Wir gehen ins Haus.", en:"We go into the house.", grammar:"Acc contraction: ins = in + das — direction uses accusative" },
+      { de:"Im Haus meiner Großmutter riecht es immer nach Kuchen.", en:"In my grandmother's house it always smells of cake.", grammar:"Dat contraction: im = in + dem — location uses dative + Genitiv possession" }
+    ]
+  },
+  {
+    id:10, de:"kaufen", en:"to buy", gender:"", cat:"verbs", level:1,
+    hint:"From Latin caupo (innkeeper/trader) — also source of English 'cheap' (good deal).",
+    examples:[
+      { de:"Ich kaufe Brot.", en:"I buy bread.", grammar:"Present: ich kaufe — regular -en verb" },
+      { de:"Hast du das Buch schon gekauft?", en:"Have you already bought the book?", grammar:"Perfekt: hast gekauft — weak verb, regular ge- participle" },
+      { de:"Sie kauft immer ein, bevor sie nach Hause kommt.", en:"She always goes shopping before she comes home.", grammar:"Separable: einkaufen — ein splits to end + bevor-clause (verb final)" }
+    ]
+  },
+
+  // ── Level 2: Everyday (10 words) ──
+  {
+    id:11, de:"die Arbeit", en:"the work / job", gender:"f", cat:"work", level:2,
+    hint:"Cognate with 'arduous' via Latin — root idea is sustained effort. Compound: Arbeitsplatz = workplace.",
+    examples:[
+      { de:"Ich gehe zur Arbeit.", en:"I go to work.", grammar:"Dat contraction: zur = zu + der — movement toward" },
+      { de:"Die Arbeit macht mir Spaß.", en:"I enjoy the work.", grammar:"Dat: mir — Spaß machen takes dative" },
+      { de:"Wegen der Arbeit konnte er nicht kommen.", en:"He couldn't come because of work.", grammar:"Gen: wegen + Genitiv — der Arbeit (fem. Gen.)" }
+    ]
+  },
+  {
+    id:12, de:"verstehen", en:"to understand", gender:"", cat:"verbs", level:2,
+    hint:"ver- (intensifier) + stehen (to stand) — 'to stand fully inside something', i.e. grasp it.",
+    examples:[
+      { de:"Ich verstehe das nicht.", en:"I don't understand that.", grammar:"Inseparable prefix: ver- — never splits, negation with nicht" },
+      { de:"Verstehst du mich?", en:"Do you understand me?", grammar:"Acc: mich — first person singular object pronoun" },
+      { de:"Sie haben sich gut verstanden.", en:"They got along well.", grammar:"Reflexive Perfekt: haben sich verstanden — sich verstehen = to get along" }
+    ]
+  },
+  {
+    id:13, de:"sprechen", en:"to speak", gender:"", cat:"verbs", level:2,
+    hint:"Strong verb — vowel changes: sprechen → sprichst / spricht. Related to English 'speech'.",
+    examples:[
+      { de:"Er spricht gut Deutsch.", en:"He speaks German well.", grammar:"Strong verb: spricht — e→i vowel shift in du/er form" },
+      { de:"Wir sprechen morgen darüber.", en:"We'll talk about it tomorrow.", grammar:"da-compound: darüber = da + über — replaces über es" },
+      { de:"Hast du mit ihm gesprochen?", en:"Have you spoken to him?", grammar:"Perfekt: haben gesprochen — strong verb, irregular participle" }
+    ]
+  },
+  {
+    id:14, de:"der Zug", en:"the train", gender:"m", cat:"transport", level:2,
+    hint:"From ziehen (to pull/draw) — a Zug is something that 'draws along'. Also means draught or stroke.",
+    examples:[
+      { de:"Der Zug kommt um 8 Uhr an.", en:"The train arrives at 8 o'clock.", grammar:"Separable: ankommen — an splits to end of clause" },
+      { de:"Wir nehmen den Zug in die Stadt.", en:"We take the train into the city.", grammar:"Acc: den — masculine direct object + accusative direction" },
+      { de:"Wegen des Zuges sind wir zu spät angekommen.", en:"We arrived late because of the train.", grammar:"Gen: des Zuges — masculine Gen. ending -s" }
+    ]
+  },
+  {
+    id:15, de:"die Sprache", en:"the language", gender:"f", cat:"abstract", level:2,
+    hint:"From sprechen (to speak) — the Sprache is the system behind das Sprechen.",
+    examples:[
+      { de:"Deutsch ist eine schwere Sprache.", en:"German is a difficult language.", grammar:"Indef. article: eine — feminine nominative predicate" },
+      { de:"Er lernt die Sprache sehr schnell.", en:"He learns the language very quickly.", grammar:"Acc: die — feminine direct object" },
+      { de:"Es ist schwer, eine Sprache ohne Übung zu vergessen.", en:"It is hard to forget a language without practice.", grammar:"ohne...zu: infinitive clause — negated purpose/result" }
+    ]
+  },
+  {
+    id:16, de:"wichtig", en:"important", gender:"", cat:"adjectives", level:2,
+    hint:"From Wicht (person of worth) + -ig suffix. A Wicht was originally a respected person.",
+    examples:[
+      { de:"Das ist sehr wichtig.", en:"That is very important.", grammar:"Predicate adj: no ending after sein" },
+      { de:"Es ist wichtig, pünktlich zu sein.", en:"It is important to be on time.", grammar:"es ist [adj] + zu-Infinitiv — impersonal construction" },
+      { de:"Der wichtigste Punkt ist die Kommunikation.", en:"The most important point is communication.", grammar:"Superlative: wichtigst- + weak ending -e after der" }
+    ]
+  },
+  {
+    id:17, de:"erklären", en:"to explain", gender:"", cat:"verbs", level:2,
+    hint:"er- (completive prefix) + klären (to clarify, from klar = clear) — to make fully clear.",
+    examples:[
+      { de:"Der Lehrer erklärt die Grammatik.", en:"The teacher explains the grammar.", grammar:"Inseparable: er- — erklären (not trennbar)" },
+      { de:"Kannst du mir das erklären?", en:"Can you explain that to me?", grammar:"Dat + Acc: mir (Dat) + das (Acc) — double object" },
+      { de:"Er hat mir alles sehr genau erklärt.", en:"He explained everything to me very precisely.", grammar:"Perfekt: hat erklärt — weak verb, regular ge- participle" }
+    ]
+  },
+  {
+    id:18, de:"das Wetter", en:"the weather", gender:"n", cat:"nature", level:2,
+    hint:"Cognate with English 'weather' — same Proto-Germanic root *wedrą. Also related to 'wind'.",
+    examples:[
+      { de:"Das Wetter ist heute schön.", en:"The weather is nice today.", grammar:"Nom: das — neuter subject" },
+      { de:"Bei schlechtem Wetter bleibe ich zu Hause.", en:"In bad weather I stay at home.", grammar:"Adj ending: -em — neuter Dat after bei (Dat preposition)" },
+      { de:"Wenn das Wetter besser wird, gehen wir spazieren.", en:"When the weather gets better, we'll go for a walk.", grammar:"wenn-clause: verb final + future meaning in main clause" }
+    ]
+  },
+  {
+    id:19, de:"der Termin", en:"the appointment", gender:"m", cat:"work", level:2,
+    hint:"From Latin terminus (boundary, deadline) — a Termin marks a fixed point in time.",
+    examples:[
+      { de:"Ich habe einen Termin beim Arzt.", en:"I have a doctor's appointment.", grammar:"Indef. Acc: einen — masculine direct object" },
+      { de:"Kannst du den Termin verschieben?", en:"Can you postpone the appointment?", grammar:"Modal + definite Acc: den + Infinitiv at end" },
+      { de:"Wegen des Termins konnte er nicht kommen.", en:"He couldn't come because of the appointment.", grammar:"Gen: des Termins — masculine Gen. ending -s" }
+    ]
+  },
+  {
+    id:20, de:"benutzen", en:"to use", gender:"", cat:"verbs", level:2,
+    hint:"be- (inseparable completive) + nutzen (to make use of). Synonym: verwenden (more formal).",
+    examples:[
+      { de:"Ich benutze ein Wörterbuch.", en:"I use a dictionary.", grammar:"Regular weak verb with inseparable be- prefix" },
+      { de:"Darf ich dein Handy benutzen?", en:"May I use your phone?", grammar:"Modal: darf + Infinitiv at end of clause" },
+      { de:"Das Gerät wird von vielen Menschen benutzt.", en:"The device is used by many people.", grammar:"Passive: wird benutzt — Präsens Passiv (werden + Partizip II)" }
+    ]
+  },
+
+  // ── Level 3: Progress (10 words) ──
+  {
+    id:21, de:"die Meinung", en:"the opinion", gender:"f", cat:"abstract", level:3,
+    hint:"From meinen (to mean/think) — die Meinung is what one means. Key phrase: meiner Meinung nach.",
+    examples:[
+      { de:"Was ist deine Meinung dazu?", en:"What is your opinion on that?", grammar:"Possessive: deine — feminine Nom; dazu = da + zu" },
+      { de:"Meiner Meinung nach ist das falsch.", en:"In my opinion, that is wrong.", grammar:"Fixed phrase: meiner Meinung nach — Genitiv in fixed position" },
+      { de:"Ich bin der Meinung, dass wir das ändern sollten.", en:"I am of the opinion that we should change that.", grammar:"dass-clause: verb final + Konjunktiv II: sollten" }
+    ]
+  },
+  {
+    id:22, de:"entscheiden", en:"to decide", gender:"", cat:"verbs", level:3,
+    hint:"ent- (separating prefix) + scheiden (to separate) — to cut through and separate options.",
+    examples:[
+      { de:"Ich kann mich nicht entscheiden.", en:"I can't decide.", grammar:"Reflexive: sich entscheiden — obligatory reflexive verb" },
+      { de:"Wir haben uns für den Zug entschieden.", en:"We decided on the train.", grammar:"Perfekt reflexive: haben uns entschieden + für + Acc" },
+      { de:"Es war schwer, eine Entscheidung zu treffen.", en:"It was hard to make a decision.", grammar:"zu-Infinitiv: schwer + zu + Inf; related noun: die Entscheidung" }
+    ]
+  },
+  {
+    id:23, de:"der Unterschied", en:"the difference", gender:"m", cat:"abstract", level:3,
+    hint:"unter- (under/between) + Schied (separation, from scheiden) — what lies between two things.",
+    examples:[
+      { de:"Was ist der Unterschied?", en:"What is the difference?", grammar:"Nom: der — masculine subject in question with sein" },
+      { de:"Ich sehe keinen Unterschied.", en:"I see no difference.", grammar:"Negation: keinen — masculine Acc of kein" },
+      { de:"Der Unterschied zwischen den beiden ist groß.", en:"The difference between the two is great.", grammar:"zwischen + Dat plural: den beiden — two-way prep, Dat for location/state" }
+    ]
+  },
+  {
+    id:24, de:"vergessen", en:"to forget", gender:"", cat:"verbs", level:3,
+    hint:"ver- (loss/reversal) + essen/gessen root — to un-know something. Strong verb: vergisst.",
+    examples:[
+      { de:"Ich vergesse immer meinen Schlüssel.", en:"I always forget my key.", grammar:"Strong verb: vergesse — vowel change in du/er: vergisst" },
+      { de:"Vergiss nicht, die Tür abzuschließen!", en:"Don't forget to lock the door!", grammar:"Imperativ: vergiss — 2nd sg; separable in zu-Inf: ab...zu...schließen" },
+      { de:"Er hat seinen Pass vergessen, deshalb konnte er nicht einreisen.", en:"He forgot his passport, so he couldn't enter.", grammar:"Perfekt: hat vergessen — strong, irregular Partizip II; deshalb (coord.)" }
+    ]
+  },
+  {
+    id:25, de:"die Lösung", en:"the solution", gender:"f", cat:"abstract", level:3,
+    hint:"From lösen (to loosen/solve) — die Lösung is the 'loosening' of a problem.",
+    examples:[
+      { de:"Wir brauchen eine Lösung.", en:"We need a solution.", grammar:"Indef. Acc: eine — feminine direct object" },
+      { de:"Die Lösung des Problems dauerte lange.", en:"Solving the problem took a long time.", grammar:"Verbal noun in Gen: des Problems — masculine Gen. + -s" },
+      { de:"Es gibt keine einfache Lösung für dieses Problem.", en:"There is no easy solution to this problem.", grammar:"es gibt + Acc: keine einfache (adj ending after keine)" }
+    ]
+  },
+  {
+    id:26, de:"schwierig", en:"difficult", gender:"", cat:"adjectives", level:3,
+    hint:"From schwer (heavy) + -ig — what is heavy to handle is difficult. Synonym: schwer (also used predicatively).",
+    examples:[
+      { de:"Diese Aufgabe ist sehr schwierig.", en:"This task is very difficult.", grammar:"Predicate adj: no ending after sein" },
+      { de:"Es ist schwierig, neue Sprachen zu lernen.", en:"It is difficult to learn new languages.", grammar:"es ist [adj] + zu-Inf impersonal construction" },
+      { de:"Das schwierigste Problem ist die Kommunikation.", en:"The most difficult problem is communication.", grammar:"Superlative: schwierigst- + weak ending -e after das" }
+    ]
+  },
+  {
+    id:27, de:"verbringen", en:"to spend (time)", gender:"", cat:"verbs", level:3,
+    hint:"ver- + bringen — irregular/mixed verb: verbrachte, hat verbracht. Only used for time, not money.",
+    examples:[
+      { de:"Ich verbringe viel Zeit mit Lesen.", en:"I spend a lot of time reading.", grammar:"Inseparable: ver- — verbringen is a mixed verb (verbrachte)" },
+      { de:"Wir haben den Urlaub am Meer verbracht.", en:"We spent the holiday by the sea.", grammar:"Perfekt: haben verbracht — mixed verb (irregular Partizip II)" },
+      { de:"Wie hast du das Wochenende verbracht?", en:"How did you spend the weekend?", grammar:"Perfekt question: wie hast du... verbracht — verb-second word order" }
+    ]
+  },
+  {
+    id:28, de:"das Ergebnis", en:"the result", gender:"n", cat:"abstract", level:3,
+    hint:"er- + geben (to give) — what the process 'gives out'. Synonym: das Resultat (more formal).",
+    examples:[
+      { de:"Das Ergebnis war sehr gut.", en:"The result was very good.", grammar:"Nom: das — neuter subject" },
+      { de:"Wir warten auf das Ergebnis.", en:"We are waiting for the result.", grammar:"warten auf + Acc — fixed preposition with Acc" },
+      { de:"Das Ergebnis des Experiments hat alle überrascht.", en:"The result of the experiment surprised everyone.", grammar:"Gen: des Experiments — neuter Gen. -s; überraschen + Acc" }
+    ]
+  },
+  {
+    id:29, de:"sich erinnern", en:"to remember", gender:"", cat:"verbs", level:3,
+    hint:"Reflexive verb — always needs sich. Takes an + Accusative: sich an etwas erinnern.",
+    examples:[
+      { de:"Ich erinnere mich nicht daran.", en:"I don't remember it.", grammar:"Reflexive + da-compound: daran = da + an — replaces an es" },
+      { de:"Erinnerst du dich an unseren ersten Tag?", en:"Do you remember our first day?", grammar:"Reflexive question: erinnerst du dich an + Acc (unseren — masc. Acc)" },
+      { de:"Sie konnte sich nicht an seinen Namen erinnern.", en:"She couldn't remember his name.", grammar:"Modal + reflexive + prep: konnte + sich + an + Acc + Inf (final)" }
+    ]
+  },
+  {
+    id:30, de:"empfehlen", en:"to recommend", gender:"", cat:"verbs", level:3,
+    hint:"Strong verb — vowel change: empfehlen → empfiehlt. Takes Dative + Accusative double object.",
+    examples:[
+      { de:"Ich empfehle dir dieses Restaurant.", en:"I recommend this restaurant to you.", grammar:"Dat + Acc: dir (Dat) + dieses (neut. Acc) — strong verb" },
+      { de:"Was kannst du mir empfehlen?", en:"What can you recommend to me?", grammar:"Modal: kannst + mir (Dat) + Inf empfehlen at end" },
+      { de:"Das Buch wurde mir von meiner Lehrerin empfohlen.", en:"The book was recommended to me by my teacher.", grammar:"Passive + retained Dat: wurde empfohlen — Prät. Passiv; mir stays" }
+    ]
+  },
+
+  // ── Level 4: Professional (10 words) ──
+  {
+    id:31, de:"die Erfahrung", en:"the experience", gender:"f", cat:"abstract", level:4,
+    hint:"er- + fahren (to travel/experience) — Erfahrung is knowledge gained through journeying.",
+    examples:[
+      { de:"Ich habe viel Erfahrung in diesem Bereich.", en:"I have a lot of experience in this field.", grammar:"Mass noun: Erfahrung without article in Acc (uncountable use)" },
+      { de:"Diese Erfahrung hat mich viel gelehrt.", en:"This experience taught me a lot.", grammar:"Acc: mich — object of lehren; Perfekt: hat gelehrt (weak)" },
+      { de:"Aus Erfahrung weiß ich, dass das schwierig ist.", en:"From experience I know that that is difficult.", grammar:"Fixed phrase: aus Erfahrung + wissen; dass-clause (verb final)" }
+    ]
+  },
+  {
+    id:32, de:"verantwortlich", en:"responsible", gender:"", cat:"adjectives", level:4,
+    hint:"ver- + Antwort (answer) + -lich — the one who must 'answer for' something.",
+    examples:[
+      { de:"Er ist verantwortlich für das Projekt.", en:"He is responsible for the project.", grammar:"Fixed phrase: verantwortlich für + Acc" },
+      { de:"Wer ist dafür verantwortlich?", en:"Who is responsible for it?", grammar:"da-compound: dafür = für + es — replaces für das/es" },
+      { de:"Die Verantwortlichen wurden zur Rechenschaft gezogen.", en:"Those responsible were held to account.", grammar:"Nominalization: die Verantwortlichen — adj as noun, weak pl. ending -en" }
+    ]
+  },
+  {
+    id:33, de:"der Vorschlag", en:"the suggestion", gender:"m", cat:"work", level:4,
+    hint:"vor- (forward) + Schlag (strike/hit) — putting an idea 'forward'. Compound verb: vorschlagen.",
+    examples:[
+      { de:"Das ist ein guter Vorschlag.", en:"That is a good suggestion.", grammar:"Pred. adj: guter — weak after ein (masc. Nom takes -er with indef. article)" },
+      { de:"Ich akzeptiere deinen Vorschlag.", en:"I accept your suggestion.", grammar:"Acc: deinen — masc. Acc possessive adjective" },
+      { de:"Er hat einen Vorschlag gemacht, den alle gut fanden.", en:"He made a suggestion that everyone liked.", grammar:"Perfekt + relative clause: den — masc. Acc relative pronoun" }
+    ]
+  },
+  {
+    id:34, de:"überzeugen", en:"to convince", gender:"", cat:"verbs", level:4,
+    hint:"über- (over) + zeugen (to testify/witness) — to bring someone over to your testimony.",
+    examples:[
+      { de:"Er hat mich überzeugt.", en:"He convinced me.", grammar:"Acc: mich — Perfekt: hat überzeugt (weak verb)" },
+      { de:"Ich konnte sie nicht von meiner Idee überzeugen.", en:"I couldn't convince her of my idea.", grammar:"Acc + von + Dat: sie (Acc) + von meiner Idee (Dat)" },
+      { de:"Das Argument war so stark, dass es alle überzeugt hat.", en:"The argument was so strong that it convinced everyone.", grammar:"dass-clause: verb final; alle = Acc of all (direct object)" }
+    ]
+  },
+  {
+    id:35, de:"die Gelegenheit", en:"the opportunity", gender:"f", cat:"abstract", level:4,
+    hint:"From gelegen (situated/convenient) — a Gelegenheit is a favourable situation that arises.",
+    examples:[
+      { de:"Das ist eine gute Gelegenheit.", en:"This is a good opportunity.", grammar:"Indef. article: eine — feminine Nom predicate" },
+      { de:"Ich werde die Gelegenheit nutzen.", en:"I will use the opportunity.", grammar:"Future: werden + Inf; Acc: die — feminine direct object" },
+      { de:"Du solltest diese einmalige Gelegenheit nicht verpassen.", en:"You shouldn't miss this unique opportunity.", grammar:"Konjunktiv II: solltest + nicht; einmalig = one-of-a-kind (adj)" }
+    ]
+  },
+  {
+    id:36, de:"notwendig", en:"necessary", gender:"", cat:"adjectives", level:4,
+    hint:"Not (need/emergency) + wendig (agile) — originally 'turning toward necessity'. Synonym: erforderlich.",
+    examples:[
+      { de:"Das ist absolut notwendig.", en:"That is absolutely necessary.", grammar:"Predicate adj: no ending after sein" },
+      { de:"Es ist notwendig, pünktlich zu erscheinen.", en:"It is necessary to appear on time.", grammar:"es ist + notwendig + zu-Infinitiv — impersonal" },
+      { de:"Die notwendigen Dokumente müssen eingereicht werden.", en:"The necessary documents must be submitted.", grammar:"Passive + modal: müssen + eingereicht werden; adj pl. ending -en" }
+    ]
+  },
+  {
+    id:37, de:"beschreiben", en:"to describe", gender:"", cat:"verbs", level:4,
+    hint:"be- (completive) + schreiben (to write) — to 'write over' something fully, capturing it.",
+    examples:[
+      { de:"Kannst du das Gebäude beschreiben?", en:"Can you describe the building?", grammar:"Modal + Acc: kannst + das Gebäude (neut. Acc) + Inf" },
+      { de:"Er beschrieb die Situation sehr detailliert.", en:"He described the situation in great detail.", grammar:"Präteritum: beschrieb — strong verb (schreiben class)" },
+      { de:"Das lässt sich schwer beschreiben.", en:"That is hard to describe.", grammar:"sich lassen + Inf = passive-like: 'can be described'" }
+    ]
+  },
+  {
+    id:38, de:"der Zusammenhang", en:"the context / connection", gender:"m", cat:"abstract", level:4,
+    hint:"zusammen (together) + Hang (inclination/slope) — what 'hangs together', i.e. the coherent context.",
+    examples:[
+      { de:"Ich verstehe den Zusammenhang nicht.", en:"I don't understand the connection.", grammar:"Acc: den — masculine direct object" },
+      { de:"Im Zusammenhang mit dieser Frage ist das wichtig.", en:"In connection with this question, that is important.", grammar:"Fixed phrase: im Zusammenhang mit + Dat" },
+      { de:"Aus dem Zusammenhang gerissen, klingt der Satz seltsam.", en:"Taken out of context, the sentence sounds strange.", grammar:"Participial phrase: aus dem Zusammenhang gerissen (extended modifier)" }
+    ]
+  },
+  {
+    id:39, de:"berücksichtigen", en:"to take into account", gender:"", cat:"verbs", level:4,
+    hint:"be- + Rücksicht (consideration, lit. 'backward glance') + -igen — to look back and consider.",
+    examples:[
+      { de:"Bitte berücksichtige das.", en:"Please take that into account.", grammar:"Imperativ: berücksichtige — inseparable be- prefix" },
+      { de:"Wir müssen alle Faktoren berücksichtigen.", en:"We must take all factors into account.", grammar:"Modal + Acc pl.: alle Faktoren — müssen + Inf final" },
+      { de:"Bei der Planung wurden alle Risiken berücksichtigt.", en:"In planning, all risks were taken into account.", grammar:"Passive Prät.: wurden berücksichtigt + bei + Dat" }
+    ]
+  },
+  {
+    id:40, de:"die Herausforderung", en:"the challenge", gender:"f", cat:"abstract", level:4,
+    hint:"heraus- (out) + fordern (to demand) + -ung — a demanding call that draws something out of you.",
+    examples:[
+      { de:"Das ist eine große Herausforderung.", en:"That is a great challenge.", grammar:"Indef. Nom: eine — feminine predicate nominative" },
+      { de:"Ich nehme die Herausforderung an.", en:"I accept the challenge.", grammar:"Separable: annehmen — an splits; Acc: die Herausforderung" },
+      { de:"Die größte Herausforderung besteht darin, motiviert zu bleiben.", en:"The greatest challenge consists in staying motivated.", grammar:"bestehen in + Dat: darin = da + in; zu + bleiben (infinitive clause)" }
+    ]
+  },
+
+  // ── Level 5: Mastery (10 words) ──
+  {
+    id:41, de:"die Voraussetzung", en:"the prerequisite", gender:"f", cat:"abstract", level:5,
+    hint:"voraus- (ahead) + Setzung (placing) — what must be 'set ahead' before something can happen.",
+    examples:[
+      { de:"Das ist die Voraussetzung für den Erfolg.", en:"That is the prerequisite for success.", grammar:"Prep phrase: für + Acc; Voraussetzung + für is a fixed collocation" },
+      { de:"Welche Voraussetzungen braucht man?", en:"What requirements does one need?", grammar:"Acc pl.: Voraussetzungen — plural form (no umlaut change)" },
+      { de:"Ohne die nötigen Voraussetzungen ist es schwer, Erfolg zu haben.", en:"Without the necessary prerequisites, it is hard to succeed.", grammar:"ohne + Acc; nötig adj.; es ist schwer + zu-Inf clause" }
+    ]
+  },
+  {
+    id:42, de:"beeinflussen", en:"to influence", gender:"", cat:"verbs", level:5,
+    hint:"be- + ein- + Fluss (flow/river) — to send a 'flow' into something, shaping it.",
+    examples:[
+      { de:"Das beeinflusst meine Entscheidung.", en:"That influences my decision.", grammar:"Inseparable: be-; Acc: meine Entscheidung (fem. Acc possessive)" },
+      { de:"Wer hat dich am stärksten beeinflusst?", en:"Who has influenced you the most?", grammar:"Perfekt: hat beeinflusst — weak verb; Superlative adv: am stärksten" },
+      { de:"Das Klima wird stark von menschlichen Aktivitäten beeinflusst.", en:"The climate is strongly influenced by human activities.", grammar:"Passive: wird beeinflusst — Präsens Passiv + von + Dat agent" }
+    ]
+  },
+  {
+    id:43, de:"die Ausnahme", en:"the exception", gender:"f", cat:"abstract", level:5,
+    hint:"aus- (out) + nehmen (to take) — what is 'taken out' of the general rule.",
+    examples:[
+      { de:"Das ist eine Ausnahme.", en:"That is an exception.", grammar:"Indef. Nom: eine — feminine predicate" },
+      { de:"Es gibt keine Ausnahme von dieser Regel.", en:"There is no exception to this rule.", grammar:"es gibt + Acc: keine; von + Dat: dieser Regel (fem. Dat)" },
+      { de:"Mit Ausnahme von ihm haben alle zugestimmt.", en:"With the exception of him, everyone agreed.", grammar:"Fixed phrase: mit Ausnahme von + Dat (ihm); Perfekt: haben zugestimmt" }
+    ]
+  },
+  {
+    id:44, de:"erfordern", en:"to require", gender:"", cat:"verbs", level:5,
+    hint:"er- (completive) + fordern (to demand) — to demand fully, as a necessary condition.",
+    examples:[
+      { de:"Das erfordert viel Geduld.", en:"That requires a lot of patience.", grammar:"Acc: Geduld — uncountable noun without article" },
+      { de:"Die Aufgabe erfordert spezielle Kenntnisse.", en:"The task requires special knowledge.", grammar:"Acc: spezielle Kenntnisse — pl. with adj ending (adj pl. = -e)" },
+      { de:"Diese Situation erfordert, dass alle zusammenarbeiten.", en:"This situation requires that everyone works together.", grammar:"dass-Satz after erfordern — verb final; alle = indefinite subject" }
+    ]
+  },
+  {
+    id:45, de:"der Standpunkt", en:"the point of view", gender:"m", cat:"abstract", level:5,
+    hint:"Stand (standing position) + Punkt (point) — where you stand determines what you see.",
+    examples:[
+      { de:"Was ist dein Standpunkt?", en:"What is your point of view?", grammar:"Nom question: dein — possessive adj, masc. Nom (no ending)" },
+      { de:"Ich vertrete einen anderen Standpunkt.", en:"I hold a different point of view.", grammar:"Acc: einen anderen — indef. + adj masc. Acc ending -en" },
+      { de:"Von seinem Standpunkt aus ist die Entscheidung verständlich.", en:"From his point of view, the decision is understandable.", grammar:"Fixed phrase: von... aus — perspective marker with Dat" }
+    ]
+  },
+  {
+    id:46, de:"geeignet", en:"suitable / appropriate", gender:"", cat:"adjectives", level:5,
+    hint:"ge- + eignen (to be suited) — what has been 'fitted out' to match a purpose.",
+    examples:[
+      { de:"Das ist für mich nicht geeignet.", en:"That is not suitable for me.", grammar:"Pred adj: geeignet für + Acc (mich) — fixed preposition" },
+      { de:"Er ist der geeignetste Kandidat.", en:"He is the most suitable candidate.", grammar:"Superlative: geeignetst- + weak ending -e after der" },
+      { de:"Wir suchen eine geeignete Lösung für dieses Problem.", en:"We are looking for a suitable solution to this problem.", grammar:"Adj ending: geeignete — fem. Acc after indef. article (eine)" }
+    ]
+  },
+  {
+    id:47, de:"bewältigen", en:"to cope with / handle", gender:"", cat:"verbs", level:5,
+    hint:"be- + walten (to rule/manage) — to gain mastery over a difficult situation.",
+    examples:[
+      { de:"Das kann ich alleine bewältigen.", en:"I can handle that alone.", grammar:"Modal: kann + Inf; inseparable be- prefix" },
+      { de:"Er hat die Krise gut bewältigt.", en:"He handled the crisis well.", grammar:"Perfekt: hat bewältigt — weak verb; Acc: die Krise" },
+      { de:"Es ist nicht einfach, so eine große Aufgabe zu bewältigen.", en:"It is not easy to handle such a large task.", grammar:"zu-Inf after adj; so ein (intensifying + indef. article construction)" }
+    ]
+  },
+  {
+    id:48, de:"die Umgebung", en:"the surroundings / environment", gender:"f", cat:"places", level:5,
+    hint:"um- (around) + geben (to give/surround) + -ung — what is 'given around' you. Context-neutral: city, office, nature.",
+    examples:[
+      { de:"Die Umgebung ist sehr schön.", en:"The surroundings are very beautiful.", grammar:"Nom: die — feminine subject (singular, broader environment)" },
+      { de:"Ich kenne die Umgebung gut.", en:"I know the area well.", grammar:"Acc: die — feminine direct object" },
+      { de:"In einer ruhigen Umgebung lerne ich besser.", en:"I learn better in a quiet environment.", grammar:"in + Dat: einer ruhigen — fem. Dat after indef. article" }
+    ]
+  },
+  {
+    id:49, de:"nachweisen", en:"to prove / demonstrate", gender:"", cat:"verbs", level:5,
+    hint:"nach- (after/following) + weisen (to point) — to point back to evidence that confirms something.",
+    examples:[
+      { de:"Das lässt sich nicht nachweisen.", en:"That cannot be proven.", grammar:"sich lassen + Inf — passive-like; separable: nach... weisen" },
+      { de:"Er konnte seine Unschuld nachweisen.", en:"He was able to prove his innocence.", grammar:"Modal Prät.: konnte + Inf at end; Acc: seine Unschuld" },
+      { de:"Die Forscher haben nachgewiesen, dass das Mittel wirksam ist.", en:"The researchers have proven that the remedy is effective.", grammar:"Perfekt separable: nach...ge...wiesen (ge- inserted after prefix)" }
+    ]
+  },
+  {
+    id:50, de:"voraussichtlich", en:"presumably / expected to", gender:"", cat:"abstract", level:5,
+    hint:"voraus- (ahead) + sichtlich (visible) — what can be 'seen ahead'. Used to hedge predictions.",
+    examples:[
+      { de:"Die Veranstaltung beginnt voraussichtlich um 8 Uhr.", en:"The event is expected to start at 8 o'clock.", grammar:"Adverb: midfield position — after verb, before time phrase" },
+      { de:"Das Projekt wird voraussichtlich drei Monate dauern.", en:"The project is expected to last three months.", grammar:"Future: wird + Inf; adverb in midfield before duration" },
+      { de:"Voraussichtlich werden mehr als hundert Leute kommen.", en:"Presumably more than one hundred people will come.", grammar:"Fronted adverb: verb inversion — voraussichtlich → werden (V2 rule)" }
+    ]
+  }
+];
+
+const MAX_LEVEL = Math.max(...WORDS.map(w => w.level || 1));
+
+// ── localStorage Keys ─────────────────────────────────────────
+const LS = {
+  srs:      'gvt_srs',
+  stats:    'gvt_stats',
+  settings: 'gvt_settings',
+  session:  'gvt_session',
+  history:  'gvt_history',
+};
+
+// ── Default Objects ───────────────────────────────────────────
+function dfSettings() {
+  return { dailyCap:80, sessionMinutes:7, unlockedLevel:1,
+           calibrationDone:false, medianResponseMs:7000,
+           totalSessionsCompleted:0, responseWindow:[] };
+}
+function dfStats() {
+  return { currentStreak:0, longestStreak:0, lastStudyDate:null,
+           dailyLog:{}, recentRetention:[] };
+}
+function dfSRS(id) {
+  return { wordId:id, interval:0, easeFactor:2.5, dueDate:null,
+           repetitions:0, lapses:0, recentLapses:0, lastLapseDate:null,
+           isLeech:false, isFragile:false, isNew:true, mastered:false, firstSeen:null, lastSeen:null,
+           avgResponseMs:0, exposures:0, articleDrills:0, articleCorrectStreak:0, mcExposures:0, leechCorrect:0,
+           learningStep:0 };
+}
+
+// ── Persistence ───────────────────────────────────────────────
+function loadJ(key, fb) {
+  try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : fb(); }
+  catch(e) { return fb(); }
+}
+function saveJ(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); }
+  catch(e) {
+    if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+      console.warn('localStorage quota exceeded — clearing history to free space');
+      try { localStorage.removeItem(LS.history); HISTORY = []; localStorage.setItem(key, JSON.stringify(data)); }
+      catch(e2) { console.error('localStorage write failed even after clearing history:', e2); }
+    } else {
+      console.warn('localStorage write failed:', e);
+    }
+  }
+}
+
+let SRS      = loadJ(LS.srs,      () => ({}));
+let STATS    = loadJ(LS.stats,    dfStats);
+let SETTINGS = loadJ(LS.settings, dfSettings);
+let HISTORY  = loadJ(LS.history,  () => []);
+
+function persist() {
+  saveJ(LS.srs, SRS);
+  saveJ(LS.stats, STATS);
+  saveJ(LS.settings, SETTINGS);
+  saveJ(LS.history, HISTORY);
+}
+
+// ── Utility Functions ─────────────────────────────────────────
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function daysBetween(a, b) {
+  const toMidnight = s => { const d=new Date(s+'T00:00:00'); return d; };
+  return Math.floor((toMidnight(b)-toMidnight(a))/86400000);
+}
+function clamp(v, lo, hi)   { return Math.max(lo, Math.min(hi, v)); }
+function rnd(arr)           { return arr[Math.floor(Math.random()*arr.length)]; }
+
+// Levenshtein distance (for typo detection)
+function lev(a, b) {
+  const m=a.length, n=b.length;
+  const dp = Array.from({length:m+1}, ()=>Array(n+1).fill(0));
+  for (let i=0;i<=m;i++) dp[i][0]=i;
+  for (let j=0;j<=n;j++) dp[0][j]=j;
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function norm(s) {
+  return s.toLowerCase().trim().replace(/\s+/g,' ')
+    .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+    .replace(/Ä/g,'ae').replace(/Ö/g,'oe').replace(/Ü/g,'ue');
+}
+function normSoft(s) { return s.toLowerCase().trim().replace(/\s+/g,' '); }
+
+function stripArt(s) {
+  return s.replace(/^(der|die|das|ein|eine|einen|einem|einer)\s+/i,'').trim();
+}
+function gLabel(g) { return g==='m'?'der':g==='f'?'die':g==='n'?'das':''; }
+function gClass(g) { return g==='m'?'gbadge-m':g==='f'?'gbadge-f':'gbadge-n'; }
+function getUnlockedWords() {
+  const partialIds = SETTINGS.partialUnlockIds || [];
+  return WORDS.filter(w => w.level <= SETTINGS.unlockedLevel || partialIds.includes(w.id));
+}
+
+function hlWord(sentence, wordDe) {
+  const core = wordDe.includes(' ') ? stripArt(wordDe) : wordDe;
+  const esc  = core.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return sentence.replace(new RegExp(`(${esc})`, 'gi'), '<span class="hl">$1</span>');
+}
+
+function classifyAnswer(word, raw) {
+  if (!raw || !raw.trim()) return { type:'wrong', detail:'No answer' };
+
+  const expected = norm(word.de);
+  const given    = norm(raw);
+
+  if (given === expected) return { type:'correct', detail:'' };
+  if (normSoft(raw) === normSoft(word.de)) return { type:'correct', detail:'' };
+
+  const enVariants = word.en.split('/').map(v =>
+    v.toLowerCase().trim().replace(/^(the|a|an|to)\s+/i,'')
+  );
+  const givenClean = given.replace(/^(the|a|an|to)\s+/i,'');
+  if (enVariants.some(v => lev(v, givenClean) <= 1)) {
+    return {
+      type:'confused',
+      detail:`You know the meaning — now produce the German: ${word.de}`
+    };
+  }
+
+  if (word.gender) {
+    const expCore  = norm(stripArt(word.de));
+    const givCore  = norm(stripArt(raw));
+    const expCoreSoft = normSoft(stripArt(word.de));
+    const givCoreSoft = normSoft(stripArt(raw));
+    if (givCore === expCore || givCoreSoft === expCoreSoft) {
+      return {
+        type:'article',
+        detail:`Article should be "${gLabel(word.gender)}" — full answer: ${word.de}`
+      };
+    }
+  }
+
+  const expC = word.gender ? norm(stripArt(word.de)) : expected;
+  const givC = word.gender ? norm(stripArt(raw))     : given;
+  if (lev(expC, givC) <= 2 && givC.length >= 3) {
+    return { type:'typo', detail:`Small typo — correct: ${word.de}` };
+  }
+
+  return { type:'wrong', detail:'' };
+}
+
+function timeGrade(ms) {
+  const med = SETTINGS.medianResponseMs || 7000;
+  if (!SETTINGS.calibrationDone) {
+    if (ms < 4000)  return 'fast';
+    if (ms < 10000) return 'normal';
+    if (ms < 20000) return 'slow';
+    return 'very_slow';
+  }
+  if (ms < med*0.5) return 'fast';
+  if (ms < med*1.3) return 'normal';
+  if (ms < med*2.5) return 'slow';
+  return 'very_slow';
+}
+
+function gradeWord(wordId, ms, raw) {
+  const word = WORDS.find(w => w.id === wordId);
+  if (!word) return null;
+
+  let s = SRS[wordId] || dfSRS(wordId);
+  const cl = classifyAnswer(word, raw);
+  const tg = timeGrade(ms);
+  let leechCleared = false;
+
+  let grade;
+  switch(cl.type) {
+    case 'correct':
+      grade = tg==='fast'?5 : tg==='normal'?4 : tg==='slow'?3 : 2; break;
+    case 'typo':
+      grade = tg==='fast'?4 : tg==='normal'?3 : 2; break;
+    case 'article':
+      grade = 3; s.articleDrills++; s.articleCorrectStreak = 0; break;
+    case 'confused':
+      grade = tg==='very_slow'?0:1; break;
+    default:
+      grade = tg==='very_slow'?0 : 1;
+  }
+  if (tg==='very_slow' && grade>2) grade=2;
+
+  const ok = grade >= 3;
+
+  // Learning steps: [0]=new, [1]=short-term, [2]=graduated to SRS
+  const LEARNING_STEPS = [0, 1, 2]; // step indices; step 2 = graduate to interval 1
+
+  if (ok) {
+    // Handle learning steps for new/young words
+    if ((s.learningStep || 0) < 2 && s.repetitions < 2) {
+      s.learningStep = (s.learningStep || 0) + 1;
+      if (s.learningStep >= 2) {
+        // Graduate: enter SRS with interval 1
+        s.interval = 1;
+        s.repetitions = 1;
+      } else {
+        // Stay in learning: will be re-queued within session
+        s.interval = 0;
+      }
+    } else {
+      s.interval = s.repetitions===0?1 : s.repetitions===1?3 : Math.round(s.interval*s.easeFactor);
+      s.repetitions++;
+    }
+    if (s.isLeech) {
+      s.leechCorrect = (s.leechCorrect || 0) + 1;
+      if (s.leechCorrect >= 2) {
+        s.isLeech      = false;
+        s.isFragile    = true;
+        s.recentLapses = 0;
+        s.leechCorrect = 0;
+        leechCleared   = true;
+      }
+    }
+  } else {
+    s.lapses++;
+    s.repetitions  = 0;
+    s.learningStep = 0; // Reset learning steps on failure
+    s.leechCorrect = 0;
+    s.interval     = 1;
+    const tenAgo = new Date(Date.now()-10*86400000).toISOString().slice(0,10);
+    s.recentLapses = (!s.lastLapseDate || s.lastLapseDate >= tenAgo) ? s.recentLapses+1 : 1;
+    s.lastLapseDate = today();
+    if (s.recentLapses >= 3) { s.isLeech=true; s.easeFactor=2.0; }
+  }
+
+  const efDelta    = 0.1 - (5-grade)*(0.08+(5-grade)*0.02);
+  const fastBonus  = (ok && tg==='fast') ? 0.05 : 0;
+  const totalDelta = Math.min(efDelta + fastBonus, 0.1);
+  s.easeFactor = Math.max(1.3, s.easeFactor + totalDelta);
+  if (ok && tg==='slow') s.easeFactor -= 0.05;
+
+  if (ok && cl.type !== 'article' && s.articleDrills > 0) {
+    s.articleCorrectStreak = (s.articleCorrectStreak || 0) + 1;
+    if (s.articleCorrectStreak >= 2) { s.articleDrills = 0; s.articleCorrectStreak = 0; }
+  }
+
+  s.interval = clamp(s.interval, 1, 365);
+  const due  = new Date(); due.setDate(due.getDate()+s.interval);
+  s.dueDate  = due.toISOString().slice(0,10);
+
+  s.isFragile = !s.isLeech && s.lapses >= 1 && s.easeFactor < 2.2;
+
+  s.isNew  = false;
+  s.lastSeen = today();
+  if (!s.firstSeen) s.firstSeen = today();
+  s.exposures++;
+  s.avgResponseMs = s.avgResponseMs ? Math.round(s.avgResponseMs*0.7+ms*0.3) : ms;
+
+  const firstMastery = !s.mastered && s.interval >= 21 && s.repetitions >= 5;
+  if (firstMastery) s.mastered = true;
+
+  SRS[wordId] = s;
+  workloadSmooth();
+  return { cl, grade, ok, state:s, firstMastery, leechCleared, tg };
+}
+
+function workloadSmooth() {
+  const cap=SETTINGS.dailyCap||80, counts={};
+  for (const id in SRS) { const s=SRS[id]; if(s.dueDate) counts[s.dueDate]=(counts[s.dueDate]||0)+1; }
+  for (const date in counts) {
+    if (counts[date]<=cap) continue;
+    const excess = Object.keys(SRS).filter(id=>SRS[id].dueDate===date);
+    excess.sort((a,b)=>(SRS[b].easeFactor||2.5)-(SRS[a].easeFactor||2.5));
+    for (const id of excess) {
+      if (counts[date]<=cap) break;
+      for (let d=1;d<=7;d++) {
+        const nd = new Date(new Date(date).getTime()+d*86400000).toISOString().slice(0,10);
+        if ((counts[nd]||0)<cap) {
+          SRS[id].dueDate=nd; counts[date]--; counts[nd]=(counts[nd]||0)+1; break;
+        }
+      }
+    }
+  }
+}
+
+function checkUnlock() {
+  if (SETTINGS.unlockedLevel >= MAX_LEVEL) return false;
+  const ret = STATS.recentRetention || [];
+  if (ret.length >= 3) {
+    const last3   = ret.slice(-3);
+    const avgRet  = last3.reduce((a,b)=>a+b,0)/last3.length;
+    const lvlWds  = WORDS.filter(w=>w.level===SETTINGS.unlockedLevel);
+    const reviewed= lvlWds.filter(w=>SRS[w.id]&&!SRS[w.id].isNew).length;
+    const minRev  = Math.min(8, lvlWds.length);
+    if (avgRet >= 0.8 && reviewed >= minRev) {
+      SETTINGS.unlockedLevel++;
+      if (SETTINGS.partialUnlockIds) {
+        const nowUnlocked = WORDS.filter(w => w.level <= SETTINGS.unlockedLevel).map(w => w.id);
+        SETTINGS.partialUnlockIds = SETTINGS.partialUnlockIds.filter(id => !nowUnlocked.includes(id));
+      }
+      persist();
+      return true;
+    }
+  }
+  if (STATS.lastStudyDate && SETTINGS.totalSessionsCompleted > 0) {
+    if (daysBetween(STATS.lastStudyDate, today()) >= 2) {
+      if (!SETTINGS.partialUnlockIds) SETTINGS.partialUnlockIds = [];
+      const alreadyUnlocked = WORDS.filter(w => w.level <= SETTINGS.unlockedLevel).map(w => w.id);
+      SETTINGS.partialUnlockIds = SETTINGS.partialUnlockIds.filter(id => !alreadyUnlocked.includes(id));
+      const nextLevel = SETTINGS.unlockedLevel + 1;
+      const nextLvlWds = WORDS.filter(w => w.level === nextLevel && !SETTINGS.partialUnlockIds.includes(w.id));
+      const toUnlock = nextLvlWds.slice(0, 3).map(w => w.id);
+      if (toUnlock.length > 0) {
+        SETTINGS.partialUnlockIds.push(...toUnlock);
+        if (SETTINGS.partialUnlockIds.length > 10) SETTINGS.partialUnlockIds = SETTINGS.partialUnlockIds.slice(-10);
+        persist();
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// ── Queue Builder ─────────────────────────────────────────────
+function interleaveLeeches(base, leeches) {
+  if (!leeches.length) return base;
+  const result = [...base];
+  let offset = 0;
+  for (const leech of leeches) {
+    const gap = 3 + Math.floor(Math.random() * 3);
+    const pos = Math.min(result.length, offset + gap);
+    result.splice(pos, 0, leech);
+    offset = pos + 1;
+  }
+  return result;
+}
+
+function buildQueue(mode) {
+  // mode: undefined = daily (default), 'hard' = hard words only, 'review' = review only
+  const t        = today();
+  const cap      = SETTINGS.dailyCap || 80;
+  const todayLog = STATS.dailyLog[t] || { total:0 };
+  const remaining= Math.max(0, cap - todayLog.total);
+  if (remaining===0 && mode !== 'hard' && mode !== 'review') return [];
+
+  const sessionMins   = SETTINGS.sessionMinutes || 7;
+  const timeBasedCap  = Math.max(5, Math.round((sessionMins * 60) / 25));
+  const effectiveCap  = (mode === 'hard' || mode === 'review') ? 30 : Math.min(remaining, timeBasedCap);
+
+  const unlocked = getUnlockedWords();
+
+  // Hard Words session: only leeches, fragile, low-EF words
+  if (mode === 'hard') {
+    const hard = unlocked
+      .filter(w => { const s=SRS[w.id]; return s && !s.isNew && (s.isLeech || s.isFragile || s.easeFactor < 1.8 || s.recentLapses >= 2); })
+      .sort((a,b) => {
+        const sa=SRS[a.id], sb=SRS[b.id];
+        const rank = s => s.isLeech?4 : s.isFragile?3 : s.easeFactor<1.8?2 : 1;
+        return rank(sb)-rank(sa) || sb.lapses-sa.lapses || sa.easeFactor-sb.easeFactor;
+      })
+      .slice(0, effectiveCap);
+    return hard;
+  }
+
+  // Review-only session: only due words, no new
+  if (mode === 'review') {
+    const reviewWords = unlocked
+      .filter(w => { const s=SRS[w.id]; return s && !s.isNew && s.dueDate && s.dueDate<=t; })
+      .sort((a,b) => (SRS[a.id].dueDate||'').localeCompare(SRS[b.id].dueDate||''));
+    const leeches = reviewWords.filter(w => SRS[w.id].isLeech);
+    const nonLeeches = reviewWords.filter(w => !SRS[w.id].isLeech);
+    return interleaveLeeches(nonLeeches.slice(0, effectiveCap), leeches.slice(0, 5));
+  }
+
+  // Daily session (default)
+  const leeches=[], due=[], fresh=[];
+  for (const w of unlocked) {
+    const s = SRS[w.id];
+    if (!s||s.isNew)               { fresh.push(w); continue; }
+    if (s.dueDate && s.dueDate<=t) { (s.isLeech ? leeches : due).push(w); }
+  }
+  due.sort((a,b)=>(SRS[a.id].dueDate||'').localeCompare(SRS[b.id].dueDate||''));
+
+  const pickedLeeches = leeches.slice(0, Math.min(5, leeches.length));
+
+  const baseSlots     = effectiveCap - pickedLeeches.length;
+  const reviewLoad    = due.length / Math.max(1, due.length + fresh.length);
+  const reviewRatio   = reviewLoad > 0.5 ? 0.80 : reviewLoad > 0.2 ? 0.70 : 0.60;
+  const reviewSlots   = Math.round(baseSlots * reviewRatio);
+  const newSlots      = baseSlots - reviewSlots;
+
+  // Softer throttling: always allow at least 3 new words
+  const maxNew = due.length >= 15 ? Math.max(3, Math.min(newSlots, 5))
+               : due.length >= 5  ? Math.min(newSlots, 8)
+               : Math.min(newSlots, 12);
+
+  const queue=[]; let nc=0;
+  for (const w of due)   { if(queue.length>=reviewSlots) break; queue.push(w); }
+  for (const w of fresh) { if(nc>=maxNew) break; queue.push(w); nc++; }
+
+  const result = interleaveLeeches(queue, pickedLeeches);
+  return result.slice(0, effectiveCap * 2);
+}
+
+// ── Crash Recovery ────────────────────────────────────────────
+function saveCrash() {
+  if (!SESSION||!SESSION.queue||SESSION.queue.length===0) return;
+  saveJ(LS.session, {
+    date:             today(),
+    queueIds:         SESSION.queue.map(w=>w.id),
+    currentIndex:     SESSION.currentIndex,
+    results:          SESSION.results,
+    startTime:        SESSION.startTime,
+    elapsedMs:        Date.now() - SESSION.startTime,
+    correctInSession: SESSION.correctInSession,
+    newInSession:     SESSION.newWordsInSession,
+    gradedIndices:    SESSION.gradedIndices ? [...SESSION.gradedIndices] : [],
+    hardCount:        SESSION.hardCount || 0,
+    hardApplied:      SESSION.hardApplied ? [...SESSION.hardApplied] : [],
+    microDrillCount:  SESSION.microDrillCount || {},
+    sessionMode:      SESSION.sessionMode || 'daily'
+  });
+}
+function clearCrash() {
+  try { localStorage.removeItem(LS.session); } catch(e) {}
+}
+function hasCrash() {
+  const s = loadJ(LS.session, ()=>null);
+  if (!s||s.date!==today()) return false;
+  if (!s.queueIds||s.queueIds.length===0) return false;
+  return s.currentIndex < s.queueIds.length;
+}
+function restoreSession() {
+  const s = loadJ(LS.session, ()=>null);
+  if (!s) return;
+  const queue = s.queueIds.map(id=>WORDS.find(w=>w.id===id)).filter(Boolean);
+  SESSION = {
+    queue, currentIndex:s.currentIndex,
+    results:s.results||[], startTime:Date.now()-(s.elapsedMs||0),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:s.correctInSession||0,
+    newWordsInSession:s.newInSession||0,
+    restored:true, introduced: new Set(), mcMode: new Set(), hintTimers: [], clozeTarget: null,
+    microDrillCount: s.microDrillCount||{}, gradedIndices: new Set(s.gradedIndices||[]),
+    hardCount: s.hardCount||0, hardApplied: new Set(s.hardApplied||[]),
+    sessionMode: s.sessionMode||'daily', userChoseFinish: false, timeBannerShown: false
+  };
+  document.getElementById('crash-banner').style.display='none';
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+function discardCrash() {
+  clearCrash();
+  document.getElementById('crash-banner').style.display='none';
+}
+
+// ── Session State Object ──────────────────────────────────────
+let SESSION = {
+  queue:[], currentIndex:0, results:[], startTime:null,
+  timerInterval:null, cardStartTime:null,
+  correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+  microDrillCount: {}
+};
+
+function startSession(mode) {
+  const queue = buildQueue(mode);
+  if (queue.length===0) {
+    if (mode === 'hard') { alert('No hard words yet — keep practicing!'); return; }
+    if (mode === 'review') { alert('No words due for review right now!'); return; }
+    alert('Nothing due! Come back tomorrow or adjust settings.'); return;
+  }
+  const seededMC = new Set(
+    queue.filter(w => { const s=SRS[w.id]; return s && !s.isNew && (s.mcExposures||0) < 2; })
+         .map(w => w.id)
+  );
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(), mcMode: seededMC, hintTimers: [], clozeTarget: null,
+    gradedIndices: new Set(), microDrillCount: {},
+    sessionMode: mode || 'daily', userChoseFinish: false, timeBannerShown: false
+  };
+  clearCrash();
+  const titleMap = { hard:'Hard Words', review:'Review' };
+  document.querySelectorAll('.s-topbar-title').forEach(el => el.textContent = titleMap[mode] || 'Session');
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+
+function startTimer() {
+  const el = document.getElementById('s-timer');
+  SESSION.timerInterval = setInterval(()=>{
+    const sec = Math.floor((Date.now()-SESSION.startTime)/1000);
+    el.textContent = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+    const target = (SETTINGS.sessionMinutes||7)*60000;
+    if (Date.now()-SESSION.startTime>=target && SESSION.currentIndex>0 && !SESSION.timeBannerShown) {
+      SESSION.timeReached = true;
+    }
+  }, 1000);
+}
+
+function showIntro(word) {
+  const badge = word.gender
+    ? `<span class="gbadge ${gClass(word.gender)}">${gLabel(word.gender)}</span>` : '';
+
+  const catLabel   = word.cat ? word.cat.charAt(0).toUpperCase() + word.cat.slice(1) : '';
+  const genderFull = word.gender === 'm' ? 'Maskulinum' : word.gender === 'f' ? 'Femininum' : word.gender === 'n' ? 'Neutrum' : '';
+  const genderStr  = word.gender ? `${gLabel(word.gender)} · ${genderFull}` : '';
+  const subLabel   = [catLabel, genderStr].filter(Boolean).join(' • ');
+  const wordColor  = word.gender === 'm' ? 'var(--blue)' : word.gender === 'f' ? 'var(--pink)' : word.gender === 'n' ? 'var(--cyan)' : 'var(--text)';
+
+  const allExHTML = word.examples.map(ex => `
+    <div class="intro-ex-bento">
+      <div class="intro-ex-accent"></div>
+      <p class="intro-ex-de">${hlWord(ex.de, word.de)}</p>
+      <p class="intro-ex-en">${ex.en}</p>
+      <span class="ex-grammar">${ex.grammar}</span>
+    </div>
+  `).join('');
+
+  document.querySelector('.card-area').classList.remove('is-leech');
+  document.getElementById('prompt-mode').innerHTML  = 'NEW WORD';
+  document.getElementById('prompt-word').textContent = '';
+  document.getElementById('prompt-sub').textContent  = '';
+  document.getElementById('answer-input').value      = '';
+  document.getElementById('answer-input').disabled   = true;
+  document.getElementById('action-row').innerHTML    = '';
+  document.getElementById('skip-btn').classList.add('hidden');
+  document.getElementById('input-wrap').style.display = 'none';
+
+  /* Stitch intro: compute retention for this word */
+  const _srsIntro = SRS[word.id];
+  const _retPct   = _srsIntro && _srsIntro.repetitions > 0
+    ? Math.min(100, Math.round((_srsIntro.repetitions / Math.max(1, _srsIntro.repetitions + _srsIntro.lapses)) * 100))
+    : 0;
+
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `
+    <div class="intro-hero">
+      ${subLabel ? `<div class="intro-badge-row">${subLabel}</div>` : ''}
+      <div class="intro-word-large" style="color:${wordColor}">${word.de}${badge}</div>
+      <div class="intro-trans">${word.en}</div>
+    </div>
+    <div class="intro-examples-grid">
+      <div class="intro-ex-header" style="grid-column:1/-1">
+        <span class="material-symbols-outlined" style="font-size:.85rem">auto_stories</span>
+        Read all examples before continuing
+      </div>
+      ${allExHTML}
+    </div>
+    <div class="intro-retention-row">
+      <div class="intro-ret-bar-wrap">
+        <div class="intro-ret-bar-label">Mastery Progress</div>
+        <div class="intro-ret-bar-track"><div class="intro-ret-bar-fill" style="width:${_retPct}%"></div></div>
+      </div>
+      <div style="text-align:right">
+        <div class="intro-ret-pct">${_retPct}%</div>
+        <div class="intro-ret-sublabel">Retention</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px;margin-bottom:4px">
+      <button class="btn btn-secondary" style="flex:1;padding:12px" onclick="markKnown(${word.id})">Already know it ✓</button>
+      <button class="btn btn-primary" id="next-btn" style="flex:2" onclick="dismissIntro()">Quiz me →</button>
+    </div>
+  `;
+  fs.classList.remove('hidden');
+  SESSION.awaitingNext = true;
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+  setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+}
+
+function markKnown(wordId) {
+  let s = SRS[wordId] || dfSRS(wordId);
+  s.isNew       = false;
+  s.repetitions = 3;
+  s.interval    = 7;
+  s.easeFactor  = 2.3;
+  s.lapses      = 0;
+  s.lastSeen    = today();
+  if (!s.firstSeen) s.firstSeen = today();
+  const due = new Date(); due.setDate(due.getDate() + 7);
+  s.dueDate = due.toISOString().slice(0,10);
+  SRS[wordId] = s;
+  persist();
+  SESSION.introduced.add(wordId);
+  SESSION.mcMode.delete(wordId);
+  SESSION.awaitingNext = false;
+  document.getElementById('input-wrap').style.display = '';
+  SESSION.currentIndex++;
+  showCard();
+}
+
+function dismissIntro() {
+  const word = SESSION.queue[SESSION.currentIndex];
+  SESSION.introduced.add(word.id);
+  // Typing comes first — MC added as reinforcement after correct typing
+  SESSION.awaitingNext = false;
+  document.getElementById('input-wrap').style.display = '';
+  showCard();
+}
+
+function showStrugglingIntro(word) {
+  const srs = SRS[word.id];
+  const isLeech   = !!(srs && srs.isLeech);
+  const badge = word.gender
+    ? `<span class="gbadge ${gClass(word.gender)}">${gLabel(word.gender)}</span>` : '';
+  const wordColor = word.gender === 'm' ? 'var(--blue)' : word.gender === 'f' ? 'var(--pink)' : word.gender === 'n' ? 'var(--cyan)' : 'var(--text)';
+  const allExHTML = word.examples.map(ex => `
+    <div class="intro-ex-bento">
+      <div class="intro-ex-accent"></div>
+      <p class="intro-ex-de">${hlWord(ex.de, word.de)}</p>
+      <p class="intro-ex-en">${ex.en}</p>
+      <span class="ex-grammar">${ex.grammar}</span>
+    </div>
+  `).join('');
+
+  document.querySelector('.card-area').classList.toggle('is-leech',   isLeech);
+  document.querySelector('.card-area').classList.toggle('is-fragile', !isLeech);
+  document.getElementById('prompt-mode').innerHTML  = isLeech ? 'LEECH · Reinforce' : 'STRUGGLING · Reinforce';
+  document.getElementById('prompt-word').textContent = '';
+  document.getElementById('prompt-sub').textContent  = '';
+  document.getElementById('answer-input').value      = '';
+  document.getElementById('answer-input').disabled   = true;
+  document.getElementById('action-row').innerHTML    = '';
+  document.getElementById('skip-btn').classList.add('hidden');
+  document.getElementById('input-wrap').style.display = 'none';
+
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `
+    <div class="intro-hero">
+      <div class="intro-word-large" style="color:${wordColor}">${word.de}${badge}</div>
+      <div class="intro-trans">${word.en}</div>
+    </div>
+    <div class="intro-examples-grid">
+      <div class="intro-ex-header">
+        <span class="material-symbols-outlined" style="font-size:.85rem">refresh</span>
+        Review examples — then try again
+      </div>
+      ${allExHTML}
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px;margin-bottom:4px">
+      <button class="btn btn-primary" id="next-btn" style="flex:1" onclick="dismissStrugglingIntro()">Quiz me →</button>
+    </div>
+  `;
+  fs.classList.remove('hidden');
+  SESSION.awaitingNext = true;
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+  setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+}
+
+function dismissStrugglingIntro() {
+  const word = SESSION.queue[SESSION.currentIndex];
+  SESSION.introduced.add(word.id);
+  SESSION.awaitingNext = false;
+  document.getElementById('input-wrap').style.display = '';
+  showCard();
+}
+
+function buildMCOptions(correct, hard = false) {
+  const samecat = WORDS.filter(w => w.id !== correct.id && w.cat === correct.cat);
+  const diffcat = WORDS.filter(w => w.id !== correct.id && w.cat !== correct.cat);
+  const preferred = hard ? samecat : diffcat;
+  const fallback  = hard ? diffcat : samecat;
+  const pool      = preferred.length >= 3 ? [...preferred] : [...preferred, ...fallback];
+  const picks     = [];
+  while (picks.length < 3 && pool.length) {
+    picks.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+  const used = new Set([correct.id, ...picks.map(p => p.id)]);
+  const any  = WORDS.filter(w => !used.has(w.id));
+  while (picks.length < 3 && any.length) {
+    picks.push(any.splice(Math.floor(Math.random() * any.length), 1)[0]);
+  }
+  const opts = [...picks, correct];
+  for (let i = opts.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+  return opts;
+}
+
+function showMCCard(word) {
+  document.querySelector('.card-area').classList.remove('is-leech');
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+  const mcExp  = (SRS[word.id] && SRS[word.id].mcExposures) || 0;
+  const hard   = mcExp >= 1;
+  const label  = hard ? 'RECOGNITION · Round 2 — same category'
+                      : 'RECOGNITION · Round 1 — choose the German';
+  document.getElementById('prompt-mode').innerHTML  = label;
+  document.getElementById('prompt-word').textContent = word.en;
+  document.getElementById('prompt-sub').textContent  = '';
+  document.getElementById('answer-input').value      = '';
+  document.getElementById('answer-input').disabled   = true;
+  document.getElementById('action-row').innerHTML    = '';
+  document.getElementById('skip-btn').classList.add('hidden');
+
+  const opts = buildMCOptions(word, hard);
+  const optsHTML = opts.map((o) => {
+    const badge = o.gender ? `<span class="gbadge ${gClass(o.gender)}" style="font-size:.58rem;padding:1px 5px">${gLabel(o.gender)}</span>` : '';
+    return `<button class="mc-opt" data-wid="${o.id}" onclick="selectMC(this,${o.id===word.id},${word.id})">
+      <div class="mc-opt-text">${o.de}${badge}</div>
+      <span class="mc-opt-ind material-symbols-outlined">radio_button_unchecked</span>
+    </button>`;
+  }).join('');
+
+  /* Stitch: context hint quote below options */
+  const contextQuote = word.examples && word.examples[0]
+    ? `<div class="mc-context-hint">"${word.examples[0].de}"</div>` : '';
+
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `<div class="mc-options">${optsHTML}</div>${contextQuote}`;
+  fs.classList.remove('hidden');
+  SESSION.awaitingNext = false;
+  SESSION.cardStartTime = Date.now();
+}
+
+function selectMC(btn, isCorrect, wordId) {
+  document.querySelectorAll('.mc-opt').forEach(b => b.classList.add('mc-locked'));
+  btn.classList.add(isCorrect ? 'mc-correct' : 'mc-wrong');
+  const selInd = btn.querySelector('.mc-opt-ind');
+  if (selInd) {
+    selInd.textContent = isCorrect ? 'check_circle' : 'cancel';
+    if (isCorrect) selInd.style.fontVariationSettings = "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+  }
+  if (!isCorrect) {
+    document.querySelectorAll('.mc-opt').forEach(b => {
+      if (parseInt(b.dataset.wid) === wordId) {
+        b.classList.add('mc-correct');
+        const ind = b.querySelector('.mc-opt-ind');
+        if (ind) {
+          ind.textContent = 'check_circle';
+          ind.style.fontVariationSettings = "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+        }
+      }
+    });
+  }
+
+  const ms  = Date.now() - SESSION.cardStartTime;
+  const raw = isCorrect ? WORDS.find(w=>w.id===wordId).de : '';
+  const res = gradeWord(wordId, ms, raw);
+
+  if (SRS[wordId]) SRS[wordId].mcExposures = (SRS[wordId].mcExposures || 0) + 1;
+  SESSION.mcMode.delete(wordId);
+  SESSION.results.push({ wordId, correct:res.ok, type:'mc', ms });
+  if (res.ok) SESSION.correctInSession++;
+  SESSION.newWordsInSession++;
+
+  // Re-queue failed MC words for another attempt later in session
+  if (!res.ok) {
+    const word = WORDS.find(w=>w.id===wordId);
+    if (word) {
+      const drillsSoFar = SESSION.microDrillCount[wordId] || 0;
+      if (drillsSoFar < 2) {
+        const gap = 4 + Math.floor(Math.random() * 3);
+        const pos = Math.min(SESSION.queue.length, SESSION.currentIndex + gap);
+        SESSION.queue.splice(pos, 0, word);
+        SESSION.microDrillCount[wordId] = drillsSoFar + 1;
+      }
+    }
+  }
+  persist(); saveCrash();
+
+  setTimeout(() => {
+    const fs = document.getElementById('feedback-section');
+    fs.innerHTML += `<div class="action-row" style="margin-top:14px">
+      <button class="btn btn-primary" id="next-btn" onclick="advanceCard()" style="display:flex;align-items:center;justify-content:center;gap:6px">
+        Continue Practice
+        <span class="material-symbols-outlined" style="font-size:.95rem">arrow_forward</span>
+      </button>
+    </div>`;
+    SESSION.awaitingNext = true;
+    setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+  }, 600);
+}
+
+// ── Cloze Mode ────────────────────────────────────────────────
+function findClozeMatch(sentence, wordDe) {
+  const core = wordDe.includes(' ') ? stripArt(wordDe) : wordDe;
+  const esc  = core.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const m    = sentence.match(new RegExp(esc, 'i'));
+  return m ? m[0] : null;
+}
+
+function shouldCloze(word, state) {
+  if (!state || state.isNew || state.isLeech) return false;
+  if (state.repetitions < 2) return false;
+  if (!(state.typingCorrect >= 1)) return false;
+  if (Math.random() > 0.35) return false;
+  return word.examples.some(ex => findClozeMatch(ex.de, word.de) !== null);
+}
+
+function showClozeCard(word) {
+  const valid = word.examples
+    .map((ex,i) => ({ ex, i, match: findClozeMatch(ex.de, word.de) }))
+    .filter(x => x.match !== null);
+  if (!valid.length) { showCard(); return; }
+  const pick = valid[Math.floor(Math.random() * valid.length)];
+  SESSION.clozeTarget = { answer: pick.match, sentence: pick.ex.de, en: pick.ex.en, grammar: pick.ex.grammar };
+
+  const esc       = pick.match.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const blankLen  = pick.match.length;
+  const displayed = pick.ex.de.replace(new RegExp(esc,'i'),
+    `<span class="cloze-blank" style="--answer-len:${blankLen}">____</span>`);
+  const grammarNote = pick.ex.grammar || '';
+
+  const state = SRS[word.id];
+  const isLeech   = !!(state && state.isLeech);
+  const isFragile = !isLeech && !!(state && state.isFragile);
+  document.querySelector('.card-area').classList.toggle('is-leech',   isLeech);
+  document.querySelector('.card-area').classList.toggle('is-fragile', isFragile);
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+  document.getElementById('prompt-mode').innerHTML  = `FILL IN THE BLANK<span style="font-weight:400;opacity:.7;margin-left:6px">· ${word.en}</span>`;
+  document.getElementById('prompt-word').innerHTML  = `
+    <div class="cloze-card">
+      <p class="cloze-sentence">${displayed}</p>
+      <div class="cloze-translation">
+        <span class="material-symbols-outlined" style="font-size:.9rem">translate</span>
+        <span>${pick.ex.en}</span>
+      </div>
+    </div>
+    ${grammarNote ? `<div class="cloze-grammar-note">
+      <div class="cgn-label">Grammar note</div>
+      <div class="cgn-text">${grammarNote}</div>
+    </div>` : ''}`;
+  document.getElementById('prompt-sub').textContent = '';
+
+  const inp = document.getElementById('answer-input');
+  inp.value=''; inp.className='answer-input'; inp.disabled=false;
+  inp.placeholder='type missing word';
+  document.getElementById('action-row').innerHTML =
+    `<button class="btn btn-primary" onclick="checkCloze()">Check</button>`;
+  document.getElementById('skip-btn').classList.remove('hidden');
+  document.getElementById('feedback-section').classList.add('hidden');
+  document.getElementById('feedback-section').innerHTML='';
+  clearHintTimers();
+  /* Stitch: show decorative orbs for cloze */
+  document.getElementById('cloze-orb-r').classList.add('active');
+  document.getElementById('cloze-orb-l').classList.add('active');
+  SESSION.cardStartTime = Date.now();
+  SESSION.awaitingNext  = false;
+  setTimeout(() => inp.focus(), 50);
+}
+
+function checkCloze() {
+  const word   = SESSION.queue[SESSION.currentIndex];
+  if (SESSION.gradedIndices && SESSION.gradedIndices.has(SESSION.currentIndex)) return;
+  const inp    = document.getElementById('answer-input');
+  const raw    = inp.value.trim();
+  if (!raw) { inp.focus(); return; }
+  const ms     = Date.now() - SESSION.cardStartTime;
+  const target = SESSION.clozeTarget.answer;
+  const isCorrect = norm(raw) === norm(target) || normSoft(raw) === normSoft(target);
+  const isTypo    = !isCorrect && lev(norm(raw), norm(target)) <= (target.length <= 5 ? 1 : 2);
+  const ok        = isCorrect || isTypo;
+
+  const res = gradeWord(word.id, ms, ok ? word.de : '');
+  if (SESSION.gradedIndices) SESSION.gradedIndices.add(SESSION.currentIndex);
+  SESSION.results.push({ wordId:word.id, correct:ok, type: ok?(isTypo?'typo':'correct'):'wrong', ms });
+  if (ok) SESSION.correctInSession++;
+
+  // Re-queue failed cloze words
+  if (!ok) {
+    const drillsSoFar = SESSION.microDrillCount[word.id] || 0;
+    if (drillsSoFar < 2) {
+      const gap = 4 + Math.floor(Math.random() * 3);
+      const pos = Math.min(SESSION.queue.length, SESSION.currentIndex + gap);
+      SESSION.queue.splice(pos, 0, word);
+      SESSION.microDrillCount[word.id] = drillsSoFar + 1;
+    }
+  }
+  persist(); saveCrash();
+  if (res.firstMastery) celebrate(`⭐ "${word.de}" mastered!`);
+  if (res.leechCleared) celebrate(`🎉 Leech cleared: "${word.de}"!`, 600);
+
+  inp.disabled = true;
+  inp.className = `answer-input ${ok ? (isTypo ? 'st-typo' : 'st-correct') : 'st-wrong'}`;
+  const msg = ok ? (isTypo ? 'Close — small typo!' : rnd(['Correct!','Richtig!','Genau!'])) : 'Not quite.';
+  const fc  = ok ? (isTypo ? 'fb-typo' : 'fb-correct') : 'fb-wrong';
+  const ct = SESSION.clozeTarget;
+  const revealed = ct.sentence.replace(new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),
+    `<span class="hl">${target}</span>`);
+  const clozeWord   = WORDS.find(w => w.id === word.id);
+  const clozeBadge  = clozeWord && clozeWord.gender
+    ? `<span class="gbadge ${gClass(clozeWord.gender)}" style="font-size:.6rem;padding:1px 6px">${gLabel(clozeWord.gender)}</span>` : '';
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `
+    <div class="fb-header">
+      <div class="fb-status-lbl">Status</div>
+      <div class="fb-result ${fc}">${msg}</div>
+    </div>
+    ${!ok ? `<div class="fb-word-card is-wrong">
+      <div class="fb-de">${target}${clozeBadge}</div>
+      <div class="fb-en">correct answer</div>
+    </div>` : ''}
+    <div class="intro-ex-bento" style="margin-bottom:10px">
+      <div class="intro-ex-accent"></div>
+      <p class="intro-ex-de">${revealed}</p>
+      <p class="intro-ex-en">${ct.en}</p>
+      <span class="ex-grammar">${ct.grammar}</span>
+    </div>
+    <div class="fb-actions">
+      <button class="btn btn-primary fb-next-btn" id="next-btn" onclick="advanceCard()">Next →</button>
+    </div>`;
+  fs.classList.remove('hidden');
+  document.getElementById('action-row').innerHTML='';
+  document.getElementById('skip-btn').classList.add('hidden');
+  setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+  SESSION.awaitingNext = true;
+}
+
+function maskedHint(word, level) {
+  return word.de.split(' ').map(part => {
+    const show = level === 0 ? 1 : level === 1 ? 2 : part.length;
+    return part.slice(0, show) + '·'.repeat(Math.max(0, part.length - show));
+  }).join(' ');
+}
+
+function clearHintTimers() {
+  SESSION.hintTimers.forEach(t => clearTimeout(t));
+  SESSION.hintTimers = [];
+}
+
+function startHintReveal(word) {
+  clearHintTimers();
+  const sub = document.getElementById('prompt-sub');
+  sub.textContent = maskedHint(word, 0);
+  SESSION.hintTimers.push(setTimeout(() => {
+    if (document.getElementById('prompt-sub') === sub) sub.textContent = maskedHint(word, 1);
+  }, 5000));
+  SESSION.hintTimers.push(setTimeout(() => {
+    if (document.getElementById('prompt-sub') === sub) sub.textContent = maskedHint(word, 2);
+  }, 10000));
+}
+
+function getCardState(state) {
+  if (!state || state.isNew) return 'new';
+  if (state.isLeech || state.isFragile) return 'struggling';
+  if (state.repetitions >= 2) return 'review';
+  return 'new';
+}
+
+function showCard() {
+  document.querySelector('.card-area').classList.remove('fb-active');
+  document.getElementById('cloze-orb-r').classList.remove('active');
+  document.getElementById('cloze-orb-l').classList.remove('active');
+  // Remove stale time-up banner if present
+  const oldBanner = document.getElementById('time-up-banner');
+  if (oldBanner) oldBanner.remove();
+  if (SESSION.currentIndex>=SESSION.queue.length) { endSession(); return; }
+  // When time is up, ask user instead of hard-stopping
+  if (SESSION.timeReached && !SESSION.userChoseFinish) {
+    const left = SESSION.queue.length - SESSION.currentIndex;
+    SESSION.timeReached = false; // Reset so we don't re-prompt
+    SESSION.timeBannerShown = true;
+    const banner = document.createElement('div');
+    banner.id = 'time-up-banner';
+    banner.style.cssText = 'background:var(--tint-info-bg);border:1px solid var(--tint-info-bd);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px;text-align:center;animation:fadeUp .3s var(--ease)';
+    banner.innerHTML = `
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:8px;color:var(--text)">Time's up! ${left} card${left!==1?'s':''} left</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-secondary btn-sm" onclick="SESSION.userChoseFinish=true;endSession()">End Now</button>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('time-up-banner').remove()">Finish Deck</button>
+      </div>`;
+    const cardArea = document.querySelector('.card-area');
+    cardArea.insertBefore(banner, cardArea.firstChild);
+    // Continue showing the card regardless
+  }
+  const word  = SESSION.queue[SESSION.currentIndex];
+  const state = SRS[word.id];
+  const isNew = !state||state.isNew;
+
+  if (isNew && !SESSION.introduced.has(word.id)) { showIntro(word); return; }
+
+  const isLeech   = !!(state && state.isLeech);
+  const isFragile = !isLeech && !!(state && state.isFragile);
+  if (!isNew && (isLeech || isFragile) && !SESSION.introduced.has(word.id)) { showStrugglingIntro(word); return; }
+
+  if (SESSION.mcMode.has(word.id)) { showMCCard(word); return; }
+
+  if (shouldCloze(word, state)) { showClozeCard(word); return; }
+
+  document.getElementById('s-prog').textContent = `${SESSION.currentIndex+1}/${SESSION.queue.length}`;
+  document.getElementById('s-bar').style.width  = `${(SESSION.currentIndex/SESSION.queue.length)*100}%`;
+
+  document.querySelector('.card-area').classList.toggle('is-leech',   isLeech);
+  document.querySelector('.card-area').classList.toggle('is-fragile', isFragile);
+
+  const cardState = getCardState(state);
+  const modeLabel = cardState === 'new'        ? 'Translate to German'
+                  : cardState === 'struggling'  ? 'Let\'s reinforce this — translate to German'
+                  :                               'Try from memory — translate to German';
+  document.getElementById('prompt-mode').innerHTML = modeLabel;
+  document.getElementById('prompt-word').textContent = word.en;
+  document.getElementById('prompt-sub').textContent  = '';
+
+  document.getElementById('input-wrap').style.display = '';
+
+  const inp = document.getElementById('answer-input');
+  inp.value=''; inp.className='answer-input'; inp.disabled=false; inp.focus();
+
+  clearHintTimers();
+  if (isNew) startHintReveal(word);
+
+  document.getElementById('action-row').innerHTML =
+    `<button class="btn btn-secondary" style="flex:none;padding:12px 16px" title="Show hint" onclick="openHintSheet(${word.id})">
+       <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;line-height:1">lightbulb</span>
+     </button>
+     <button class="btn btn-primary" onclick="checkAnswer()">Check</button>`;
+  document.getElementById('skip-btn').classList.remove('hidden');
+
+  const fs = document.getElementById('feedback-section');
+  // First typing attempt on a new word: keep one example visible as scaffold
+  if (isNew && SESSION.introduced.has(word.id)) {
+    const ex = word.examples[0];
+    fs.innerHTML = `
+      <div class="intro-ex-bento">
+        <div class="intro-ex-accent"></div>
+        <p class="intro-ex-de">${hlWord(ex.de, word.de)}</p>
+        <p class="intro-ex-en">${ex.en}</p>
+      </div>`;
+    fs.classList.remove('hidden');
+  } else {
+    fs.classList.add('hidden');
+    fs.innerHTML = '';
+  }
+
+  SESSION.cardStartTime = Date.now();
+  SESSION.awaitingNext  = false;
+}
+
+function handleKey(e) {
+  if (e.key==='Enter') {
+    if (SESSION.awaitingNext) advanceCard();
+    else if (SESSION.clozeTarget) checkCloze();
+    else checkAnswer();
+    return;
+  }
+  if (['1','2','3','4'].includes(e.key) && !SESSION.awaitingNext) {
+    const opts = document.querySelectorAll('.mc-opt:not(.mc-locked)');
+    const idx  = parseInt(e.key) - 1;
+    if (opts[idx]) opts[idx].click();
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeHintSheet(); return; }
+  if (SESSION.awaitingNext && e.key === 'Enter') advanceCard();
+});
+
+function ins(c) {
+  const inp = document.getElementById('answer-input');
+  if (inp.disabled) return;
+  const s=inp.selectionStart, e=inp.selectionEnd;
+  inp.value = inp.value.slice(0,s)+c+inp.value.slice(e);
+  inp.selectionStart = inp.selectionEnd = s+c.length;
+  inp.focus();
+}
+
+function checkAnswer() {
+  const word = SESSION.queue[SESSION.currentIndex];
+  if (SESSION.gradedIndices && SESSION.gradedIndices.has(SESSION.currentIndex)) return;
+  const inp  = document.getElementById('answer-input');
+  const ans  = inp.value.trim();
+  if (!ans) { inp.focus(); return; }
+
+  const ms       = Date.now() - SESSION.cardStartTime;
+  const preState = SRS[word.id] ? {...SRS[word.id]} : null;
+  const res      = gradeWord(word.id, ms, ans);
+
+  const wasNew = !(SRS[word.id]&&SRS[word.id].exposures>1);
+  if (SESSION.gradedIndices) SESSION.gradedIndices.add(SESSION.currentIndex);
+  SESSION.results.push({ wordId:word.id, correct:res.ok, type:res.cl.type, ms });
+  if (res.ok)    SESSION.correctInSession++;
+  if (wasNew)    SESSION.newWordsInSession++;
+
+  persist();
+  saveCrash();
+  if (res.firstMastery) celebrate(`⭐ "${word.de}" mastered!`);
+  if (res.leechCleared) celebrate(`🎉 Leech cleared: "${word.de}"!`, 600);
+
+  // Track correct typing answers for cloze gating
+  if (res.ok) {
+    const _s = SRS[word.id];
+    if (_s) { _s.typingCorrect = (_s.typingCorrect || 0) + 1; SRS[word.id] = _s; }
+  }
+
+  showFeedback(word, res, getCardState(preState));
+}
+
+/* ── showFeedback — Stitch Interval Grid (B6/B7) ──────────────
+   Correct: 3-button grid (Hard / Good★ / Easy)
+   Wrong:   2-button grid (Again / Next★)
+   Maps to existing markHard() + advanceCard() functions.
+*/
+function showFeedback(word, res, cardState = 'review') {
+  clearHintTimers();
+  const inp    = document.getElementById('answer-input');
+  const cl     = res.cl;
+  const rawAns = inp.value.trim();
+
+  inp.disabled = true;
+  const borderMap = { correct:'st-correct', typo:'st-typo', article:'st-typo',
+                      confused:'st-wrong', wrong:'st-wrong' };
+  inp.className = `answer-input ${borderMap[cl.type]||'st-wrong'}`;
+
+  const pool = {
+    correct:  ['Correct!','Richtig!','Genau!','Perfekt!','Well done!'],
+    typo:     ['Close — small typo!','Nearly there!','Check the spelling.'],
+    article:  ['Right word, wrong article!','Check the gender!'],
+    confused: ['That\'s the English — try German!','You know the meaning — now produce German!'],
+    wrong:    ['Not quite.','Try again next time.','Keep going!']
+  };
+  const msg = rnd(pool[cl.type]||pool.wrong);
+
+  const fc = { correct:'fb-correct', typo:'fb-typo', article:'fb-article',
+               confused:'fb-confused', wrong:'fb-wrong' }[cl.type]||'fb-wrong';
+
+  /* Stitch: pill badge centered above the word on the feedback vocabulary card */
+  const pillBadge = word.gender
+    ? `<span class="gbadge-pill ${gClass(word.gender)}">${gLabel(word.gender)}</span>`
+    : '';
+  const pillBadgeRow = pillBadge
+    ? `<div class="fb-gender-badge">${pillBadge}</div>` : '';
+
+  // Capitalisation soft warning
+  const capWarn = (cl.type === 'correct' && rawAns && rawAns !== word.de && normSoft(rawAns) === normSoft(word.de))
+    ? `<div class="confused-box cb-info">
+         Aa <strong>Watch capitalisation</strong> — correct answer is: <strong>${word.de}</strong>
+       </div>`
+    : '';
+
+  const confusedBox = cl.type==='confused'
+    ? `<div class="confused-box">
+         💡 Your brain is in <strong>recognition mode</strong> — you understood, but couldn't produce.
+         This word is now queued for extra production practice.
+       </div>`
+    : '';
+
+  const exSrc  = (res.ok && cardState === 'review') ? [word.examples[0]] : word.examples;
+  const exHeader = (res.ok && cardState === 'review') ? 'Example' : 'Examples — read all before continuing';
+  const exHTML = exSrc.map(ex => `
+    <div class="ex-item">
+      <div class="ex-de">${hlWord(ex.de, word.de)}</div>
+      <div class="ex-en">${ex.en}</div>
+      <span class="ex-grammar">${ex.grammar}</span>
+    </div>
+  `).join('');
+
+  const st = SRS[word.id];
+  const leechNote = (st && st.isLeech)
+    ? `<div class="confused-box cb-danger">
+         ⚠ <strong>This is a leech word</strong> — it will repeat in this session for extra practice.
+       </div>`
+    : '';
+  const fragileNote = (!leechNote && st && st.isFragile && !res.ok)
+    ? `<div class="confused-box">
+         ◈ <strong>Fragile word</strong> — you've missed this before. One more miss and it becomes a leech.
+       </div>`
+    : '';
+
+  const hesitNote = res.ok && (res.tg === 'slow' || res.tg === 'very_slow')
+    ? `<div class="confused-box" style="background:rgba(72,96,126,.07);border-color:rgba(72,96,126,.2);color:var(--blue)">
+         ⏱ <strong>Slow response</strong> — you got it, but hesitated. Keep drilling to build fluency.
+       </div>`
+    : '';
+
+  /* ── Stitch Interval Grid — always 4 buttons (Again/Hard/Good★/Easy) ── */
+  const _srs = SRS[word.id];
+  const _ef  = _srs ? (_srs.easeFactor || 2.5) : 2.5;
+  const _iv  = _srs ? (_srs.interval   || 1)   : 1;
+  const _nextHard = Math.max(1, Math.round(_iv * 0.6));
+  const _nextGood = res.ok ? Math.max(1, Math.round(_iv * _ef)) : 1;
+  const _nextEasy = Math.max(_nextGood + 1, Math.round(_nextGood * 1.3));
+  const _fmtI = d => d <= 1 ? '1d' : d < 7 ? d + 'd' : Math.round(d/7) + 'w';
+  const intervalButtons = `
+    <div class="interval-grid">
+      <button class="interval-btn" onclick="againAndAdvance(${word.id})">
+        <span class="ib-label">Again</span>
+        <span class="ib-val">&lt; 1d</span>
+      </button>
+      <button class="interval-btn" id="hard-btn" onclick="hardAndAdvance(${word.id})">
+        <span class="ib-label">Hard</span>
+        <span class="ib-val">${_fmtI(_nextHard)}</span>
+      </button>
+      <button class="interval-btn is-primary" id="next-btn" onclick="advanceCard()">
+        <span class="ib-label">Good ★</span>
+        <span class="ib-val">${_fmtI(_nextGood)}</span>
+      </button>
+      <button class="interval-btn" onclick="easyGradeAndAdvance(${word.id})">
+        <span class="ib-label">Easy</span>
+        <span class="ib-val">${_fmtI(_nextEasy)}</span>
+      </button>
+    </div>`;
+
+  const fs = document.getElementById('feedback-section');
+  fs.innerHTML = `
+    <div class="fb-header">
+      <div class="fb-status-lbl">Status</div>
+      <div class="fb-result ${fc}">${msg}</div>
+    </div>
+    <div class="fb-word-card ${res.ok ? 'is-correct' : 'is-wrong'}">
+      ${pillBadgeRow}
+      <div class="fb-de">${word.de}</div>
+      <div class="fb-en">${word.en}</div>
+    </div>
+    ${capWarn}
+    ${confusedBox}
+    ${leechNote}
+    ${fragileNote}
+    ${hesitNote}
+    <div class="examples-block">
+      <div class="ex-header">
+        <span class="material-symbols-outlined" style="font-size:.85rem;vertical-align:middle;margin-right:3px">auto_stories</span>
+        ${exHeader}
+      </div>
+      ${exHTML}
+    </div>
+    ${intervalButtons}
+  `;
+  fs.classList.remove('hidden');
+  document.querySelector('.card-area').classList.add('fb-active');
+
+  document.getElementById('action-row').innerHTML='';
+  document.getElementById('skip-btn').classList.add('hidden');
+
+  setTimeout(()=>{ const nb=document.getElementById('next-btn'); if(nb) nb.focus(); }, 40);
+
+  SESSION.awaitingNext = true;
+
+  // Intra-session re-queue for ALL failed words (not just leeches)
+  if (!res.ok) {
+    const drillsSoFar = SESSION.microDrillCount[word.id] || 0;
+    const isLeech = SRS[word.id] && SRS[word.id].isLeech;
+    const maxDrills = isLeech ? 3 : 2; // Leeches get more re-inserts
+    if (drillsSoFar < maxDrills) {
+      const insertsLeft = isLeech ? Math.min(2, maxDrills - drillsSoFar) : 1;
+      let insertAt = SESSION.currentIndex;
+      for (let i = 0; i < insertsLeft; i++) {
+        const gap = isLeech ? (3 + Math.floor(Math.random() * 3)) : (4 + Math.floor(Math.random() * 3));
+        insertAt   = Math.min(SESSION.queue.length, insertAt + gap);
+        SESSION.queue.splice(insertAt, 0, word);
+        insertAt++;
+      }
+      SESSION.microDrillCount[word.id] = drillsSoFar + insertsLeft;
+    }
+  }
+
+  // Learning step re-queue: new words that passed a learning step get re-queued soon
+  if (res.ok && SRS[word.id] && (SRS[word.id].learningStep || 0) < 2 && SRS[word.id].repetitions < 2) {
+    const gap = 5 + Math.floor(Math.random() * 4); // 5-8 cards later
+    const pos = Math.min(SESSION.queue.length, SESSION.currentIndex + gap);
+    SESSION.queue.splice(pos, 0, word);
+  }
+
+  // Confused-state requeue
+  if (res.cl.type === 'confused') {
+    const qi  = SESSION.currentIndex;
+    const pos = Math.min(SESSION.queue.length, qi + 3);
+    SESSION.queue.splice(pos, 0, word);
+  }
+
+  // MC reinforcement after correct first typing of new word
+  if (cardState === 'new' && res.ok) {
+    const insertAt = Math.min(SESSION.queue.length, SESSION.currentIndex + 4 + Math.floor(Math.random() * 3));
+    SESSION.queue.splice(insertAt, 0, word);
+    SESSION.mcMode.add(word.id);
+  }
+}
+
+function advanceCard() {
+  SESSION.clozeTarget = null;
+  SESSION.currentIndex++;
+  showCard();
+}
+
+function markHard(wordId) {
+  const s = SRS[wordId];
+  if (!s) return;
+  const cardIdx = SESSION.currentIndex;
+  if (!SESSION.hardApplied) SESSION.hardApplied = new Set();
+  if (SESSION.hardApplied.has(cardIdx)) return;
+  const graded   = SESSION.gradedIndices ? SESSION.gradedIndices.size : SESSION.results.length;
+  const hardUsed = SESSION.hardCount || 0;
+  const hb = document.getElementById('hard-btn');
+  if (hardUsed >= Math.max(1, Math.round(Math.max(graded, 1) * 0.25))) {
+    if (hb) { hb.querySelector('.ib-label').textContent = 'Limit'; hb.disabled = true; }
+    return;
+  }
+  SESSION.hardApplied.add(cardIdx);
+  SESSION.hardCount = hardUsed + 1;
+  s.easeFactor = Math.max(1.3, s.easeFactor - 0.15);
+  s.interval   = Math.max(1, Math.round(s.interval * 0.6));
+  const due = new Date(); due.setDate(due.getDate() + s.interval);
+  s.dueDate = due.toISOString().slice(0,10);
+  SRS[wordId] = s;
+  persist();
+}
+
+/* Stitch: Again button → immediate re-insert + hard penalty */
+function againAndAdvance(wordId) {
+  const word = WORDS.find(w => w.id === wordId);
+  if (word) {
+    const insertAt = Math.min(SESSION.queue.length, SESSION.currentIndex + 2);
+    SESSION.queue.splice(insertAt, 0, word);
+  }
+  markHard(wordId);
+  advanceCard();
+}
+
+/* Stitch: Hard button → apply hard penalty then advance */
+function hardAndAdvance(wordId) {
+  markHard(wordId);
+  advanceCard();
+}
+
+/* Stitch: Easy button → small EF boost then advance */
+function easyGradeAndAdvance(wordId) {
+  const s = SRS[wordId];
+  if (s) {
+    s.easeFactor = Math.min(3.0, s.easeFactor + 0.15);
+    s.interval   = Math.max(s.interval, Math.round(s.interval * 1.3));
+    const due = new Date(); due.setDate(due.getDate() + s.interval);
+    s.dueDate = due.toISOString().slice(0,10);
+    SRS[wordId] = s;
+    persist();
+  }
+  advanceCard();
+}
+
+function skipCard() {
+  const word = SESSION.queue[SESSION.currentIndex];
+  gradeWord(word.id, Date.now()-SESSION.cardStartTime, '');
+  SESSION.results.push({ wordId:word.id, correct:false, type:'skip', ms:0 });
+  persist();
+  saveCrash();
+  SESSION.currentIndex++;
+  showCard();
+}
+
+let _toastTimer = null;
+function celebrate(msg, delay=400) {
+  clearTimeout(_toastTimer);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  setTimeout(() => {
+    t.classList.add('show');
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }, delay);
+}
+
+function endEarly() { SESSION.userChoseFinish=true; endSession(); }
+
+function endSession() {
+  clearInterval(SESSION.timerInterval);
+  clearCrash();
+
+  const dur   = Date.now()-SESSION.startTime;
+  const total = SESSION.results.length;
+  const ok    = SESSION.correctInSession;
+  const ret   = total>0 ? ok/total : 0;
+  const t     = today();
+
+  if (!STATS.dailyLog[t]) STATS.dailyLog[t]={ correct:0,total:0,newWords:0,minutes:0 };
+  STATS.dailyLog[t].correct += ok;
+  STATS.dailyLog[t].total   += total;
+  STATS.dailyLog[t].newWords+= SESSION.newWordsInSession;
+  STATS.dailyLog[t].minutes += dur/60000;
+
+  if (STATS.lastStudyDate!==t) {
+    const gap = STATS.lastStudyDate ? daysBetween(STATS.lastStudyDate,t) : 0;
+    STATS.currentStreak = gap===1 ? STATS.currentStreak+1 : 1;
+    STATS.lastStudyDate = t;
+    if (STATS.currentStreak>STATS.longestStreak) STATS.longestStreak=STATS.currentStreak;
+    if ([3,7,14,30].includes(STATS.currentStreak))
+      celebrate(`🔥 ${STATS.currentStreak} day streak!`, 600);
+  }
+  if (total>0) {
+    STATS.recentRetention.push(ret);
+    if (STATS.recentRetention.length>10) STATS.recentRetention.shift();
+  }
+  SETTINGS.totalSessionsCompleted++;
+
+  if (SESSION.results.length > 0) {
+    const times = SESSION.results.map(r=>r.ms).filter(v=>v>500).sort((a,b)=>a-b);
+    if (times.length > 0) {
+      const sessionMedian = times[Math.floor(times.length/2)];
+      if (!SETTINGS.responseWindow) SETTINGS.responseWindow = [];
+      SETTINGS.responseWindow.push(sessionMedian);
+      if (SETTINGS.responseWindow.length > 20) SETTINGS.responseWindow.shift();
+      if (SETTINGS.responseWindow.length >= 3) {
+        const sorted = [...SETTINGS.responseWindow].sort((a,b)=>a-b);
+        const windowMedian = sorted[Math.floor(sorted.length/2)];
+        const recent    = SETTINGS.responseWindow.slice(-3);
+        const recentAvg = recent.reduce((a,b)=>a+b,0) / recent.length;
+        const current   = SETTINGS.medianResponseMs || windowMedian;
+        if (recentAvg < current * 0.8) {
+          SETTINGS.medianResponseMs = Math.round(current * 0.4 + recentAvg * 0.6);
+        } else {
+          SETTINGS.medianResponseMs = windowMedian;
+        }
+        SETTINGS.calibrationDone = true;
+      }
+    }
+  }
+  checkUnlock();
+
+  if (total > 0) {
+    const t2 = today();
+    HISTORY.push({ date:t2, pct:Math.round(ret*100), total, newWords:SESSION.newWordsInSession });
+    if (HISTORY.length > 7) HISTORY.shift();
+  }
+  persist();
+
+  const sec = Math.floor(dur/1000);
+  const pct = total>0 ? Math.round(ret*100) : 0;
+  let icon='🎯',title='Session Complete!',sub='';
+  if (total===0) { icon='🕐';title='Nothing answered';sub='Session ended before any cards'; }
+  else if (pct>=90) { icon='🌟';title='Outstanding!';sub=`${pct}% accuracy`; }
+  else if (pct>=70) { icon='💪';title='Good work!';sub=`${pct}% accuracy`; }
+  else if (pct>=50) { icon='📚';title='Keep practicing!';sub=`${pct}% accuracy`; }
+  else              { icon='🔄';title='Room to grow';sub=`${pct}% accuracy`; }
+
+  document.getElementById('res-icon').textContent  = icon;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-sub').textContent   = sub;
+  document.getElementById('rv-correct').textContent= ok;
+  document.getElementById('rv-total').textContent  = total;
+  document.getElementById('rv-new').textContent    = SESSION.newWordsInSession;
+  document.getElementById('rv-time').textContent   = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+
+  // Accuracy ring — Stitch r=110, circumference=691.15
+  const ringFillEl = document.getElementById('res-ring-fill');
+  const ringPctEl  = document.getElementById('res-ring-pct');
+  if (ringFillEl) {
+    ringFillEl.style.strokeDashoffset = (691.15 * (1 - pct / 100)).toFixed(2);
+    ringFillEl.style.stroke = pct >= 70 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
+  }
+  if (ringPctEl) ringPctEl.textContent = total > 0 ? pct + '%' : '—';
+
+  // Missed-word list
+  const tagMap   = { wrong:'tag-wrong', confused:'tag-confused',
+                     article:'tag-article', typo:'tag-typo', skip:'tag-skip' };
+  const tagLabel = { wrong:'Wrong', confused:'English', article:'Article',
+                     typo:'Typo', skip:'Skipped' };
+
+  const failMap = {};
+  SESSION.results.forEach(r => {
+    if (r.type === 'correct' || r.type === 'mc') return;
+    if (!failMap[r.wordId]) failMap[r.wordId] = { count:0, type:r.type };
+    failMap[r.wordId].count++;
+    const pri = {wrong:5, confused:4, article:3, typo:2, skip:1};
+    if ((pri[r.type]||0) > (pri[failMap[r.wordId].type]||0))
+      failMap[r.wordId].type = r.type;
+  });
+
+  const missedWords = Object.entries(failMap)
+    .sort((a,b) => b[1].count - a[1].count)
+    .slice(0, 10);
+
+  _lastMissedIds = missedWords.map(([id]) => parseInt(id));
+
+  /* Stitch results: colored article badge (der/die/das pill) + chevron_right */
+  const missedRows = missedWords.map(([id, info]) => {
+    const w = WORDS.find(x => x.id === parseInt(id));
+    if (!w) return '';
+    const s   = SRS[w.id] || {};
+    const pillBadge = w.gender
+      ? `<span class="gbadge-pill ${gClass(w.gender)}" style="font-size:.6rem;padding:2px 8px">${gLabel(w.gender)}</span>` : '';
+    const rowCls = s.isLeech ? 'is-leech' : s.isFragile ? 'is-fragile' : '';
+    return `<div class="missed-row ${rowCls}" style="border-radius:10px;border:1px solid rgba(65,65,65,.08);background:var(--card)">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px">
+          <span class="missed-de">${w.de}</span>${pillBadge}
+        </div>
+        <span class="missed-en">${w.en}</span>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:1rem;color:var(--text-muted);flex-shrink:0">chevron_right</span>
+    </div>`;
+  }).join('');
+
+  const missedEl = document.getElementById('res-missed');
+  if (missedRows) {
+    missedEl.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">Review Required</span>
+        <span style="font-size:.72rem;font-weight:700;color:var(--red)">${missedWords.length} Word${missedWords.length!==1?'s':''} Missed</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">${missedRows}</div>
+      <button class="btn btn-secondary res-drill-btn" style="margin-top:12px" onclick="drillMissed()">↩ Drill Missed Words</button>`;
+    missedEl.classList.remove('hidden');
+  } else {
+    missedEl.classList.add('hidden');
+  }
+
+  if (pct === 100 && total >= 3) celebrate('🌟 Perfect session!', 600);
+
+  showScreen('results');
+}
+
+// ── Navigation ────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id==='home') refreshHome();
+  if (id==='practice') refreshPractice();
+}
+function gotoHome() { showScreen('home'); }
+
+// ── Home Refresh ──────────────────────────────────────────────
+function refreshHome() {
+  const t        = today();
+  const unlocked = getUnlockedWords();
+  let due=0, mastered=0;
+
+  for (const w of unlocked) {
+    const s = SRS[w.id];
+    if (!s||s.isNew)                        { due++; continue; }
+    if (s.dueDate && s.dueDate<=t)          { due++; }
+    if (s.interval>=21 && s.repetitions>=5) { mastered++; }
+  }
+
+  const todayLog   = STATS.dailyLog[t]||{total:0};
+  const displayDue = Math.min(due, Math.max(0,(SETTINGS.dailyCap||80)-todayLog.total));
+
+  document.getElementById('stat-due').textContent      = displayDue;
+  document.getElementById('stat-mastered').textContent = mastered;
+  const avgRet = STATS.recentRetention.length>0
+    ? STATS.recentRetention.reduce((a,b)=>a+b,0)/STATS.recentRetention.length : null;
+  document.getElementById('stat-ret').textContent = avgRet!=null ? Math.round(avgRet*100)+'%' : '—';
+
+  const sb = document.getElementById('streak-banner');
+  if (STATS.currentStreak>0) {
+    sb.style.display='flex';
+    const t3 = STATS.currentStreak>=7?' — outstanding!':STATS.currentStreak>=3?' — keep it up!':'';
+    document.getElementById('streak-text').innerHTML = `<strong>${STATS.currentStreak} day streak</strong>${t3}`;
+  } else { sb.style.display='none'; }
+
+  const rb = document.getElementById('reminder-banner');
+  if (STATS.lastStudyDate && STATS.lastStudyDate!==t) {
+    const gap = daysBetween(STATS.lastStudyDate,t);
+    if (gap>=1) { rb.style.display='block'; rb.textContent=gap===1?'Welcome back! Your words are waiting.':
+      `${gap} days since last session — let's get back on track!`; }
+    else rb.style.display='none';
+  } else rb.style.display='none';
+
+  // Level progress — dynamic word count
+  const lvlWds = WORDS.filter(w=>w.level===SETTINGS.unlockedLevel);
+  const seen   = lvlWds.filter(w=>SRS[w.id]&&!SRS[w.id].isNew).length;
+  document.getElementById('lc-title').textContent    = `Level ${SETTINGS.unlockedLevel} · ${lvlWds.length} words`;
+  document.getElementById('lc-bar').style.width      = `${lvlWds.length>0?(seen/lvlWds.length)*100:0}%`;
+  document.getElementById('lc-words').textContent    = `${seen}/${lvlWds.length} seen`;
+  document.getElementById('lc-unlock').textContent   = avgRet!=null ? `${Math.round(avgRet*100)}% retention` : '';
+
+  const histEl = document.getElementById('session-history');
+  if (HISTORY.length > 0) {
+    const todayStr = today();
+    const bars = HISTORY.map(h => {
+      const height = Math.max(4, Math.round(h.pct / 100 * 36));
+      const cls    = h.pct >= 80 ? 'good' : h.pct >= 50 ? 'ok' : 'bad';
+      const day    = h.date === todayStr ? 'Today'
+                   : new Date(h.date + 'T12:00:00').toLocaleDateString('en', {weekday:'short'});
+      return `<div class="h-bar-wrap">
+        <div class="h-pct">${h.pct}%</div>
+        <div class="h-bar ${cls}" style="height:${height}px"></div>
+        <div class="h-day">${day}</div>
+      </div>`;
+    }).join('');
+    histEl.innerHTML = `<div class="history-title">Last ${HISTORY.length} session${HISTORY.length!==1?'s':''}</div>
+      <div class="history-bars">${bars}</div>`;
+    histEl.classList.remove('hidden');
+  } else {
+    histEl.classList.add('hidden');
+  }
+
+  document.getElementById('crash-banner').style.display = hasCrash() ? 'block' : 'none';
+
+  const btn = document.getElementById('btn-start');
+  btn.disabled    = displayDue===0;
+  btn.textContent = displayDue===0 ? '✓ All done for today!' : `Start Session (${displayDue} cards)`;
+
+  // Update hard/review button counts
+  const hardCount = unlocked.filter(w => { const s=SRS[w.id]; return s && !s.isNew && (s.isLeech || s.isFragile || s.easeFactor < 1.8 || s.recentLapses >= 2); }).length;
+  const reviewCount = unlocked.filter(w => { const s=SRS[w.id]; return s && !s.isNew && s.dueDate && s.dueDate<=t; }).length;
+  const hardBtn = document.getElementById('btn-hard');
+  const revBtn  = document.getElementById('btn-review');
+  if (hardBtn) { hardBtn.textContent = `Hard Words (${hardCount})`; hardBtn.disabled = hardCount===0; }
+  if (revBtn)  { revBtn.textContent  = `Review Only (${reviewCount})`; revBtn.disabled = reviewCount===0; }
+
+  const med       = SETTINGS.calibrationDone ? (SETTINGS.medianResponseMs || 7000) : null;
+  const seen2     = WORDS.filter(w => SRS[w.id] && !SRS[w.id].isNew);
+  const isHesitant = (s) => med && s.lapses === 0 && s.repetitions >= 2
+                            && s.avgResponseMs > med * 1.8 && !s.isLeech && !s.isFragile;
+  const weak  = seen2
+    .map(w => ({ w, s: SRS[w.id] }))
+    .filter(({s,w}) => s.lapses > 0 || (w.gender && s.articleDrills >= 2) || isHesitant(s))
+    .sort((a,b) => {
+      const rank = item => item.s.isLeech ? 4 : item.s.isFragile ? 3 : item.s.lapses > 0 ? 2
+                         : (item.w.gender && item.s.articleDrills >= 2) || isHesitant(item.s) ? 1 : 0;
+      if (rank(b) !== rank(a)) return rank(b) - rank(a);
+      return (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor);
+    })
+    .slice(0, 5);
+
+  const panel    = document.getElementById('weak-words-panel');
+  const drillBtn = document.getElementById('btn-drill');
+  if (weak.length > 0) {
+    const rows = weak.map(({w,s}) => {
+      const isArticleOnly = !s.isLeech && !s.isFragile && s.lapses === 0 && s.articleDrills >= 2;
+      const isSlow        = isHesitant(s) && !isArticleOnly;
+      const stateTag = s.isLeech
+        ? `<span class="leech-badge"   style="font-size:.55rem">LEECH</span>`
+        : s.isFragile
+        ? `<span class="fragile-badge" style="font-size:.55rem">FRAGILE</span>`
+        : isArticleOnly
+        ? `<span class="article-badge" style="font-size:.55rem">ARTICLE</span>`
+        : isSlow
+        ? `<span class="slow-badge"    style="font-size:.55rem">SLOW</span>`
+        : '';
+      const detail = isArticleOnly ? `${s.articleDrills}× article`
+                   : isSlow        ? `~${Math.round(s.avgResponseMs/1000)}s avg`
+                   : `${s.lapses} miss${s.lapses!==1?'es':''}`;
+      /* Stitch: pill badge + priority_high icon + border-l-4 */
+      const pillBadgeHTML = w.gender
+        ? `<span class="gbadge-pill ${gClass(w.gender)}" style="font-size:.62rem;padding:2px 9px">${gLabel(w.gender)}</span>` : '';
+      const borderCls = s.isLeech ? '' : s.isFragile ? 'is-fragile' : isSlow ? 'is-slow' : '';
+      return `<div class="trouble-card ${borderCls}">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px">
+            <span class="trouble-word">${w.de}</span>${pillBadgeHTML}${stateTag}
+          </div>
+          <div class="trouble-trans">${w.en} <span class="weak-lapses" style="margin-left:6px">${detail}</span></div>
+        </div>
+        <span class="material-symbols-outlined" style="font-size:1rem;color:var(--red);flex-shrink:0">priority_high</span>
+      </div>`;
+    }).join('');
+    panel.innerHTML = `
+      <div class="trouble-header">
+        <span class="trouble-title-txt">Trouble Words</span>
+        <span class="trouble-view-all" onclick="navTo('lexicon')">View All</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">${rows}</div>`;
+    panel.classList.remove('hidden');
+    drillBtn.style.display = '';
+  } else {
+    panel.classList.add('hidden');
+    drillBtn.style.display = 'none';
+  }
+
+  const articleWords = WORDS.filter(w => w.gender && SRS[w.id] && SRS[w.id].articleDrills >= 2);
+  const artBtn = document.getElementById('btn-articles');
+  if (artBtn) artBtn.style.display = articleWords.length ? '' : 'none';
+
+  refreshDashboard();
+}
+
+function refreshPractice() {
+  const t        = today();
+  const unlocked = getUnlockedWords();
+  const dailyCount = buildQueue().length;
+  const reviewCount = unlocked.filter(w => {
+    const s = SRS[w.id];
+    return s && !s.isNew && s.dueDate && s.dueDate <= t;
+  }).length;
+  const hardCount = unlocked.filter(w => {
+    const s = SRS[w.id];
+    return s && !s.isNew && (s.isLeech || s.isFragile || s.easeFactor < 1.8 || s.recentLapses >= 2);
+  }).length;
+  const articleCount = WORDS.filter(w => w.gender && SRS[w.id] && SRS[w.id].articleDrills >= 2).length;
+  const med = SETTINGS.calibrationDone ? (SETTINGS.medianResponseMs || 7000) : null;
+  const weakCount = WORDS.filter(w => {
+    const s = SRS[w.id];
+    if (!s || s.isNew) return false;
+    const hesitant = med && s.lapses === 0 && s.repetitions >= 2
+      && s.avgResponseMs > med * 1.8 && !s.isLeech && !s.isFragile;
+    return s.lapses > 0 || (w.gender && s.articleDrills >= 2) || hesitant;
+  }).length;
+
+  const setCount = (buttonId, countId, count) => {
+    const btn = document.getElementById(buttonId);
+    const el  = document.getElementById(countId);
+    if (el) el.textContent = count;
+    if (btn) btn.disabled = count === 0;
+  };
+
+  setCount('practice-daily', 'practice-daily-count', dailyCount);
+  setCount('practice-review', 'practice-review-count', reviewCount);
+  setCount('practice-hard', 'practice-hard-count', hardCount);
+  setCount('practice-articles', 'practice-article-count', articleCount);
+  setCount('practice-weak', 'practice-weak-count', weakCount);
+
+  const top = document.getElementById('practice-count-top');
+  if (top) top.textContent = `${WORDS.length} words`;
+  const kicker = document.getElementById('practice-kicker');
+  if (kicker) kicker.textContent = `Level ${SETTINGS.unlockedLevel} of ${MAX_LEVEL} · ${unlocked.length} unlocked`;
+}
+
+// ── Dashboard Visual Refresh ───────────────────────────────────
+function refreshDashboard() {
+  const unlocked = getUnlockedWords();
+  const total    = unlocked.length;
+
+  let score = 0;
+  for (const w of unlocked) {
+    const s = SRS[w.id];
+    if (!s || s.isNew) continue;
+    if (s.interval >= 21 && s.repetitions >= 5) score += 1.0;
+    else if (s.repetitions >= 3)                score += 0.6;
+    else if (s.repetitions >= 1)                score += 0.3;
+  }
+  const pct      = total > 0 ? Math.round((score / total) * 100) : 0;
+  const mastEl   = document.getElementById('dash-mastery-pct');
+  const ringFill = document.getElementById('dash-ring-fill');
+  if (mastEl)   mastEl.textContent = pct + '%';
+  // Stitch: r=88, circumference=552.92
+  if (ringFill) ringFill.style.strokeDashoffset = (552.92 * (1 - pct / 100)).toFixed(2);
+
+  const streakValEl = document.getElementById('stat-streak-val');
+  if (streakValEl) streakValEl.textContent = STATS.currentStreak || 0;
+
+  const pipsEl = document.getElementById('dash-streak-pips');
+  if (pipsEl) {
+    const t = today();
+    let html = '';
+    for (let i = 6; i >= 0; i--) {
+      const d  = new Date(new Date(t + 'T12:00:00').getTime() - i * 86400000);
+      const ds = d.toISOString().slice(0, 10);
+      const on = STATS.dailyLog && STATS.dailyLog[ds] && (STATS.dailyLog[ds].total || 0) > 0;
+      html += `<div class="streak-pip${on ? ' active' : ''}"></div>`;
+    }
+    pipsEl.innerHTML = html;
+  }
+
+  const barsEl = document.getElementById('dash-weekly-bars');
+  if (barsEl) {
+    if (!HISTORY || HISTORY.length === 0) {
+      barsEl.innerHTML = '<span style="font-size:.73rem;color:var(--text-muted);align-self:center">No sessions yet</span>';
+    } else {
+      const recent = HISTORY.slice(-7);
+      const padded = Array(Math.max(0, 7 - recent.length)).fill(null).concat(recent);
+      barsEl.innerHTML = padded.map(h => {
+        if (!h) return '<div class="wbm-bar empty" style="height:4px"></div>';
+        const cls = h.pct >= 80 ? 'good' : h.pct >= 50 ? 'ok' : 'bad';
+        const px  = Math.max(4, Math.round(h.pct * 0.4));
+        return `<div class="wbm-bar ${cls}" style="height:${px}px" title="${h.date}: ${h.pct}%"></div>`;
+      }).join('');
+    }
+  }
+}
+
+// ── Drill Functions ───────────────────────────────────────────
+let _lastMissedIds = [];
+
+function drillMissed() {
+  const queue = _lastMissedIds.map(id => WORDS.find(w => w.id === id)).filter(Boolean);
+  if (!queue.length) return;
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(queue.map(w => w.id)),
+    mcMode: new Set(), hintTimers: [], clozeTarget: null, microDrillCount: {}
+  };
+  clearCrash();
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+
+function drillWeak() {
+  const drillMed      = SETTINGS.calibrationDone ? (SETTINGS.medianResponseMs || 7000) : null;
+  const drillHesitant = (s) => drillMed && s.lapses === 0 && s.repetitions >= 2
+                               && s.avgResponseMs > drillMed * 1.8 && !s.isLeech && !s.isFragile;
+  const seen  = WORDS.filter(w => SRS[w.id] && !SRS[w.id].isNew);
+  const queue = seen
+    .map(w => ({ w, s: SRS[w.id] }))
+    .filter(({s,w}) => s.lapses > 0 || (w.gender && s.articleDrills >= 2) || drillHesitant(s))
+    .sort((a,b) => {
+      const pa = a.s.isLeech ? 4 : a.s.isFragile ? 3 : a.s.lapses > 0 ? 2 : 1;
+      const pb = b.s.isLeech ? 4 : b.s.isFragile ? 3 : b.s.lapses > 0 ? 2 : 1;
+      if (pb !== pa) return pb - pa;
+      return (b.s.lapses - a.s.lapses) || (a.s.easeFactor - b.s.easeFactor);
+    })
+    .slice(0, 15)
+    .map(({w}) => w);
+  if (queue.length === 0) { alert('No weak words yet — keep practicing!'); return; }
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(queue.map(w=>w.id)),
+    mcMode: new Set(), hintTimers: [], clozeTarget: null, microDrillCount: {}
+  };
+  clearCrash();
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+
+function drillArticles() {
+  const queue = WORDS
+    .filter(w => w.gender && SRS[w.id] && SRS[w.id].articleDrills >= 2)
+    .sort((a,b) => (SRS[b.id].articleDrills||0) - (SRS[a.id].articleDrills||0))
+    .slice(0, 8);
+  if (!queue.length) { alert('No article trouble words yet — keep practicing!'); return; }
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(queue.map(w=>w.id)),
+    mcMode: new Set(), hintTimers: [], clozeTarget: null, microDrillCount: {}
+  };
+  clearCrash();
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+
+// ── Settings ──────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function saveSettings() {
+  SETTINGS.dailyCap      = parseInt(document.getElementById('s-cap').value)||80;
+  SETTINGS.sessionMinutes= parseInt(document.getElementById('s-mins').value)||7;
+  persist(); closeModal('settings'); refreshHome();
+}
+function confirmReset() {
+  if (confirm('This will erase ALL progress. Cannot be undone.')) {
+    Object.values(LS).forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});
+    SRS={}; STATS=dfStats(); SETTINGS=dfSettings();
+    closeModal('settings'); refreshHome();
+  }
+}
+
+// ── Export / Import ───────────────────────────────────────────
+function exportData() {
+  const d={ srs:SRS, stats:STATS, settings:SETTINGS,
+            exportDate:new Date().toISOString(), version:2, wordCount:WORDS.length,
+            contentSchemaVersion:CONTENT_SCHEMA_VERSION };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
+  a.download = `deutsch-b1-${today()}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importData() {
+  const f = document.getElementById('import-file').files[0];
+  if (!f) { alert('Select a file first.'); return; }
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!d.version || d.version < 2) { alert('Backup is too old (version < 2). Cannot import.'); return; }
+      if (!d.srs || typeof d.srs !== 'object') { alert('Invalid backup: missing SRS data.'); return; }
+      if (!d.stats || !d.settings) { alert('Invalid backup: missing stats or settings.'); return; }
+      const reqFields = ['interval','easeFactor','repetitions','lapses','isNew'];
+      const srsIds = Object.keys(d.srs);
+      if (srsIds.length > 0) {
+        const sample = d.srs[srsIds[0]];
+        if (!reqFields.every(f => f in sample)) { alert('Invalid backup: SRS data is malformed.'); return; }
+      }
+      SRS=d.srs; STATS=d.stats; SETTINGS=d.settings;
+      persist(); closeModal('backup'); refreshHome(); alert('Progress restored!');
+    } catch { alert('Could not parse file.'); }
+  };
+  r.readAsText(f);
+}
+
+// ── Passive crash save on tab hide / page unload ──────────────
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveCrash(); });
+window.addEventListener('pagehide', saveCrash);
+
+/* ── Dark Mode ── */
+const LS_THEME = 'gvt_theme';
+
+function applyTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  document.body.classList.toggle('dark', dark);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = dark ? 'light_mode' : 'dark_mode';
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.contains('dark');
+  const next   = !isDark;
+  applyTheme(next);
+  try { localStorage.setItem(LS_THEME, next ? 'dark' : 'light'); } catch(e) {}
+}
+
+/* ── A3: renderTopBar / renderBottomNav helpers ── */
+function renderTopBar({ title = 'Session', showBack = true, right = '' } = {}) {
+  const back = showBack
+    ? `<button class="s-end-btn" style="padding:0;font-size:1.1rem;display:flex;align-items:center" onclick="endEarly()">
+         <span class="material-symbols-outlined" style="font-size:1.2rem">arrow_back</span>
+       </button>`
+    : '';
+  return `
+    <div class="app-header">
+      <div class="app-header-left">
+        ${back}
+        <span class="app-header-title">${title}</span>
+      </div>
+      <div class="app-header-right">${right}</div>
+    </div>
+    <div class="s-top-bar"><div class="fill" id="s-bar" style="width:0%"></div></div>`;
+}
+
+function renderBottomNav(activeTab = 'dashboard') {
+  const tabs = [
+    { id:'dashboard', icon:'dashboard',     label:'Dashboard' },
+    { id:'lexicon',   icon:'menu_book',      label:'Lexicon'   },
+    { id:'practice',  icon:'fitness_center', label:'Practice'  },
+    { id:'progress',  icon:'bar_chart',      label:'Progress'  },
+  ];
+  const items = tabs.map(t => `
+    <a class="nav-item${t.id === activeTab ? ' active' : ''}" href="#" onclick="navTo('${t.id}');return false">
+      <span class="material-symbols-outlined nav-icon">${t.icon}</span>
+      <span class="nav-label">${t.label}</span>
+    </a>`).join('');
+  return `<nav class="app-nav">${items}</nav>`;
+}
+
+// Nav router
+function navTo(tab) {
+  if (tab === 'dashboard') { gotoHome(); return; }
+  if (tab === 'lexicon')   { showScreen('lexicon'); const si=document.getElementById('lex-search'); if(si) si.value=''; renderLexicon(); return; }
+  if (tab === 'grammar')   { showScreen('grammar'); return; }
+  if (tab === 'progress')  { showScreen('grammar'); return; }
+  if (tab === 'practice')  { showScreen('practice'); return; }
+}
+
+/* ── D1: Hint Bottom Sheet ── */
+function openHintSheet(wordId) {
+  const word = WORDS.find(w => w.id === wordId);
+  if (!word) return;
+  const badge = word.gender
+    ? `<span class="gbadge ${gClass(word.gender)}" style="font-size:.7rem">${gLabel(word.gender)}</span>` : '';
+  const wordColor = word.gender === 'm' ? 'var(--blue)'
+                  : word.gender === 'f' ? 'var(--pink)'
+                  : word.gender === 'n' ? 'var(--cyan)' : 'var(--text)';
+  /* Stitch hint: Grammar Note card + Vocabulary Tip (etymology) card */
+  const ex0 = word.examples[0];
+  const grammarNoteCard = ex0 ? `
+    <div class="hint-section">
+      <div style="background:var(--surface);border-radius:10px;padding:14px 16px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="padding:6px;background:rgba(72,96,126,.1);border-radius:8px;color:var(--blue);flex-shrink:0">
+            <span class="material-symbols-outlined" style="font-size:1rem">menu_book</span>
+          </div>
+          <div>
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:.88rem;color:var(--text);margin-bottom:8px">Grammar Note</div>
+            <div style="background:var(--card);border-radius:7px;padding:10px 13px;border-left:3px solid var(--blue)">
+              <div style="font-size:.78rem;color:var(--text);font-weight:600;margin-bottom:4px">${ex0.grammar}</div>
+            </div>
+            <div class="hint-ex" style="margin-top:8px;margin-bottom:0">
+              <div class="hint-ex-de">${hlWord(ex0.de, word.de)}</div>
+              <div class="hint-ex-en">${ex0.en}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>` : '';
+
+  const vocabTipCard = word.hint ? `
+    <div class="hint-section">
+      <div style="background:var(--surface);border-radius:10px;padding:14px 16px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="padding:6px;background:rgba(65,65,65,.06);border-radius:8px;color:var(--text-dim);flex-shrink:0">
+            <span class="material-symbols-outlined" style="font-size:1rem">lightbulb</span>
+          </div>
+          <div>
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:.88rem;color:var(--text);margin-bottom:8px">Vocabulary Tip</div>
+            <div class="hint-etymology">${word.hint}</div>
+          </div>
+        </div>
+      </div>
+    </div>` : '';
+
+  document.getElementById('hint-body').innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:6px">Lexical Insight</div>
+      <div class="hint-word-row">
+        <span class="hint-word" style="color:${wordColor}">${word.de}${badge}</span>
+      </div>
+      <div class="hint-trans" style="margin-top:3px">${word.en}</div>
+    </div>
+    ${grammarNoteCard}
+    ${vocabTipCard}
+    <button class="btn btn-secondary hint-close-btn" onclick="closeHintSheet()" style="margin-top:6px">Back to Quiz</button>
+  `;
+  document.getElementById('hint-backdrop').classList.add('open');
+  document.getElementById('hint-sheet').classList.add('open');
+}
+
+function closeHintSheet() {
+  document.getElementById('hint-backdrop').classList.remove('open');
+  document.getElementById('hint-sheet').classList.remove('open');
+}
+
+/* ── D3: Lexicon ── */
+function renderLexicon(filter) {
+  const q = (filter || '').toLowerCase().trim();
+  const words = q
+    ? WORDS.filter(w => w.de.toLowerCase().includes(q) || w.en.toLowerCase().includes(q)
+                     || (w.cat && w.cat.toLowerCase().includes(q))
+                     || (w.topic && w.topic.toLowerCase().includes(q))
+                     || (w.frequencyBand && w.frequencyBand.toLowerCase().includes(q))
+                     || (w.tags && w.tags.some(tag => String(tag).toLowerCase().includes(q))))
+    : [...WORDS];
+  const el    = document.getElementById('lex-list');
+  const cntEl = document.getElementById('lex-count');
+  const topEl = document.getElementById('lex-count-top');
+  if (!el) return;
+  if (cntEl) cntEl.textContent = `${words.length} of ${WORDS.length} words`;
+  if (topEl) topEl.textContent = q ? `${words.length}/${WORDS.length}` : `${WORDS.length} words`;
+  if (!words.length) {
+    el.innerHTML = '<div class="lex-empty">No words found</div>';
+    return;
+  }
+  const t = today();
+  el.innerHTML = words.map(w => {
+    const s      = SRS[w.id];
+    const isNew  = !s || s.isNew;
+    const badge  = w.gender
+      ? `<span class="gbadge ${gClass(w.gender)}" style="font-size:.65rem;padding:1px 6px">${gLabel(w.gender)}</span>` : '';
+    let mastPct = 0;
+    if (!isNew && s) {
+      if (s.interval >= 21 && s.repetitions >= 5) mastPct = 100;
+      else if (s.repetitions >= 3) mastPct = 60;
+      else if (s.repetitions >= 1) mastPct = 30;
+    }
+    const fillColor = mastPct >= 100 ? 'var(--green)' : mastPct >= 60 ? 'var(--blue)'
+                    : mastPct > 0 ? 'var(--orange)' : 'var(--surface)';
+    const dueStr = isNew ? 'New'
+                 : (s && s.dueDate) ? (s.dueDate <= t ? 'Due' : s.dueDate) : '—';
+    return `<div class="lex-card${isNew?' is-new':''}" onclick="openHintSheet(${w.id})">
+      <div class="lex-card-left">
+        <div class="lex-de">${w.de}${badge}</div>
+        <div class="lex-en">${w.en}</div>
+      </div>
+      <div class="lex-card-right">
+        <div class="lex-mastery-bar">
+          <div class="lex-mastery-fill" style="width:${mastPct}%;background:${fillColor}"></div>
+        </div>
+        <div class="lex-mastery-pct">${mastPct}%</div>
+        <div class="lex-due">${dueStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterLexicon(val) { renderLexicon(val); }
+
+// ── Init ──────────────────────────────────────────────────────
+(function() {
+  try {
+    const saved = localStorage.getItem(LS_THEME);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved ? saved === 'dark' : prefersDark);
+  } catch(e) {}
+})();
+
+document.getElementById('s-cap').value  = SETTINGS.dailyCap||80;
+document.getElementById('s-mins').value = SETTINGS.sessionMinutes||7;
+refreshHome();
+</script>
+</body>
+</html>

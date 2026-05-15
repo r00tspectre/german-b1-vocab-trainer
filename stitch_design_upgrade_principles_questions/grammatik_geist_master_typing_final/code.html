@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Grammatik Geist - Practice Session</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "tertiary-fixed-dim": "#ffb3ac",
+                "on-tertiary": "#ffffff",
+                "on-secondary-fixed": "#001c37",
+                "tertiary-fixed": "#ffdad6",
+                "surface": "#f9f9f9",
+                "on-tertiary-fixed-variant": "#72342f",
+                "on-error": "#ffffff",
+                "on-secondary-fixed-variant": "#304865",
+                "surface-container": "#eeeeee",
+                "surface-bright": "#f9f9f9",
+                "on-primary-fixed": "#1c1b1b",
+                "on-primary-container": "#d1cece",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed-variant": "#474746",
+                "surface-variant": "#e2e2e2",
+                "on-primary": "#ffffff",
+                "tertiary-container": "#884540",
+                "secondary": "#48607e",
+                "primary-container": "#595858",
+                "error": "#ba1a1a",
+                "surface-container-high": "#e8e8e8",
+                "on-secondary-container": "#49617f",
+                "primary": "#414141",
+                "secondary-container": "#c3dcff",
+                "outline": "#737780",
+                "primary-fixed": "#e5e2e1",
+                "inverse-on-surface": "#f0f1f1",
+                "background": "#f9f9f9",
+                "error-container": "#ffdad6",
+                "primary-fixed-dim": "#c8c6c5",
+                "surface-dim": "#dadada",
+                "surface-container-low": "#f3f3f3",
+                "surface-container-highest": "#e2e2e2",
+                "on-tertiary-container": "#ffc0ba",
+                "inverse-surface": "#2f3131",
+                "tertiary": "#6b2e2a",
+                "surface-tint": "#5f5e5e",
+                "secondary-fixed": "#d2e4ff",
+                "inverse-primary": "#c8c6c5",
+                "outline-variant": "#c2c6d1",
+                "on-tertiary-fixed": "#3a0908",
+                "on-secondary": "#ffffff",
+                "secondary-fixed-dim": "#b0c8eb",
+                "on-error-container": "#93000a",
+                "on-background": "#1a1c1c",
+                "on-surface": "#1a1c1c",
+                "on-surface-variant": "#42474f"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            from, to { border-color: transparent; }
+            50% { border-color: #414141; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#f9f9f9]/80 dark:bg-[#1A1C1C]/80 backdrop-blur-md">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-3xl mx-auto">
+<div class="flex items-center gap-4">
+<button class="scale-95 active:scale-90 transition-transform text-[#414141] dark:text-[#f9f9f9]">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-['Manrope'] font-semibold tracking-tight text-[#414141] dark:text-[#f9f9f9]">Session</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-['Manrope'] font-bold text-lg text-[#414141] dark:text-[#f9f9f9]">05:00</span>
+</div>
+</div>
+</header>
+<main class="min-h-screen pt-16 pb-24 flex flex-col items-center justify-center px-6">
+<!-- Mastery Card Container -->
+<div class="w-full max-w-xl space-y-12">
+<!-- Progress Indicator -->
+<div class="w-full h-1 bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+<!-- Focus Area: Typing / Recall -->
+<div class="text-center space-y-8 py-12">
+<div class="space-y-2">
+<p class="text-on-surface-variant font-medium tracking-widest uppercase text-xs">Recall Prompt</p>
+<h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface">
+                        The Experience
+                    </h2>
+</div>
+<div class="relative max-w-sm mx-auto mt-12">
+<input autofocus="" class="w-full bg-transparent border-0 border-b-2 border-primary focus:ring-0 text-3xl font-headline font-bold text-center placeholder:text-surface-variant text-on-surface p-2" placeholder="" type="text"/>
+<!-- Visual Cursor for UI Fidelity -->
+<div class="absolute bottom-3 right-1/2 translate-x-12 w-0.5 h-8 bg-primary cursor-blink hidden"></div>
+</div>
+<!-- Custom Umlaut Row -->
+<div class="flex justify-center gap-3 pt-4">
+<button class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors font-headline font-semibold text-xl text-primary border border-outline-variant/10">ä</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors font-headline font-semibold text-xl text-primary border border-outline-variant/10">ö</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors font-headline font-semibold text-xl text-primary border border-outline-variant/10">ü</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors font-headline font-semibold text-xl text-primary border border-outline-variant/10">ß</button>
+</div>
+</div>
+<!-- Grammar Note Card -->
+<a class="block bg-surface-container-lowest rounded-2xl p-8 border border-outline-variant/15 flex flex-col md:flex-row gap-6 items-start hover:bg-surface-container-low transition-colors" href="{{DATA:SCREEN:SCREEN_16}}">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary">lightbulb</span>
+</div>
+<div class="space-y-2 text-left">
+<h3 class="font-headline font-bold text-on-secondary-container text-lg">Grammatik Geist Hint</h3>
+<p class="text-on-surface-variant leading-relaxed font-body">
+                        The noun <span class="font-bold italic text-tertiary">Erfahrung</span> is feminine (die). Ensure your article agreement matches the gender for abstract concepts.
+                    </p>
+</div>
+</a>
+<!-- Primary Action -->
+<div class="flex flex-col items-center pt-8">
+<a class="w-full md:w-64 py-4 px-8 bg-primary text-on-primary rounded-lg font-headline font-bold text-lg hover:opacity-90 transition-all active:scale-95 flex items-center justify-center" href="{{DATA:SCREEN:SCREEN_54}}">
+                    Check Answer
+                </a>
+<p class="mt-4 text-on-surface-variant text-sm font-medium tracking-tight">Press Enter to skip</p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-[#f9f9f9] dark:bg-[#1A1C1C] border-t border-[#414141]/5">
+<a class="flex flex-col items-center justify-center text-[#42474F] dark:text-[#C4C7C5] opacity-50 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#42474F] dark:text-[#C4C7C5] opacity-50 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Lexicon</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#414141] dark:text-[#f9f9f9] font-bold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#42474F] dark:text-[#C4C7C5] opacity-50 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Progress</span>
+</a>
+</nav>
+</body></html>

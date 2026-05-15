@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb3ac",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#001c37",
+                        "tertiary-fixed": "#ffdad6",
+                        "surface": "#f9f9f9",
+                        "on-tertiary-fixed-variant": "#72342f",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#304865",
+                        "surface-container": "#eeeeee",
+                        "surface-bright": "#f9f9f9",
+                        "on-primary-fixed": "#1c1b1b",
+                        "on-primary-container": "#d1cece",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474746",
+                        "surface-variant": "#e2e2e2",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#884540",
+                        "secondary": "#48607e",
+                        "primary-container": "#595858",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e8e8",
+                        "on-secondary-container": "#49617f",
+                        "primary": "#414141",
+                        "secondary-container": "#c3dcff",
+                        "outline": "#737780",
+                        "primary-fixed": "#e5e2e1",
+                        "inverse-on-surface": "#f0f1f1",
+                        "background": "#f9f9f9",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "surface-dim": "#dadada",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-tertiary-container": "#ffc0ba",
+                        "inverse-surface": "#2f3131",
+                        "tertiary": "#6b2e2a",
+                        "surface-tint": "#5f5e5e",
+                        "secondary-fixed": "#d2e4ff",
+                        "inverse-primary": "#c8c6c5",
+                        "outline-variant": "#c2c6d1",
+                        "on-tertiary-fixed": "#3a0908",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#b0c8eb",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1a1c1c",
+                        "on-surface": "#1a1c1c",
+                        "on-surface-variant": "#42474f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-green-tint {
+            background-color: #f9f9f9;
+            background-image: radial-gradient(at 0% 0%, rgba(76, 175, 80, 0.03) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(76, 175, 80, 0.02) 0px, transparent 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body text-on-surface bg-green-tint min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 h-16 w-full bg-[#f9f9f9]/80 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#414141] hover:opacity-70 transition-opacity scale-95 active:scale-90 transition-transform">arrow_back</button>
+<h1 class="font-headline font-semibold tracking-tight text-[#414141]">Session</h1>
+</div>
+<div class="flex items-center">
+<span class="font-headline font-semibold tracking-tight text-[#414141]">05:00</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center px-6 pt-16 pb-24 max-w-2xl mx-auto w-full">
+<!-- Feedback Header -->
+<div class="w-full text-center mb-12">
+<span class="font-headline text-[0.75rem] uppercase tracking-[0.2em] text-on-surface-variant opacity-60">Status</span>
+<h2 class="font-headline text-4xl font-extrabold tracking-tight text-primary mt-2">Richtig!</h2>
+</div>
+<!-- Vocabulary Card -->
+<div class="w-full bg-surface-container-lowest rounded-2xl p-12 flex flex-col items-center justify-center shadow-[0px_20px_40px_rgba(26,28,28,0.04)] mb-12">
+<span class="font-label text-sm text-on-secondary-container bg-secondary-container/30 px-3 py-1 rounded-full mb-6">Neuter</span>
+<div class="text-center">
+<h3 class="font-headline text-5xl font-bold text-primary tracking-tight">das Erlebnis</h3>
+<p class="font-body text-lg text-on-surface-variant mt-8 opacity-70 italic">The experience</p>
+</div>
+</div>
+<!-- SM-2+ Interval Buttons -->
+<div class="w-full grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+<!-- Again -->
+<button class="group flex flex-col items-center justify-center p-5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-200 scale-98 active:scale-95" onclick="location.href='{{DATA:SCREEN:SCREEN_27}}'">
+<span class="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Again</span>
+<span class="font-headline text-lg font-bold text-primary">1m</span>
+</button>
+<!-- Hard -->
+<button class="group flex flex-col items-center justify-center p-5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-200 scale-98 active:scale-95" onclick="location.href='{{DATA:SCREEN:SCREEN_27}}'">
+<span class="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Hard</span>
+<span class="font-headline text-lg font-bold text-primary">1d</span>
+</button>
+<!-- Good -->
+<button class="group flex flex-col items-center justify-center p-5 rounded-xl bg-primary text-on-primary transition-all duration-200 scale-100 active:scale-95 shadow-lg shadow-primary/10" onclick="location.href='{{DATA:SCREEN:SCREEN_27}}'">
+<span class="font-headline text-[10px] uppercase tracking-widest text-on-primary/60 mb-1">Good</span>
+<span class="font-headline text-lg font-bold">4d</span>
+</button>
+<!-- Easy -->
+<button class="group flex flex-col items-center justify-center p-5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-200 scale-98 active:scale-95" onclick="location.href='{{DATA:SCREEN:SCREEN_27}}'">
+<span class="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Easy</span>
+<span class="font-headline text-lg font-bold text-primary">7d</span>
+</button>
+</div>
+<!-- Primary Action -->
+<button class="w-full md:w-auto md:min-w-[240px] h-16 bg-primary text-on-primary font-headline font-bold rounded-xl flex items-center justify-center gap-3 px-8 hover:opacity-90 transition-all scale-98 active:scale-95" onclick="location.href='{{DATA:SCREEN:SCREEN_27}}'">
+            Next Exercise
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</main>
+<!-- BottomNavBar (Suppressed for focused task execution as per rule: Task-Focused sub-page) -->
+<!-- The BottomNavBar is visually hidden here because the user is in an active feedback/transactional state -->
+</body></html>
