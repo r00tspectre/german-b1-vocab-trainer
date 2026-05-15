@@ -857,6 +857,61 @@ h1, h2, h3,
   opacity:0; transition:opacity .3s ease, transform .3s ease;
 }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+/* ── Grammar Concept Picker ───────────────────────── */
+.gram-picker-backdrop {
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:900;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.gram-picker-backdrop.open{opacity:1;pointer-events:auto;}
+.gram-picker-sheet {
+  position:fixed;bottom:0;left:0;right:0;z-index:901;
+  background:var(--card-bg);border-radius:20px 20px 0 0;
+  padding:8px 20px 40px;max-height:70vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 -4px 32px rgba(0,0,0,.15);
+}
+.gram-picker-sheet.open{transform:translateY(0);}
+.gram-picker-title {
+  font-size:.82rem;font-weight:700;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:.08em;padding:16px 0 14px;
+}
+.gram-concept-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.gram-concept-chip {
+  background:var(--surface);border:1.5px solid var(--border);border-radius:20px;
+  padding:9px 16px;font-size:.84rem;font-weight:600;color:var(--text);
+  cursor:pointer;transition:background .15s,color .15s,border-color .15s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.gram-concept-chip:hover,.gram-concept-chip:active{
+  background:var(--accent);color:#fff;border-color:var(--accent);
+}
+.gram-concept-chip .gcc-count{font-size:.7rem;color:var(--text-dim);font-weight:400;}
+.gram-concept-chip:hover .gcc-count,.gram-concept-chip:active .gcc-count{color:rgba(255,255,255,.72);}
+
+/* ── Exam mode per-card countdown ────────────────── */
+.exam-countdown-wrap{
+  height:6px;background:var(--border);margin:0;overflow:hidden;
+}
+.exam-countdown-fill{
+  height:100%;background:linear-gradient(90deg,var(--green),#c8a02a,var(--red));
+  transition:width .1s linear;
+}
+/* ── Exam results readiness panel ───────────────── */
+.exam-readiness-panel{
+  background:var(--tint-info-bg);border:1.5px solid var(--tint-info-bd);
+  border-radius:var(--radius-sm);padding:16px;margin-top:16px;
+}
+.exam-readiness-panel .erp-score{
+  font-size:2rem;font-weight:800;text-align:center;line-height:1;
+}
+.exam-readiness-panel .erp-label{
+  font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--text-dim);text-align:center;margin-top:4px;font-weight:700;
+}
+.exam-readiness-panel .erp-badge{
+  display:inline-block;padding:4px 14px;border-radius:20px;font-size:.78rem;
+  font-weight:700;margin:10px auto 0;display:block;text-align:center;
+}
 </style>
 </head>
 <body>
@@ -1278,6 +1333,26 @@ h1, h2, h3,
             <span class="practice-count-label">weak</span>
           </span>
         </button>
+
+        <button class="practice-card" onclick="openGrammarPicker()">
+          <span class="practice-icon"><span class="material-symbols-outlined">spellcheck</span></span>
+          <span class="practice-copy">
+            <span class="practice-card-title">Grammar Focus</span>
+            <span class="practice-card-meta">Drill by concept — dative, passive, separable verbs…</span>
+          </span>
+          <span>
+            <span class="practice-count" id="practice-grammar-count">9</span>
+            <span class="practice-count-label">topics</span>
+          </span>
+        </button>
+
+        <button class="practice-card" onclick="startExamMode()">
+          <span class="practice-icon"><span class="material-symbols-outlined">timer</span></span>
+          <span class="practice-copy">
+            <span class="practice-card-title">Exam Readiness</span>
+            <span class="practice-card-meta">Timed · 20 questions · no hints. Get your readiness score.</span>
+          </span>
+        </button>
       </div>
     </div>
 
@@ -1424,6 +1499,14 @@ h1, h2, h3,
 
 
 </div><!-- .app -->
+
+<!-- ══════════ GRAMMAR CONCEPT PICKER ══════════ -->
+<div id="gram-picker-backdrop" class="gram-picker-backdrop" onclick="closeGrammarPicker()"></div>
+<div id="gram-picker-sheet" class="gram-picker-sheet">
+  <div class="hint-drag"></div>
+  <div class="gram-picker-title">Choose a grammar focus</div>
+  <div class="gram-concept-grid" id="gram-concept-grid"></div>
+</div>
 
 <!-- ══════════ HINT BOTTOM SHEET ══════════ -->
 <div id="hint-backdrop" class="hint-backdrop" onclick="closeHintSheet()"></div>
@@ -50241,6 +50324,196 @@ function filterLexicon(val) { renderLexicon(val); }
 document.getElementById('s-cap').value  = SETTINGS.dailyCap||80;
 document.getElementById('s-mins').value = SETTINGS.sessionMinutes||7;
 refreshHome();
+
+// ══════════════════════════════════════════════════════════
+// PHASE 10 — Grammar Focus Drill
+// ══════════════════════════════════════════════════════════
+
+const GRAMMAR_PATTERNS = {
+  'Dative':            /\bdative\b|\bdat\b|\bdat:/i,
+  'Accusative':        /\baccusative\b|\bacc\b|\bacc:/i,
+  'Nominative':        /\bnominative\b|\bnom\b|\bnom:/i,
+  'Genitive':          /\bgenitive\b|\bgen\b|\bgen:/i,
+  'Passive Voice':     /\bpassive\b/i,
+  'Modal Verbs':       /\bmodal\b/i,
+  'Separable Verbs':   /\bseparable\b/i,
+  'Reflexive':         /\breflexive\b/i,
+  'Konjunktiv II':     /\bkonjunktiv\b/i,
+  'Infinitive Clause': /\binfinitive\s+clause\b|\bum\.{3}zu\b/i,
+  'Comparative':       /\bcomparative\b|\bsuperlative\b/i,
+  'Temporal Clause':   /\btemporal\b/i
+};
+
+function grammarConceptWords(pattern) {
+  return WORDS.filter(w =>
+    w.examples && w.examples.some(ex => ex.grammar && pattern.test(ex.grammar))
+  );
+}
+
+function openGrammarPicker() {
+  const grid = document.getElementById('gram-concept-grid');
+  grid.innerHTML = '';
+  Object.entries(GRAMMAR_PATTERNS).forEach(([name, pattern]) => {
+    const matches = grammarConceptWords(pattern);
+    if (!matches.length) return;
+    const chip = document.createElement('button');
+    chip.className = 'gram-concept-chip';
+    chip.innerHTML = name + ' <span class="gcc-count">(' + matches.length + ')</span>';
+    chip.onclick = () => { closeGrammarPicker(); drillGrammarConcept(name, pattern); };
+    grid.appendChild(chip);
+  });
+  document.getElementById('gram-picker-backdrop').classList.add('open');
+  document.getElementById('gram-picker-sheet').classList.add('open');
+}
+
+function closeGrammarPicker() {
+  document.getElementById('gram-picker-backdrop').classList.remove('open');
+  document.getElementById('gram-picker-sheet').classList.remove('open');
+}
+
+function drillGrammarConcept(name, pattern) {
+  const matches = grammarConceptWords(pattern);
+  if (!matches.length) { alert('No words for this concept!'); return; }
+  const unlocked = new Set(getUnlockedWords().map(w => w.id));
+  const sorted = [
+    ...matches.filter(w => unlocked.has(w.id)).sort(() => Math.random() - 0.5),
+    ...matches.filter(w => !unlocked.has(w.id)).sort(() => Math.random() - 0.5)
+  ];
+  const queue = sorted.slice(0, 20);
+  SESSION = {
+    queue, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(queue.map(w => w.id)),
+    mcMode: new Set(), hintTimers:[], clozeTarget:null, microDrillCount:{},
+    gradedIndices: new Set(),
+    sessionMode:'grammar', grammarFocus: name, userChoseFinish:false, timeBannerShown:false
+  };
+  clearCrash();
+  document.querySelectorAll('.s-topbar-title').forEach(el => el.textContent = name + ' Drill');
+  showScreen('session');
+  startTimer();
+  showCard();
+}
+
+// ══════════════════════════════════════════════════════════
+// PHASE 12 — Exam Readiness Mode
+// ══════════════════════════════════════════════════════════
+
+const EXAM_CARD_SECS = 15;
+let _examTimerInterval = null;
+
+function startExamMode() {
+  const bandRank = {exam_topic:3, goethe_b1:2, high_daily:1, core_daily:0};
+  const pool = getUnlockedWords()
+    .filter(w => SRS[w.id] && !SRS[w.id].isNew)
+    .sort((a,b) => (bandRank[b.frequencyBand]||0) - (bandRank[a.frequencyBand]||0));
+
+  if (pool.length < 5) {
+    alert('Study more words first — you need at least 5 seen words for Exam Mode!');
+    return;
+  }
+
+  // Top 40 by band rank, then shuffle and take 20
+  const examWords = pool.slice(0, 40).sort(() => Math.random() - 0.5).slice(0, 20);
+
+  SESSION = {
+    queue: examWords, currentIndex:0, results:[], startTime:Date.now(),
+    timerInterval:null, cardStartTime:null,
+    correctInSession:0, newWordsInSession:0, timeReached:false, awaitingNext:false,
+    introduced: new Set(examWords.map(w => w.id)),
+    mcMode: new Set(), hintTimers:[], clozeTarget:null, microDrillCount:{},
+    gradedIndices: new Set(),
+    sessionMode:'exam', userChoseFinish:false, timeBannerShown:false
+  };
+  clearCrash();
+  document.querySelectorAll('.s-topbar-title').forEach(el => el.textContent = 'Exam Readiness');
+  showScreen('session');
+  startTimer();
+  // Inject countdown bar into session
+  let cw = document.getElementById('exam-cw');
+  if (!cw) {
+    cw = document.createElement('div');
+    cw.id = 'exam-cw';
+    cw.className = 'exam-countdown-wrap';
+    cw.innerHTML = '<div class="exam-countdown-fill" id="exam-cf" style="width:100%"></div>';
+    const progBar = document.querySelector('#session .s-prog-bar');
+    progBar.insertAdjacentElement('afterend', cw);
+  }
+  cw.style.display = 'block';
+  showCard();
+}
+
+function startExamCardTimer() {
+  stopExamCardTimer();
+  const fill = document.getElementById('exam-cf');
+  if (!fill) return;
+  const end = Date.now() + EXAM_CARD_SECS * 1000;
+  _examTimerInterval = setInterval(() => {
+    const pct = Math.max(0, (end - Date.now()) / (EXAM_CARD_SECS * 1000)) * 100;
+    fill.style.width = pct + '%';
+    if (pct <= 0) {
+      stopExamCardTimer();
+      // auto-submit blank (counts as wrong)
+      const inp = document.getElementById('answer-input');
+      if (inp && !inp.disabled) { inp.value = '\u200b'; checkAnswer(); }
+    }
+  }, 100);
+}
+
+function stopExamCardTimer() {
+  if (_examTimerInterval) { clearInterval(_examTimerInterval); _examTimerInterval = null; }
+  const fill = document.getElementById('exam-cf');
+  if (fill) fill.style.width = '100%';
+}
+
+// Hook exam timer into showCard / checkAnswer
+const _origShowCard = showCard;
+showCard = function() {
+  _origShowCard.apply(this, arguments);
+  if (SESSION.sessionMode === 'exam') {
+    // Remove hint button, remove skip
+    const ar = document.getElementById('action-row');
+    if (ar) ar.innerHTML = '<button class="btn btn-primary" onclick="checkAnswer()">Check</button>';
+    const skip = document.getElementById('skip-btn');
+    if (skip) skip.classList.add('hidden');
+    startExamCardTimer();
+  }
+};
+
+const _origCheckAnswer = checkAnswer;
+checkAnswer = function() {
+  if (SESSION.sessionMode === 'exam') stopExamCardTimer();
+  _origCheckAnswer.apply(this, arguments);
+};
+
+// Append exam readiness panel to results
+const _origEndSession = endSession;
+endSession = function() {
+  const wasExam = SESSION.sessionMode === 'exam';
+  const examTotal = SESSION.queue ? SESSION.queue.length : 0;
+  const examCorrect = SESSION.correctInSession || 0;
+  stopExamCardTimer();
+  const cw = document.getElementById('exam-cw');
+  if (cw) cw.style.display = 'none';
+  _origEndSession.apply(this, arguments);
+  if (wasExam && examTotal > 0) {
+    const pct = Math.round((examCorrect / examTotal) * 100);
+    const readinessLabel = pct >= 85 ? 'Exam Ready 🎓' : pct >= 65 ? 'Nearly There 📚' : 'Keep Studying 📖';
+    const badgeColor = pct >= 85 ? 'var(--green)' : pct >= 65 ? '#b08A3E' : 'var(--red)';
+    const panel = document.createElement('div');
+    panel.className = 'exam-readiness-panel';
+    panel.innerHTML =
+      '<div class="erp-score" style="color:' + badgeColor + '">' + pct + '%</div>' +
+      '<div class="erp-label">Exam Readiness Score</div>' +
+      '<div class="erp-badge" style="background:' + badgeColor + ';color:#fff">' + readinessLabel + '</div>' +
+      '<div style="font-size:.78rem;color:var(--text-dim);margin-top:12px;text-align:center">' +
+        examCorrect + ' / ' + examTotal + ' correct in this readiness test' +
+      '</div>';
+    const missedEl = document.getElementById('res-missed');
+    if (missedEl) missedEl.insertAdjacentElement('beforebegin', panel);
+  }
+};
 </script>
 </body>
 </html>
